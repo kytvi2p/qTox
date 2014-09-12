@@ -18,8 +18,7 @@
 #define SETTINGS_HPP
 
 #include <QHash>
-#include <QMainWindow>
-#include <QSplitter>
+#include <QObject>
 
 class Settings : public QObject
 {
@@ -183,7 +182,7 @@ private:
 
 signals:
     //void dataChanged();
-    void dhtServerListChanged();
+    void dhtServerListChanged(bool reset = false);
     void logStorageOptsChanged();
     void smileyPackChanged();
     void emojiFontChanged();

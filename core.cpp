@@ -20,6 +20,8 @@
 #include "settings.h"
 #include "widget/widget.h"
 
+#include <tox/tox.h>
+
 #include <ctime>
 #include <functional>
 
@@ -28,9 +30,10 @@
 #include <QFile>
 #include <QSaveFile>
 #include <QStandardPaths>
-#include <QtEndian>
 #include <QThread>
-#include <QtConcurrent/QtConcurrent>
+#include <QTimer>
+#include <QCoreApplication>
+#include <QDateTime>
 
 const QString Core::CONFIG_FILE_NAME = "data";
 const QString Core::TOX_EXT = ".tox";
@@ -113,7 +116,12 @@ Core::~Core()
         alcCaptureCloseDevice(alInDev);
 }
 
-void Core::start()
+Core* Core::getInstance()
+{
+    return Widget::getInstance()->getCore();
+}
+
+void Core::get_tox()
 {
     // IPv6 needed for LAN discovery, but can crash some weird routers. On by default, can be disabled in options.
     bool enableIPv6 = Settings::getInstance().getEnableIPv6();
@@ -160,13 +168,18 @@ void Core::start()
         emit failedToStart();
         return;
     }
+}
+
+void Core::start()
+{
+    get_tox();
 
     qsrand(time(nullptr));
 
     // where do we find the data file?
     QString path;
     {   // read data from whose profile?
-        path = Settings::getSettingsDirPath() + '/' + Settings::getInstance().getCurrentProfile() + TOX_EXT;
+        path = Settings::getSettingsDirPath() + QDir::separator() + Settings::getInstance().getCurrentProfile() + TOX_EXT;
         
 #if 1 // deprecation attempt
         // if the last profile doesn't exist, fall back to old "data"
@@ -174,7 +187,7 @@ void Core::start()
         QFile file(path);
         if (!file.exists())
         {
-            path = Settings::getSettingsDirPath() + '/' + CONFIG_FILE_NAME;
+            path = Settings::getSettingsDirPath() + QDir::separator() + CONFIG_FILE_NAME;
         }
 #endif
     }
@@ -400,6 +413,14 @@ void Core::onFileControlCallback(Tox* tox, int32_t friendnumber, uint8_t receive
         // confirm receive is complete
         tox_file_send_control(tox, file->friendId, 1, file->fileNum, TOX_FILECONTROL_FINISHED, nullptr, 0);
         removeFileFromQueue((bool)receive_send, file->friendId, file->fileNum);
+    }
+    else if (receive_send == 0 && control_type == TOX_FILECONTROL_ACCEPT)
+    {
+        emit static_cast<Core*>(core)->fileTransferRemotePausedUnpaused(*file, false);
+    }
+    else if ((receive_send == 0 || receive_send == 1) && control_type == TOX_FILECONTROL_PAUSE)
+    {
+        emit static_cast<Core*>(core)->fileTransferRemotePausedUnpaused(*file, true);
     }
     else
     {
@@ -682,6 +703,8 @@ void Core::acceptFileRecvRequest(int friendId, int fileNum, QString path)
 
 void Core::removeFriend(int friendId)
 {
+    if (!tox)
+        return;
     if (tox_del_friend(tox, friendId) == -1) {
         emit failedToRemoveFriend(friendId);
     } else {
@@ -693,15 +716,6 @@ void Core::removeFriend(int friendId)
 void Core::removeGroup(int groupId)
 {
     tox_del_groupchat(tox, groupId);
-}
-
-QString Core::getIDString()
-{
-    uint8_t friendAddress[TOX_FRIEND_ADDRESS_SIZE];
-    tox_get_address(tox, friendAddress);
-    return CFriendAddress::toString(friendAddress).left(12);
-    // 12 is the smallest multiple of four such that
-    // 16^n > 10^10 (which is roughly the planet's population)
 }
 
 QString Core::getUsername()
@@ -725,6 +739,21 @@ void Core::setUsername(const QString& username)
         emit usernameSet(username);
         saveConfiguration();
     }
+}
+
+QString Core::getSelfId()
+{
+    uint8_t friendAddress[TOX_FRIEND_ADDRESS_SIZE];
+    tox_get_address(tox, friendAddress);
+
+    return CFriendAddress::toString(friendAddress);
+}
+
+QString Core::getIDString()
+{
+    return getSelfId().left(12);
+    // 12 is the smallest multiple of four such that
+    // 16^n > 10^10 (which is roughly the planet's population)
 }
 
 QString Core::getStatusMessage()
@@ -784,13 +813,20 @@ void Core::onFileTransferFinished(ToxFile file)
           emit fileDownloadFinished(file.filePath);
 }
 
-void Core::bootstrapDht()
+void Core::bootstrapDht(bool reset)
 {
     const Settings& s = Settings::getInstance();
     QList<Settings::DhtServer> dhtServerList = s.getDhtServerList();
 
     int listSize = dhtServerList.size();
     static int j = qrand() % listSize, n=0;
+
+    if (reset)
+    {
+         n = 0;
+         bootstrapTimer->setInterval(TOX_BOOTSTRAP_INTERVAL);
+         return;
+    }
 
     // We couldn't connect after trying 6 different nodes, let's try something else
     if (n>3)
@@ -806,7 +842,7 @@ void Core::bootstrapDht()
     {
         const Settings::DhtServer& dhtServer = dhtServerList[j % listSize];
         if (tox_bootstrap_from_address(tox, dhtServer.address.toLatin1().data(),
-            qToBigEndian(dhtServer.port), CUserId(dhtServer.userId).data()) == 1)
+            dhtServer.port, CUserId(dhtServer.userId).data()) == 1)
             qDebug() << QString("Core: Bootstraping from ")+dhtServer.name+QString(", addr ")+dhtServer.address.toLatin1().data()
                         +QString(", port ")+QString().setNum(dhtServer.port);
         else
@@ -821,14 +857,17 @@ void Core::bootstrapDht()
 
 void Core::process()
 {
-    tox_do(tox);
+    if (tox)
+    {
+        tox_do(tox);
 #ifdef DEBUG
-    //we want to see the debug messages immediately
-    fflush(stdout);
+        //we want to see the debug messages immediately
+        fflush(stdout);
 #endif
-    checkConnection();
-    //int toxInterval = tox_do_interval(tox);
-    //qDebug() << QString("Tox interval %1").arg(toxInterval);
+        checkConnection();
+        //int toxInterval = tox_do_interval(tox);
+        //qDebug() << QString("Tox interval %1").arg(toxInterval);
+    }
     toxTimer->start(50);
 }
 
@@ -854,7 +893,7 @@ QString Core::sanitize(QString name)
 }
 
 void Core::loadConfiguration(QString path)
-{ // also loadFriends/clearFriends is borked as fuck
+{
     // setting the profile is now the responsibility of the caller
     QFile conf(path);
     qDebug() << "Core::loadConfiguration: reading from " << path;
@@ -909,10 +948,10 @@ void Core::saveConfiguration()
         Settings::getInstance().setCurrentProfile(profile);
     }
     
-    QString path = dir + '/' + profile + TOX_EXT;
+    QString path = dir + QDir::separator() + profile + TOX_EXT;
     QFileInfo info(path);
     if (!info.exists()) // fall back to old school 'data'
-    {   //path = dir + '/' + CONFIG_FILE_NAME;
+    {   //path = dir + QDir::separator() + CONFIG_FILE_NAME;
         qDebug() << path << " does not exist";
     }
     
@@ -946,11 +985,29 @@ void Core::saveConfiguration(const QString& path)
     Settings::getInstance().save();
 }
 
+void Core::switchConfiguration(QString profile)
+{
+    saveConfiguration();
+    
+    if (tox) {
+        toxav_kill(toxav);
+        toxav = nullptr;
+        tox_kill(tox);
+        tox = nullptr;
+    }
+    emit clearFriends();
+    
+    get_tox();
+    bootstrapDht(true); // reset this func
+
+    Settings::getInstance().setCurrentProfile(profile); 
+    loadConfiguration(Settings::getSettingsDirPath() + QDir::separator() + profile + TOX_EXT);
+}
+
 void Core::loadFriends()
 {
     const uint32_t friendCount = tox_count_friendlist(tox);
     if (friendCount > 0) {
-        emit clearFriends();
         // assuming there are not that many friends to fill up the whole stack
         int32_t *ids = new int32_t[friendCount];
         tox_get_friendlist(tox, ids, friendCount);
