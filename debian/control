@@ -1,14 +1,28 @@
 Source: qtox
-Maintainer: John Smith <barrdetwix@gmail.com>
-Section: misc
+Maintainer: Kill Your TV <killyourtv@i2pmail.org>
+Section: net
 Priority: optional
 Standards-Version: 3.9.5
-Build-Depends: debhelper (>= 9), cdbs, qt5-qmake, libopenal-dev, libopencv-dev, libopus-dev, qtbase5-dev, sudo, autoconf, libtool, pkg-config, libvpx-dev
+Homepage: https://github.com/tux3/qTox
+Build-Depends: debhelper (>= 9),
+ dh-exec,
+ qt5-qmake,
+ qtbase5-dev,
+ libopenal-dev,
+ libopencv-dev,
+ libtoxav-dev (>= 0.0.0+20140925.1),
+ libtoxcore-dev (>= 0.0.0+20140925.1)
 
 Package: qtox
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Tox client
- qTox is a powerful Tox client that follows the Tox design guidelines.
  Tox is a decentralized and encrypted replacement for Skype, supporting
  chats, audio, and video calls.
+ .
+ qTox is a graphical Tox client with the following features:
+   - one-to-one chat with friends
+   - group chats
+   - file transfers with image preview
+   - audio calls
+   - video calls
