@@ -42,6 +42,7 @@ public:
     QString getGroupPeerName(int groupId, int peerId) const;
     QList<QString> getGroupPeerNames(int groupId) const;
     QString getFriendAddress(int friendNumber) const;
+    QString getFriendUsername(int friendNumber) const;
     int joinGroupchat(int32_t friendnumber, const uint8_t* friend_group_public_key,uint16_t length) const;
     void quitGroupChat(int groupId) const;
     void dispatchVideoFrame(vpx_image img) const;
@@ -150,6 +151,7 @@ signals:
     void fileTransferPaused(int FriendId, int FileNum, ToxFile::FileDirection direction);
     void fileTransferInfo(int FriendId, int FileNum, int64_t Filesize, int64_t BytesSent, ToxFile::FileDirection direction);
     void fileTransferRemotePausedUnpaused(ToxFile file, bool paused);
+    void fileTransferBrokenUnbroken(ToxFile file, bool broken);
 
     void fileSendFailed(int FriendId, const QString& fname);
 
@@ -206,8 +208,7 @@ private:
     static void playCallVideo(ToxAv* toxav, int32_t callId, vpx_image_t* img, void *user_data);
     void sendCallVideo(int callId);
 
-    void checkConnection();
-    void onBootstrapTimer();
+    bool checkConnection();
 
     void loadConfiguration();
     void loadFriends();
