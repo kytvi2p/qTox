@@ -3,7 +3,7 @@ Maintainer: Kill Your TV <killyourtv@i2pmail.org>
 Section: net
 Priority: optional
 Standards-Version: 3.9.5
-Homepage: https://github.com/tux3/qTox
+Homepage: http://utoxisfinished.info/
 Build-Depends: debhelper (>= 9),
  dh-exec,
  qt5-qmake,
@@ -12,6 +12,8 @@ Build-Depends: debhelper (>= 9),
  libopencv-dev,
  libtoxav-dev (>= 0.0.0+20140925.1),
  libtoxcore-dev (>= 0.0.0+20140925.1)
+Vcs-Git: git://killyourtv.i2p/git/qTox.git
+Vcs-Browser: http://killyourtv.i2p/gitweb/?p=qTox.git;a=shortlog
 
 Package: qtox
 Architecture: any
