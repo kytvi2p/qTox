@@ -1,8 +1,8 @@
-qtox (0.0.0+20140930.1-1ubuntu1) trusty; urgency=medium
+qtox (0.0.0+20141001.1-1) unstable; urgency=medium
 
-  * Upload to PPA
+  * New upstream git snapshot
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 01 Oct 2014 01:26:15 +0000
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 02 Oct 2014 02:52:36 +0000
 
 qtox (0.0.0+20140930.1-1) unstable; urgency=medium
 
