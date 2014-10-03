@@ -1,3 +1,18 @@
+qtox (0.0.0+20141003.1-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * restore bold names in chat
+  * add receive actions (no one to test with currently)
+  * added sending actions, and tested both ways
+
+  [ krepa098 ]
+  * Style: font size doesn't take px suffix, fixes fonts not applying properly
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 03 Oct 2014 01:22:28 +0000
+
 qtox (0.0.0+20141001.1-1) unstable; urgency=medium
 
   * New upstream git snapshot
