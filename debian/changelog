@@ -1,8 +1,12 @@
-qtox (0.0.0+20141003.1-1ubuntu1) trusty; urgency=medium
+qtox (0.0.0+20141003.2-1) unstable; urgency=medium
 
-  * Upload to PPA
+  [ dubslow ]
+  * fix groupchat issue
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 03 Oct 2014 01:36:09 +0000
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 04 Oct 2014 21:45:12 +0000
 
 qtox (0.0.0+20141003.1-1) unstable; urgency=medium
 
