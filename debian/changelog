@@ -1,8 +1,28 @@
-qtox (0.0.0+20141003.2-1ubuntu1) trusty; urgency=medium
+qtox (0.0.0+20141005.1-1) unstable; urgency=medium
 
-  * Upload to PPA
+  [ krepa098 ]
+  * fixed #372
+  * FileTransferInstance: return of the edges
+  * statusPanel: css, cleanup
+  * removed broken custom window decoration
+  * tweak
+  * fixed wrong group status image
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 04 Oct 2014 21:48:08 +0000
+  [ Zetok Zalbavar ]
+  * Change indicator for action messages
+
+  [ krepa098 ]
+  * fixed regression (#334)
+  * cleanup
+  * MaskablePixmapWidget::getPixmap: return the masked pixmap
+  * FileTransferInstance: use correct fontmetrics
+  * Style: tweaked weight
+  * GenericChatForm: use correct fontmetrics
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 05 Oct 2014 17:50:39 +0000
 
 qtox (0.0.0+20141003.2-1) unstable; urgency=medium
 
