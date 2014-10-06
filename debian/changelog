@@ -1,8 +1,55 @@
-qtox (0.0.0+20141005.1-1ubuntu1) trusty; urgency=medium
+qtox (0.0.0+20141006.1-1) unstable; urgency=medium
 
-  * Upload to PPA
+  [ dubslow ]
+  * first thing's first, gotta placate the ocd
+  * initial new settings widget, subforms not started also "filing" some files
+    under misc
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 05 Oct 2014 19:00:45 +0000
+  [ bill ]
+  * move buttons to bottom
+  * new settings infrastructure done, though there's a double free or
+    something in ~Widget()
+
+  [ dubslow ]
+  * cosmetics
+
+  [ Marcel ]
+  * added images
+
+  [ dubslow ]
+  * scaling still isn't quite right...
+  * first thing's first, gotta placate the ocd
+  * initial new settings widget, subforms not started also "filing" some files
+    under misc
+
+  [ bill ]
+  * move buttons to bottom
+  * new settings infrastructure done, though there's a double free or
+    something in ~Widget()
+
+  [ dubslow ]
+  * cosmetics
+  * scaling still isn't quite right...
+  * cleanup
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Compat with toxcore
+
+  [ dubslow ]
+  * Added all current settings except cam test, which segfaults on init...
+  * one frickin stinkin merge error
+  * fix double free
+
+  [ apprb ]
+  * base refactoring
+  * add missed files
+  * small fixes
+  * cosmetic fixes
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 06 Oct 2014 14:09:26 +0000
 
 qtox (0.0.0+20141005.1-1) unstable; urgency=medium
 
