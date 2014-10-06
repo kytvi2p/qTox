@@ -1,3 +1,9 @@
+qtox (0.0.0+20141006.1-1ubuntu1) trusty; urgency=medium
+
+  * Upload to PPA
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 06 Oct 2014 15:05:05 +0000
+
 qtox (0.0.0+20141006.1-1) unstable; urgency=medium
 
   [ dubslow ]
