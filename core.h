@@ -118,7 +118,7 @@ signals:
 
     void emptyGroupCreated(int groupnumber);
     void groupInviteReceived(int friendnumber, const uint8_t *group_public_key,uint16_t length);
-    void groupMessageReceived(int groupnumber, int friendgroupnumber, const QString& message);
+    void groupMessageReceived(int groupnumber, const QString& message, const QString& author);
     void groupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
 
     void usernameSet(const QString& username);
@@ -138,6 +138,7 @@ signals:
     void failedToSetTyping(bool typing);
 
     void failedToStart();
+    void badProxy();
 
     void fileSendStarted(ToxFile file);
     void fileReceiveRequested(ToxFile file);
