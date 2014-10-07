@@ -1,3 +1,28 @@
+qtox (0.0.0+20141007.1~gitf0a825f-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * add Kappa emote
+  * tweak buildPackages
+  * simplify groupchat names, fix #379, more simplification is possible
+  * reduce font size and space between chat lines
+
+  [ apprb ]
+  * relative to system wide default font sizes in css
+
+  [ dubslow ]
+  * Revert "reduce font size and space between chat lines", use #386
+  * reduce space between chat lines
+  * Add proxy support
+  * add tooltip
+
+  [ Ilya87 ]
+  * Update Russian translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 07 Oct 2014 00:16:13 +0000
+
 qtox (0.0.0+20141006.1-1) unstable; urgency=medium
 
   [ dubslow ]
