@@ -1,3 +1,18 @@
+qtox (0.0.0+20141007.2~git39fd7b8-1) unstable; urgency=medium
+
+  [ apprb ]
+  * added "Use Proxy" checkbox
+  * Introduced "Connection Settings" group in GeneralSettings widget
+  * Proxy settings is more close to General group in settings.ini than to Privacy
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 07 Oct 2014 13:27:36 +0000
+
 qtox (0.0.0+20141007.1~gitf0a825f-1) unstable; urgency=medium
 
   [ dubslow ]
