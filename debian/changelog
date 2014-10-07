@@ -1,15 +1,36 @@
-qtox (0.0.0+20141007.2~git39fd7b8-1ubuntu1) trusty; urgency=medium
+qtox (0.0.0+20141007.3~gitaa11caa-1) unstable; urgency=medium
 
-  * Upload to PPA
+  [ apprb ]
+  * reimplemented insert chat line function: every line in own table
+  * bug in file transfer widget displaying fix
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 07 Oct 2014 13:29:22 +0000
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * fix overlong entry in debian/changelog
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ agilob ]
+  * css styles for mainHead and mainContent in widget.cpp
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 07 Oct 2014 21:17:45 +0000
 
 qtox (0.0.0+20141007.2~git39fd7b8-1) unstable; urgency=medium
 
   [ apprb ]
   * added "Use Proxy" checkbox
   * Introduced "Connection Settings" group in GeneralSettings widget
-  * Proxy settings is more close to General group in settings.ini than to Privacy
+  * Proxy settings is more close to General group in settings.ini than to
+    Privacy
 
   [ Ansa89 ]
   * Italian translation: update
