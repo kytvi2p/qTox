@@ -3,7 +3,8 @@ qtox (0.0.0+20141007.2~git39fd7b8-1) unstable; urgency=medium
   [ apprb ]
   * added "Use Proxy" checkbox
   * Introduced "Connection Settings" group in GeneralSettings widget
-  * Proxy settings is more close to General group in settings.ini than to Privacy
+  * Proxy settings is more close to General group in settings.ini than to
+    Privacy
 
   [ Ansa89 ]
   * Italian translation: update
