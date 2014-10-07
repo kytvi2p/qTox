@@ -124,6 +124,7 @@ Widget::Widget(QWidget *parent)
     connect(core, &Core::connected, this, &Widget::onConnected);
     connect(core, &Core::disconnected, this, &Widget::onDisconnected);
     connect(core, &Core::failedToStart, this, &Widget::onFailedToStartCore);
+    connect(core, &Core::badProxy, this, &Widget::onBadProxyCore);
     connect(core, &Core::statusSet, this, &Widget::onStatusSet);
     connect(core, &Core::usernameSet, this, &Widget::setUsername);
     connect(core, &Core::statusMessageSet, this, &Widget::setStatusMessage);
@@ -211,7 +212,7 @@ void Widget::closeEvent(QCloseEvent *event)
 
 QString Widget::getUsername()
 {
-    return ui->nameLabel->text();
+    return core->getUsername();
 }
 
 Camera* Widget::getCamera()
@@ -283,10 +284,20 @@ void Widget::onDisconnected()
 void Widget::onFailedToStartCore()
 {
     QMessageBox critical(this);
-    critical.setText("Toxcore failed to start, the application will terminate after you close this message.");
+    critical.setText(tr("Toxcore failed to start, the application will terminate after you close this message."));
     critical.setIcon(QMessageBox::Critical);
     critical.exec();
     qApp->quit();
+}
+
+void Widget::onBadProxyCore()
+{
+    QMessageBox critical(this);
+    critical.setText(tr("toxcore failed to start with your proxy settings. qTox cannot run; please modify your "
+               "settings and restart.", "popup text"));
+    critical.setIcon(QMessageBox::Critical);
+    critical.exec();
+    onSettingsClicked();
 }
 
 void Widget::onStatusSet(Status status)
@@ -563,21 +574,21 @@ void Widget::onGroupInviteReceived(int32_t friendId, const uint8_t* publicKey,ui
     }
 }
 
-void Widget::onGroupMessageReceived(int groupnumber, int friendgroupnumber, const QString& message)
+void Widget::onGroupMessageReceived(int groupnumber, const QString& message, const QString& author)
 {
     Group* g = GroupList::findGroup(groupnumber);
     if (!g)
         return;
 
-    g->chatForm->addGroupMessage(message, friendgroupnumber);
+    g->chatForm->addMessage(author, message);
 
     if ((static_cast<GenericChatroomWidget*>(g->widget) != activeChatroomWidget) || isMinimized() || !isActiveWindow())
     {
         g->hasNewMessages = 1;
+        newMessageAlert(); // sound alert on any message, not just naming user
         if (message.contains(core->getUsername(), Qt::CaseInsensitive))
         {
-            newMessageAlert();
-            g->userWasMentioned = 1;
+            g->userWasMentioned = 1; // useful for highlighting line or desktop notifications
         }
         g->widget->updateStatusLight();
     }
