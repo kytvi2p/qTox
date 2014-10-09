@@ -1,8 +1,18 @@
-qtox (0.0.0+20141007.3~gitaa11caa-1ubuntu1) trusty; urgency=medium
+qtox (0.0.0+20141008.r873-1) unstable; urgency=medium
 
-  * Upload to PPA
+  [ dubslow ]
+  * add ringtone (not well done, but still better than status quo)
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 07 Oct 2014 21:22:07 +0000
+  [ Zetok Zalbavar ]
+  * Add initial Pirate translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Embed pirate translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 09 Oct 2014 22:28:57 +0000
 
 qtox (0.0.0+20141007.3~gitaa11caa-1) unstable; urgency=medium
 
