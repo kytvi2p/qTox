@@ -1,8 +1,31 @@
-qtox (0.0.0+20141008.r873-2) UNRELEASED; urgency=medium
+qtox (0.0.0+20141010.r887-1) unstable; urgency=medium
 
+  [ krepa098 ]
+  * camera: initial PBO support, mode probing
+  * camera controls
+  * progress
+  * set/get props, cleanup
+
+  [ agilob ]
+  * support for hiding in tray
+
+  [ krepa098 ]
+  * cleanup
+  * volume stubs
+  * cleanup, split
+  * renamed SelfCamView to VideoSurface
+  * protect Camera::getLastVPXImage()
+  * fix
+
+  [ Olexandr Nesterenko ]
+  * Update Ukrainian translation
+
+  [ Kill Your TV ]
   * Bump standards version (no source changes needed)
+  * New upstream git snapshot
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 10 Oct 2014 00:53:17 +0000
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 10 Oct 2014 23:17:47 +0000
 
 qtox (0.0.0+20141008.r873-1) unstable; urgency=medium
 
