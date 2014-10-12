@@ -29,3 +29,22 @@ Description: Tox client
    - file transfers with image preview
    - audio calls
    - video calls
+
+Package: qtox-dbg
+Priority: extra
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, qtox (= ${binary:Version}), libtoxcore-dbg,
+ libtoxav-dbg, libtoxdns-dbg, libtoxencryptsave-dbg
+Description: Tox client - debugging symbols
+ Tox is a decentralized and encrypted replacement for Skype, supporting
+ chats, audio, and video calls.
+ .
+ qTox is a graphical Tox client with the following features:
+   - one-to-one chat with friends
+   - group chats
+   - file transfers with image preview
+   - audio calls
+   - video calls
+ .
+ This package contains the symbol files for debugging.
