@@ -1,3 +1,45 @@
+qtox (0.0.0+20141013.r923-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * Basic infrastructure for profiles is in place, now I gotta hook up the UI
+  * forgot a button, also the ui is fucked at default size (expand a few
+    pixels and its fine though)
+  * Profiles, with at least a few bugs: sanitizing file names isn't done,
+    delete fails because of autosaves, and imports segfault for me
+
+  [ Bill Winslow ]
+  * incremental improvements to profiles, more work required
+  * more incremental changes, nothing works yet (I just want to change
+    branches)
+  * more incremental commits, compiles and sort of works now
+  * incremental, commiting in order to push
+
+  [ Dubslow ]
+  * oops
+  * Fixed misusing tox_load; profiles are significantly less buggy
+  * simplification
+  * swapping profiles is now less buggy, but friends still don't come online
+
+  [ dubslow ]
+  * implement sanitize, one tweak
+  * add startup profile detection
+  * properly implement clearing contacts list
+  * readd profiles ui
+  * (Re)implement profiles UI, using some of the old code. Avatars aren't
+    handled on switching, and also something about friends disappearing...
+  * IT WORKS, IT FINALLY WORKS
+  * tweaks
+  * read tox_save if no data; if no profiles, no popup
+
+  [ apprb ]
+  * FileTransferWidget improvements
+  * magic number removed in FileTransferInstance
+
+  [ Kill Your TV ]
+  * New git upstream package
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 13 Oct 2014 19:50:06 +0000
+
 qtox (0.0.0+20141012.r890-1) unstable; urgency=medium
 
   [ dubslow ]
