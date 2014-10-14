@@ -1,3 +1,20 @@
+qtox (0.0.0+git20141014.r928-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * fix #431, fix export cancels, and more debug prints
+
+  [ krepa098 ]
+  * fixed #425
+
+  [ dubslow ]
+  * We handle .tox files (still need actual command line support)
+  * fix compile warning, they are fatal to Qt Creator
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 14 Oct 2014 13:08:56 +0000
+
 qtox (0.0.0+20141013.r923-1) unstable; urgency=medium
 
   [ dubslow ]
