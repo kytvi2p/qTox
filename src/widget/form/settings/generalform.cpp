@@ -26,11 +26,11 @@
 GeneralForm::GeneralForm(SettingsWidget *myParent) :
     GenericForm(tr("General Settings"), QPixmap(":/img/settings/general.png"))
 {
+    parent = myParent;    
+    
     bodyUI = new Ui::GeneralSettings;
     bodyUI->setupUi(this);
     
-    parent = myParent;    
-
     bodyUI->cbEnableIPv6->setChecked(Settings::getInstance().getEnableIPv6());
     bodyUI->cbUseTranslations->setChecked(Settings::getInstance().getUseTranslations());
     bodyUI->cbMakeToxPortable->setChecked(Settings::getInstance().getMakeToxPortable());
@@ -51,6 +51,8 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
         bodyUI->styleBrowser->setCurrentText(Settings::getInstance().getStyle());
     else
         bodyUI->styleBrowser->setCurrentText("None");
+    
+    bodyUI->autoAwaySpinBox->setValue(Settings::getInstance().getAutoAwayTime());
     
     bodyUI->cbUDPDisabled->setChecked(Settings::getInstance().getForceTCP());
     bodyUI->proxyAddr->setText(Settings::getInstance().getProxyAddr());
@@ -73,6 +75,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     connect(bodyUI->proxyPort, SIGNAL(valueChanged(int)), this, SLOT(onProxyPortEdited(int)));
     connect(bodyUI->cbUseProxy, &QCheckBox::stateChanged, this, &GeneralForm::onUseProxyUpdated);
     connect(bodyUI->styleBrowser, SIGNAL(currentTextChanged(QString)), this, SLOT(onStyleSelected(QString)));
+    connect(bodyUI->autoAwaySpinBox, SIGNAL(editingFinished()), this, SLOT(onAutoAwayChanged()));
 }
 
 GeneralForm::~GeneralForm()
@@ -104,7 +107,14 @@ void GeneralForm::onStyleSelected(QString style)
 {
     Settings::getInstance().setStyle(style);
     this->setStyle(QStyleFactory::create(style));
-    parent->setStyle(style);
+    parent->setBodyHeadStyle(style);
+}
+
+void GeneralForm::onAutoAwayChanged()
+{
+    int minutes = bodyUI->autoAwaySpinBox->value();
+    Settings::getInstance().setAutoAwayTime(minutes);
+    Widget::getInstance()->setIdleTimer(minutes);
 }
 
 void GeneralForm::onSetStatusChange()

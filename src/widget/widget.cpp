@@ -113,7 +113,7 @@ Widget::Widget(QWidget *parent)
     ui->statusButton->setProperty("status", "offline");
     Style::repolish(ui->statusButton);
 
-    settingsWidget = new SettingsWidget(this);
+    settingsWidget = new SettingsWidget();
 
     // Disable some widgets until we're connected to the DHT
     ui->statusButton->setEnabled(false);
@@ -292,6 +292,11 @@ QString Widget::askProfiles()
     }
     else
         return profile;
+}
+
+void Widget::setIdleTimer(int minutes)
+{
+    idleTimer->start(minutes * 1000*60);
 }
 
 QString Widget::getUsername()
