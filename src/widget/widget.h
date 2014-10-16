@@ -40,6 +40,7 @@ class Core;
 class Camera;
 class FriendListWidget;
 class MaskablePixmapWidget;
+class QTimer;
 
 class Widget : public QMainWindow
 {
@@ -69,6 +70,7 @@ signals:
     void statusSelected(Status status);
     void usernameChanged(const QString& username);
     void statusMessageChanged(const QString& statusMessage);
+    void changeProfile(const QString& profile);
 
 private slots:
     void onConnected();
@@ -88,7 +90,7 @@ private slots:
     void setStatusMessage(const QString &statusMessage);
     void addFriend(int friendId, const QString& userId);
     void addFriendFailed(const QString& userId);
-    void onFriendStatusChanged(int friendId, Status status);
+    void onFriendStatusChanged(int friendId, Status status); 
     void onFriendStatusMessageChanged(int friendId, const QString& message);
     void onFriendUsernameChanged(int friendId, const QString& username);
     void onChatroomWidgetClicked(GenericChatroomWidget *);
@@ -108,6 +110,7 @@ private slots:
     void onGroupSendResult(int groupId, const QString& message, int result);
     void playRingtone();
     void onIconClick();
+    void onUserAway();
 
 private:
     void hideMainForms();
@@ -131,6 +134,8 @@ private:
     FriendListWidget* contactListWidget;
     MaskablePixmapWidget* profilePicture;
     bool notify(QObject *receiver, QEvent *event);
+    bool autoAwayActive = false;
+    QTimer* idleTimer;
 };
 
 #endif // WIDGET_H
