@@ -1,4 +1,4 @@
-qtox (0.0.0+git20141016.r953-1) unstable; urgency=medium
+qtox (0.0.0+git20141016.r959-1) unstable; urgency=medium
 
   [ agilob ]
   * preview of emoticons
@@ -25,6 +25,12 @@ qtox (0.0.0+git20141016.r953-1) unstable; urgency=medium
 
   [ dubslow ]
   * cleanup "sign in change", since it's unnecessary
+
+  [ agilob ]
+  * fixes regression sent by apprb
+  * UI for autoaway
+  * set idle timer in widget.cpp
+  * s/min/minutes/
 
   [ Kill Your TV ]
   * New upstream git snapshot
