@@ -1,23 +1,24 @@
+QWidget
+{
+    color: black;
+    font: @big;
+}
+
 QCheckBox
 {
     color: black;
 }
 
-QLabel
+QGroupBox
 {
-    color: black;
+    background-color: white;    
 }
 
-QGroupBox::title
+QGroupBox
 {
     color: black;
     background-color: white;
-}
-
-QWidget
-{
-    color: black;
-    background-color: white;
+    font: @bigBold;
 }
 
 QComboBox
@@ -25,12 +26,22 @@ QComboBox
     background-color: white;
 }
 
-QComboBox:on QComboBox:off QComboBox:drop-down
+QLineEdit
 {
-    background: rgba(18, 18, 18, 204);
+    background-color: white;
 }
 
-QComboBox:active
+QTabWidget
 {
-    background: white;
+    background-color: white;
+}
+
+QTabBar
+{
+    background-color: white;
+}
+
+QScrollArea
+{
+    background-color: white;
 }

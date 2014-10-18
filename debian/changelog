@@ -1,3 +1,113 @@
+qtox (0.0.0+git20141017.r995-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * buildPackages.sh : Don't rebuild libsodium everytime
+  * buildPackages.sh : Don't use --local bootstrap
+  * Debian: Update package dependencies
+
+  [ krepa098 ]
+  * VideoSurface: aspect ratio
+  * partial fix for #426
+  * CameraWorker: cleanup, poll at 60Hz
+  * simplified VideoSource, interface, BRG->YUV conversion changes + more
+  * NetVideoSource, YUV shader, fixes
+  * cleanup
+  * fix #416, cleanup
+  * fixed compilation error + warning
+  * fixed css, comments, cleanup
+  * fixed infinite recursion under certain conditions
+  * Settings: use QTabWidget, IdentityForm: cleanup
+  * fixes, cleanup
+  * moved src/widget/camera.* to src/camera.*
+  * allow drag&drop on GroupWidget
+  * EmoticonsWidget: Do not close on misclick (#393)
+  * fixup! NetVideoSource, YUV shader, fixes
+  * css tweaks
+
+  [ dubslow ]
+  * fix #445
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ dubslow ]
+  * ui tweaks
+  * fix #438
+
+  [ krepa098 ]
+  * avsettings.ui layout changes
+
+  [ Zetok Zalbavar ]
+  * Remove redundancy from settings tabs
+
+  [ urras ]
+  * Fix OS X build location
+
+  [ agilob ]
+  * max value in autoAway time, tooltip for spinbox
+  * updated all translation files
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 18 Oct 2014 02:41:16 +0000
+
+qtox (0.0.0+git20141016.r959-1) unstable; urgency=medium
+
+  [ agilob ]
+  * preview of emoticons
+  * style selector
+  * error handling for missing graphical icons
+  * yup, too many brackets
+  * removed duplicated emoticons
+
+  [ dubslow ]
+  * fix #436
+  * I learned some things: improve thread safety
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ dubslow ]
+  * auto away; needs UI
+
+  [ agilob ]
+  * style selector
+  * status changes messages and sign in notifications
+  * renamed function
+  * number of messages is more reliable then activities
+
+  [ dubslow ]
+  * cleanup "sign in change", since it's unnecessary
+
+  [ agilob ]
+  * fixes regression sent by apprb
+  * UI for autoaway
+  * set idle timer in widget.cpp
+  * s/min/minutes/
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 16 Oct 2014 17:07:45 +0000
+
+qtox (0.0.0+git20141014.r928-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * fix #431, fix export cancels, and more debug prints
+
+  [ krepa098 ]
+  * fixed #425
+
+  [ dubslow ]
+  * We handle .tox files (still need actual command line support)
+  * fix compile warning, they are fatal to Qt Creator
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 14 Oct 2014 13:08:56 +0000
+
 qtox (0.0.0+20141013.r923-1ubuntu1) trusty; urgency=medium
 
   * Build for Trusty

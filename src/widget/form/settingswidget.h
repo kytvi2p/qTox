@@ -19,15 +19,16 @@
 
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QStyleFactory>
+
 class Camera;
 class GenericForm;
 class GeneralForm;
 class IdentityForm;
 class PrivacyForm;
 class AVForm;
-class QTabBar;
-class QStackedWidget;
 class QLabel;
+class QTabWidget;
 
 namespace Ui {class MainWindow;}
 
@@ -39,7 +40,7 @@ public:
     ~SettingsWidget();
 
     void show(Ui::MainWindow &ui);
-    IdentityForm *getIdentityForm() {return ifrm;}
+    void setBodyHeadStyle(QString style);
 
 private slots:
     void onTabChanged(int);
@@ -47,8 +48,7 @@ private slots:
 private:
     QWidget *head, *body; // keep the others private
     IdentityForm *ifrm;
-    QStackedWidget *settingsWidgets;
-    QTabBar *tabBar;
+    QTabWidget *settingsWidgets;
     QLabel *nameLabel, *imgLabel;
 };
 

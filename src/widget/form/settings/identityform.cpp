@@ -21,6 +21,7 @@
 #include "src/misc/settings.h"
 #include "src/widget/croppinglabel.h"
 #include "src/widget/widget.h"
+#include "src/misc/style.h"
 #include <QLabel>
 #include <QLineEdit>
 #include <QApplication>
@@ -30,23 +31,16 @@
 #include <QMessageBox>
 
 IdentityForm::IdentityForm() :
-    GenericForm(tr("Your identity"), QPixmap(":/img/settings/identity.png"))
+    GenericForm(tr("Identity"), QPixmap(":/img/settings/identity.png"))
 {
     bodyUI = new Ui::IdentitySettings;
     bodyUI->setupUi(this);
 
     // tox
     toxId = new ClickableTE();
-    QFont small;
-    small.setPixelSize(13);
-    small.setKerning(false);
-
-//    toxId->setTextInteractionFlags(Qt::TextSelectableByMouse);
     toxId->setReadOnly(true);
     toxId->setFrame(false);
-//    toxId->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-//    toxId->setFixedHeight(toxId->document()->size().height()*2);
-    toxId->setFont(small);
+    toxId->setFont(Style::getFont(Style::Small));
     
     bodyUI->toxGroup->layout()->addWidget(toxId);
     
@@ -59,6 +53,9 @@ IdentityForm::IdentityForm() :
     connect(bodyUI->exportButton, &QPushButton::clicked, this, &IdentityForm::onExportClicked);
     connect(bodyUI->deleteButton, &QPushButton::clicked, this, &IdentityForm::onDeleteClicked);
     connect(bodyUI->importButton, &QPushButton::clicked, this, &IdentityForm::onImportClicked);
+
+    connect(Core::getInstance(), &Core::usernameSet, this, [=](const QString& val) { bodyUI->userName->setText(val); });
+    connect(Core::getInstance(), &Core::statusMessageSet, this, [=](const QString& val) { bodyUI->statusMessage->setText(val); });
 }
 
 IdentityForm::~IdentityForm()
@@ -94,6 +91,9 @@ void IdentityForm::present()
     QString current = Settings::getInstance().getCurrentProfile();
     if (current != "")
         bodyUI->profiles->setCurrentText(current);
+
+    bodyUI->userName->setText(Core::getInstance()->getUsername());
+    bodyUI->statusMessage->setText(Core::getInstance()->getStatusMessage());
 }
 
 void IdentityForm::setUserName(const QString &name)
@@ -108,7 +108,15 @@ void IdentityForm::setStatusMessage(const QString &msg)
 
 void IdentityForm::onLoadClicked()
 {
-    Core::getInstance()->switchConfiguration(bodyUI->profiles->currentText());
+    if (bodyUI->profiles->currentText() != Settings::getInstance().getCurrentProfile())
+    {
+        if (Core::getInstance()->anyActiveCalls())
+            QMessageBox::warning(this, tr("Call active", "popup title"),
+                tr("You can't switch profiles while a call is active!", "popup text"));
+        else
+            emit Widget::getInstance()->changeProfile(bodyUI->profiles->currentText());
+            // I think by directly calling the function, I may have been causing thread issues
+    }
 }
 
 void IdentityForm::onRenameClicked()
@@ -132,7 +140,8 @@ void IdentityForm::onExportClicked()
     QString path = QFileDialog::getSaveFileName(this, tr("Export profile", "save dialog title"),
                     QDir::home().filePath(current), 
                     tr("Tox save file (*.tox)", "save dialog filter"));
-    QFile::copy(QDir(Settings::getSettingsDirPath()).filePath(current), path);
+    if (!path.isEmpty())
+        QFile::copy(QDir(Settings::getSettingsDirPath()).filePath(current), path);
 }
 
 void IdentityForm::onDeleteClicked()
@@ -157,10 +166,19 @@ void IdentityForm::onDeleteClicked()
 void IdentityForm::onImportClicked()
 {
     QString path = QFileDialog::getOpenFileName(this, tr("Import profile", "import dialog title"), QDir::homePath(), tr("Tox save file (*.tox)", "import dialog filter"));
+    if (path.isEmpty())
+        return;
+
     QFileInfo info(path);
+
+    if (info.suffix() != "tox")
+    {
+        QMessageBox::warning(this, tr("Ignoring non-Tox file", "popup title"), tr("Warning: you've chosen a file that is not a Tox save file; ignoring.", "popup text"));
+        return;
+    }
+
     QString profile = info.completeBaseName();
     QString profilePath = QDir(Settings::getSettingsDirPath()).filePath(profile + Core::TOX_EXT);
     QFile::copy(path, profilePath);
     bodyUI->profiles->addItem(profile);
-    Core::getInstance()->switchConfiguration(profile);
 }
