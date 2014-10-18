@@ -16,6 +16,7 @@
 
 #include "settings.h"
 #include "smileypack.h"
+#include "src/corestructs.h"
 
 #include <QFont>
 #include <QApplication>
@@ -108,7 +109,7 @@ void Settings::load()
 
     s.beginGroup("General");
         enableIPv6 = s.value("enableIPv6", true).toBool();
-        useTranslations = s.value("useTranslations", true).toBool();
+        translation = s.value("translation", "").toString();
         makeToxPortable = s.value("makeToxPortable", false).toBool();
         autostartInTray = s.value("autostartInTray", false).toBool();
         forceTCP = s.value("forceTCP", false).toBool();
@@ -149,6 +150,11 @@ void Settings::load()
 
     s.beginGroup("Privacy");
         typingNotification = s.value("typingNotification", false).toBool();
+    s.endGroup();
+
+    s.beginGroup("AutoAccept");
+        for (auto& key : s.childKeys())
+            autoAccept[key] = s.value(key).toString();
     s.endGroup();
 
     // try to set a smiley pack if none is selected
@@ -216,7 +222,7 @@ void Settings::save(QString path)
 
     s.beginGroup("General");
         s.setValue("enableIPv6", enableIPv6);
-        s.setValue("useTranslations",useTranslations);
+        s.setValue("translation",translation);
         s.setValue("makeToxPortable",makeToxPortable);
         s.setValue("autostartInTray",autostartInTray);
         s.setValue("useProxy", useProxy);
@@ -257,6 +263,11 @@ void Settings::save(QString path)
 
     s.beginGroup("Privacy");
         s.setValue("typingNotification", typingNotification);
+    s.endGroup();
+
+    s.beginGroup("AutoAccept");
+        for (auto& id : autoAccept.keys())
+            s.setValue(id, autoAccept.value(id));
     s.endGroup();
 }
 
@@ -389,14 +400,14 @@ void Settings::setStatusChangeNotificationEnabled(bool newValue)
     statusChangeNotificationEnabled = newValue;
 }
 
-bool Settings::getUseTranslations() const
+QString Settings::getTranslation() const
 {
-    return useTranslations;
+    return translation;
 }
 
-void Settings::setUseTranslations(bool newValue)
+void Settings::setTranslation(QString newValue)
 {
-    useTranslations = newValue;
+    translation = newValue;
 }
 
 bool Settings::getForceTCP() const
@@ -478,6 +489,19 @@ void Settings::setAutoAwayTime(int newValue)
     if (newValue < 0)
         newValue = 10;
     autoAwayTime = newValue;
+}
+
+QString Settings::getAutoAcceptDir(const QString& id) const
+{
+    return autoAccept.value(id.left(TOX_ID_PUBLIC_KEY_LENGTH));
+}
+
+void Settings::setAutoAcceptDir(const QString& id, const QString& dir)
+{
+    if (dir.isEmpty())
+        autoAccept.remove(id.left(TOX_ID_PUBLIC_KEY_LENGTH));
+    else
+        autoAccept[id.left(TOX_ID_PUBLIC_KEY_LENGTH)] = dir;
 }
 
 void Settings::setWidgetData(const QString& uniqueName, const QByteArray& data)
