@@ -25,6 +25,7 @@
 #include "src/widget/tool/chatactions/messageaction.h"
 #include "src/widget/tool/chatactions/systemmessageaction.h"
 #include "src/widget/tool/chatactions/actionaction.h"
+#include "src/widget/tool/chatactions/alertaction.h"
 #include "src/widget/chatareawidget.h"
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/maskablepixmapwidget.h"
@@ -37,9 +38,7 @@ GenericChatForm::GenericChatForm(QWidget *parent) :
     headWidget = new QWidget();
 
     nameLabel = new CroppingLabel();
-    nameLabel->setFont(Style::getFont(Style::MediumBold));
-    QPalette pal; pal.setColor(QPalette::WindowText, Style::getColor(Style::DarkGrey));
-    nameLabel->setPalette(pal);
+    nameLabel->setObjectName("nameLabel");
 
     avatar = new MaskablePixmapWidget(this, QSize(40,40), ":/img/avatar_mask.png");
     QHBoxLayout *headLayout = new QHBoxLayout(), *mainFootLayout = new QHBoxLayout();
@@ -48,8 +47,6 @@ GenericChatForm::GenericChatForm(QWidget *parent) :
     QVBoxLayout *footButtonsSmall = new QVBoxLayout(), *volMicLayout = new QVBoxLayout();
 
     chatWidget = new ChatAreaWidget();
-    chatWidget->document()->setDefaultStyleSheet(Style::getStylesheet(":ui/chatArea/innerStyle.css"));
-    chatWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatArea.css"));
 
     msgEdit = new ChatTextEdit();
 
@@ -61,10 +58,6 @@ GenericChatForm::GenericChatForm(QWidget *parent) :
     videoButton = new QPushButton();
     volButton = new QPushButton();
     micButton = new QPushButton();
-
-    QFont bold;
-    bold.setBold(true);
-    nameLabel->setFont(bold);
 
     footButtonsSmall->setSpacing(2);
 
@@ -125,6 +118,10 @@ GenericChatForm::GenericChatForm(QWidget *parent) :
 
     connect(emoteButton,  SIGNAL(clicked()), this, SLOT(onEmoteButtonClicked()));
     connect(chatWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onChatContextMenuRequested(QPoint)));
+
+    chatWidget->document()->setDefaultStyleSheet(Style::getStylesheet(":ui/chatArea/innerStyle.css"));
+    chatWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatArea.css"));
+    headWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatHead.css"));
 }
 
 int GenericChatForm::getNumberOfMessages()
@@ -177,7 +174,7 @@ void GenericChatForm::addMessage(QString author, QString message, bool isAction,
     QString date = datetime.toString(Settings::getInstance().getTimestampFormat());
     bool isMe = (author == Widget::getInstance()->getUsername());
 
-    if (!isAction && message.startsWith("/me "))
+    if (!isAction && message.startsWith("/me"))
     { // always render actions regardless of what core thinks
         isAction = true;
         message = message.right(message.length()-4);
@@ -194,6 +191,13 @@ void GenericChatForm::addMessage(QString author, QString message, bool isAction,
     else
         chatWidget->insertMessage(new MessageAction(getElidedName(author), message, date, isMe));
 
+    previousName = author;
+}
+
+void GenericChatForm::addAlertMessage(QString author, QString message, QDateTime datetime)
+{
+    QString date = datetime.toString(Settings::getInstance().getTimestampFormat());
+    chatWidget->insertMessage(new AlertAction(author, message, date));
     previousName = author;
 }
 

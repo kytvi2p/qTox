@@ -52,14 +52,20 @@ public:
     bool getAutostartInTray() const;
     void setAutostartInTray(bool newValue);
     
+    bool getCloseToTray() const;
+    void setCloseToTray(bool newValue);
+    
+    bool getMinimizeToTray() const;
+    void setMinimizeToTray(bool newValue);
+    
     QString getStyle() const;
     void setStyle(const QString& newValue);
 
     QString getCurrentProfile() const;
     void setCurrentProfile(QString profile);
 
-    bool getUseTranslations() const;
-    void setUseTranslations(bool newValue);
+    QString getTranslation() const;
+    void setTranslation(QString newValue);
 
     bool getForceTCP() const;
     void setForceTCP(bool newValue);
@@ -125,6 +131,12 @@ public:
     int getEmojiFontPointSize() const;
     void setEmojiFontPointSize(int value);
 
+    QString getAutoAcceptDir(const QString& id) const;
+    void setAutoAcceptDir(const QString&id, const QString& dir);
+
+    QString getGlobalAutoAcceptDir() const;
+    void setGlobalAutoAcceptDir(const QString& dir);
+
     // ChatView
     int getFirstColumnHandlePos() const;
     void setFirstColumnHandlePos(const int pos);
@@ -179,9 +191,11 @@ private:
     bool dontShowDhtDialog;
 
     bool enableIPv6;
-    bool useTranslations;
+    QString translation;
     static bool makeToxPortable;
     bool autostartInTray;
+    bool closeToTray;
+    bool minimizeToTray;
 
     bool forceTCP;
 
@@ -197,6 +211,8 @@ private:
     int autoAwayTime;
 
     QHash<QString, QByteArray> widgetSettings;
+    QHash<QString, QString> autoAccept;
+    QString globalAutoAcceptDir;
 
     // GUI
     bool enableSmoothAnimation;
