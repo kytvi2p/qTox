@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141020.r1046-1ubuntu1) trusty; urgency=medium
+
+  * Building for Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 20 Oct 2014 17:57:29 +0000
+
 qtox (0.0.0+git20141020.r1046-1) unstable; urgency=medium
 
   [ Zetok Zalbavar ]
@@ -32,12 +38,6 @@ qtox (0.0.0+git20141020.r1046-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 20 Oct 2014 17:34:25 +0000
-
-qtox (0.0.0+git20141019.r1027-1ubuntu1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 20 Oct 2014 01:27:14 +0000
 
 qtox (0.0.0+git20141019.r1027-1) unstable; urgency=medium
 
