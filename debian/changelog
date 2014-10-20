@@ -1,3 +1,38 @@
+qtox (0.0.0+git20141020.r1046-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Update link for os x binary
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Debian: Depend on libstdc++-6 >= 4.8.2 not >= 4.9
+
+  [ krepa098 ]
+  * fixed #451
+
+  [ dubslow ]
+  * added new profiles, default name/status (fixes #465 and fixes #460)
+  * check for existing profile (fixes #466)
+  * fix #484 (took me a while to figure out lol)
+  * add global file auto accept
+  * tab completion for groupchats (fixes #486)
+  * add alerts on user mention (could use some tweaking, but is plenty fine
+    for now)
+  * fix bug, fix actions to be like irc, and a disabled feature for future
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+
+  [ dubslow ]
+  * ADD FORGOTTEN FILES WHY DO THESE THINGS HAPPEN (and fix outbound actions)
+
+  [ agilob ]
+  * a/v setting tab redesign
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 20 Oct 2014 17:34:25 +0000
+
 qtox (0.0.0+git20141019.r1027-1) unstable; urgency=medium
 
   [ Ilya87 ]
