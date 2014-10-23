@@ -1,3 +1,13 @@
+qtox (0.0.0+git20141022.r1059-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #503
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 23 Oct 2014 02:31:21 +0000
+
 qtox (0.0.0+git20141021.r1058-1) unstable; urgency=medium
 
   [ Сухарик ]
