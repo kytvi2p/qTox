@@ -1,4 +1,4 @@
-qtox (0.0.0+git20141024.r1125-1) unstable; urgency=medium
+qtox (0.0.0+git20141024.r1132-1) unstable; urgency=medium
 
   [ apprb ]
   * history: base working implementation
@@ -14,7 +14,8 @@ qtox (0.0.0+git20141024.r1125-1) unstable; urgency=medium
   * partial work towards core encryption functionality
   * more
   * add save encryption
-  * finished core functionality, still needs UI from #423 this also depends on irungentoo/toxcore#1114 being merged
+  * finished core functionality, still needs UI from #423 this also depends on
+    irungentoo/toxcore#1114 being merged
 
   [ apprb ]
   * typos
@@ -28,7 +29,8 @@ qtox (0.0.0+git20141024.r1125-1) unstable; urgency=medium
   * Fetch history only from asked profile ID
   * no reason to keep action flag in the logfile
   * Encrypted Logs: part 1
-  * Encrypted Logs: part 2: all encryption to be implemented in EncryptedDb class
+  * Encrypted Logs: part 2: all encryption to be implemented in EncryptedDb
+    class
 
   [ dubslow ]
   * more details
@@ -82,6 +84,17 @@ qtox (0.0.0+git20141024.r1125-1) unstable; urgency=medium
   * Update french translation
   * Fix typo in message box
   * README: Update download links
+
+  [ Zetok Zalbavar ]
+  * Update refined mannol translation
+  * Change file sending button tooltip to indicate ability to select and send
+    multiple files
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Probe more camera resolutions
 
   [ Kill Your TV ]
   * New upstream git snapshot
