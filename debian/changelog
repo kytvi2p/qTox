@@ -1,3 +1,39 @@
+qtox (0.0.0+git20141024.r1149-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * fixed encryption, major testing required
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Delay webcam res probing until first use
+
+  [ dubslow ]
+  * fix encrypted tox loading
+
+  [ krepa098 ]
+  * non-blocking cam communication, fixed CameraWorker::probeResolutions ...
+    called from wrong thread, try fix #408 and #495
+  * moved video stuff to src/video
+  * cleanup
+  * refactoring
+  * cleanup, use chroma_shift
+  * fixup rebase
+
+  [ dubslow ]
+  * remove dead comments
+  * disable switching buttons during calls fixes #436, fixes #500 (well,
+    "fixes" by preventing users from doing dumb things)
+  * add reconnect button for connection settings some ui guru should make it
+    not stretch to width
+  * revert coreav.cpp changes
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Log when core fails to load config
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 24 Oct 2014 20:01:07 +0000
+
 qtox (0.0.0+git20141024.r1132-1) unstable; urgency=medium
 
   [ apprb ]
