@@ -1,3 +1,152 @@
+qtox (0.0.0+git20141024.r1149-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * fixed encryption, major testing required
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Delay webcam res probing until first use
+
+  [ dubslow ]
+  * fix encrypted tox loading
+
+  [ krepa098 ]
+  * non-blocking cam communication, fixed CameraWorker::probeResolutions ...
+    called from wrong thread, try fix #408 and #495
+  * moved video stuff to src/video
+  * cleanup
+  * refactoring
+  * cleanup, use chroma_shift
+  * fixup rebase
+
+  [ dubslow ]
+  * remove dead comments
+  * disable switching buttons during calls fixes #436, fixes #500 (well,
+    "fixes" by preventing users from doing dumb things)
+  * add reconnect button for connection settings some ui guru should make it
+    not stretch to width
+  * revert coreav.cpp changes
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Log when core fails to load config
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 24 Oct 2014 20:01:07 +0000
+
+qtox (0.0.0+git20141024.r1132-1) unstable; urgency=medium
+
+  [ apprb ]
+  * history: base working implementation
+  * privacy setting form added
+  * History: keep unencrypted history
+  * class expantion
+  * add insert chatlog capability (not finished)
+  * clear chat area
+  * History: retrieve history from save
+  * cleanup
+
+  [ dubslow ]
+  * partial work towards core encryption functionality
+  * more
+  * add save encryption
+  * finished core functionality, still needs UI from #423 this also depends on
+    irungentoo/toxcore#1114 being merged
+
+  [ apprb ]
+  * typos
+
+  [ dubslow ]
+  * add decryption
+
+  [ apprb ]
+  * precise timestamps keeping
+  * correct action saving into the logfile
+  * Fetch history only from asked profile ID
+  * no reason to keep action flag in the logfile
+  * Encrypted Logs: part 1
+  * Encrypted Logs: part 2: all encryption to be implemented in EncryptedDb
+    class
+
+  [ dubslow ]
+  * more details
+
+  [ apprb ]
+  * Encryption: it works! Code cleanup is still required
+
+  [ dubslow ]
+  * encrypted db uses core encryption
+
+  [ apprb ]
+  * clenup
+  * switch to tox_pass_encrypt/tox_pass_decrypt functions
+  * History: almost correct handling encrypted history load/save
+  * fixes in profile change and log password check
+
+  [ agilob ]
+  * fix #457, styles in mainContent for qtextedit, qspinbox and more
+
+  [ apprb ]
+  * Load encrypted history log/tox datafile
+  * various fixes
+  * warn user about old encrypted history
+  * Tox datafile encryption: check
+
+  [ agilob ]
+  * more styles
+
+  [ apprb ]
+  * Tox datafile/encrypted history: different passwords
+  * cleanup
+
+  [ agilob ]
+  * implemented krepas suggestions about style
+  * scrollbar in generalsettings
+  * profile settings in scrollarea
+  * minimum size for camera preview 160x120
+
+  [ apprb ]
+  * FileTransferInstance improvements
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Change call ringing time to 45s, fix #507
+  * Don't show msgboxes outside of the GUI thread
+  * Fix chat head style for high DPI
+  * Disable encryption options for the moment
+  * Force smiley size to match text size
+  * Disable history encryption again
+  * Add tooltips to chat buttons
+  * Force font size in groupchat header for all DPIs
+  * Update french translation
+  * Fix typo in message box
+  * README: Update download links
+
+  [ Zetok Zalbavar ]
+  * Update refined mannol translation
+  * Change file sending button tooltip to indicate ability to select and send
+    multiple files
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Probe more camera resolutions
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 24 Oct 2014 01:50:31 +0000
+
+qtox (0.0.0+git20141022.r1059-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #503
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 23 Oct 2014 02:31:21 +0000
+
 qtox (0.0.0+git20141021.r1058-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty

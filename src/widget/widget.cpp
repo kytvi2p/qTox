@@ -28,7 +28,7 @@
 #include "form/groupchatform.h"
 #include "src/misc/style.h"
 #include "friendlistwidget.h"
-#include "src/camera.h"
+#include "src/video/camera.h"
 #include "form/chatform.h"
 #include "maskablepixmapwidget.h"
 #include <QMessageBox>
@@ -45,8 +45,9 @@
 #include <QTimer>
 #include <QStyleFactory>
 #include <QTranslator>
+#include "src/historykeeper.h"
 #include <tox/tox.h>
-
+#include "form/inputpassworddialog.h"
 
 Widget *Widget::instance{nullptr};
 
@@ -69,8 +70,6 @@ void Widget::init()
         icon = new QSystemTrayIcon(this);
         icon->setIcon(this->windowIcon());
         trayMenu = new QMenu;
-        trayMenu->setStyleSheet("QMenu {background: white; color: black; border: 1px solid black;}"
-                                "QMenu::item:selected { background: #414141}");
         
         statusOnline = new QAction(tr("online"), this);
         statusOnline->setIcon(QIcon(":ui/statusButton/dot_online.png"));
@@ -183,6 +182,7 @@ void Widget::init()
     qRegisterMetaType<QPixmap>("QPixmap");
     qRegisterMetaType<ToxFile>("ToxFile");
     qRegisterMetaType<ToxFile::FileDirection>("ToxFile::FileDirection");
+    qRegisterMetaType<Core::PasswordType>("Core::PasswordType");
 
     QString profilePath = detectProfile();
     coreThread = new QThread(this);
@@ -217,6 +217,7 @@ void Widget::init()
     connect(core, &Core::emptyGroupCreated, this, &Widget::onEmptyGroupCreated);
     connect(core, &Core::avInvite, this, &Widget::playRingtone);
     connect(core, &Core::blockingClearContacts, this, &Widget::clearContactsList, Qt::BlockingQueuedConnection);
+    connect(core, &Core::blockingGetPassword, this, &Widget::getPassword, Qt::BlockingQueuedConnection);
 
     connect(core, SIGNAL(messageSentResult(int,QString,int)), this, SLOT(onMessageSendResult(int,QString,int)));
     connect(core, SIGNAL(groupSentResult(int,QString,int)), this, SLOT(onGroupSendResult(int,QString,int)));
@@ -712,7 +713,13 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
     if (!f)
         return;
 
-    f->chatForm->addMessage(f->getName(), message, isAction);
+    QDateTime timestamp = QDateTime::currentDateTime();
+    f->chatForm->addMessage(f->getName(), message, isAction, timestamp);
+
+    if (isAction)
+        HistoryKeeper::getInstance()->addChatEntry(f->userId, "/me " + message, f->userId, timestamp);
+    else
+        HistoryKeeper::getInstance()->addChatEntry(f->userId, message, f->userId, timestamp);
 
     if (activeChatroomWidget != nullptr)
     {
@@ -833,9 +840,9 @@ void Widget::onGroupMessageReceived(int groupnumber, const QString& message, con
     QString name = core->getUsername();
     bool targeted = (author != name) && message.contains(name, Qt::CaseInsensitive);
     if (targeted)
-        g->chatForm->addAlertMessage(author, message);
+        g->chatForm->addAlertMessage(author, message, QDateTime::currentDateTime());
     else
-        g->chatForm->addMessage(author, message);
+        g->chatForm->addMessage(author, message, false, QDateTime::currentDateTime());
 
     if ((static_cast<GenericChatroomWidget*>(g->widget) != activeChatroomWidget) || isMinimized() || !isActiveWindow())
     {
@@ -1006,7 +1013,7 @@ void Widget::onMessageSendResult(int friendId, const QString& message, int messa
         return;
 
     if (!messageId)
-        f->chatForm->addSystemInfoMessage("Message failed to send", "red");
+        f->chatForm->addSystemInfoMessage("Message failed to send", "red", QDateTime::currentDateTime());
 }
 
 void Widget::onGroupSendResult(int groupId, const QString& message, int result)
@@ -1017,5 +1024,37 @@ void Widget::onGroupSendResult(int groupId, const QString& message, int result)
         return;
 
     if (result == -1)
-        g->chatForm->addSystemInfoMessage("Message failed to send", "red");
+        g->chatForm->addSystemInfoMessage("Message failed to send", "red", QDateTime::currentDateTime());
+}
+
+void Widget::getPassword(QString info, int passtype, uint8_t* salt)
+{
+    Core::PasswordType pt = static_cast<Core::PasswordType>(passtype);
+    InputPasswordDialog dialog(info);
+    if (dialog.exec())
+    {
+        QString pswd = dialog.getPassword();
+        if (pswd.isEmpty())
+            core->clearPassword(pt);
+        else
+            core->setPassword(pswd, pt, salt);
+    }
+}
+
+QMessageBox::StandardButton Widget::showWarningMsgBox(const QString& title, const QString& msg, QMessageBox::StandardButtons buttons)
+{
+    // We can only display widgets from the GUI thread
+    if (QThread::currentThread() != qApp->thread())
+    {
+        QMessageBox::StandardButton ret;
+        QMetaObject::invokeMethod(this, "showWarningMsgBox", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(QMessageBox::StandardButton, ret),
+                                  Q_ARG(const QString&, title), Q_ARG(const QString&, msg),
+                                  Q_ARG(QMessageBox::StandardButtons, buttons));
+        return ret;
+    }
+    else
+    {
+        return QMessageBox::warning(this, title, msg, buttons);
+    }
 }
