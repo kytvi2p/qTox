@@ -19,6 +19,7 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include <QMessageBox>
 #include "form/addfriendform.h"
 #include "form/settingswidget.h"
 #include "form/settings/identityform.h"
@@ -63,6 +64,8 @@ public:
     void clearContactsList();
     void setIdleTimer(int minutes);
     void setTranslation();
+    Q_INVOKABLE QMessageBox::StandardButton showWarningMsgBox(const QString& title, const QString& msg,
+                                              QMessageBox::StandardButtons buttonss = QMessageBox::Ok);
     ~Widget();
 
     virtual void closeEvent(QCloseEvent *event);
@@ -98,7 +101,7 @@ private slots:
     void setStatusMessage(const QString &statusMessage);
     void addFriend(int friendId, const QString& userId);
     void addFriendFailed(const QString& userId);
-    void onFriendStatusChanged(int friendId, Status status); 
+    void onFriendStatusChanged(int friendId, Status status);
     void onFriendStatusMessageChanged(int friendId, const QString& message);
     void onFriendUsernameChanged(int friendId, const QString& username);
     void onChatroomWidgetClicked(GenericChatroomWidget *);
@@ -119,6 +122,7 @@ private slots:
     void playRingtone();
     void onIconClick(QSystemTrayIcon::ActivationReason);
     void onUserAway();
+    void getPassword(QString info, int passtype);
 
 private:
     void init();
