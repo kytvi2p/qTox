@@ -1,3 +1,42 @@
+qtox (0.0.0+git20141026.r1170-1) unstable; urgency=medium
+
+  [ apprb ]
+  * Reducing memory consumption: no reason to store all displayed ChatActions
+    in memory
+
+  [ Ansa89 ]
+  * Italian translation: update
+  * Italian translation: fix typo
+
+  [ krepa098 ]
+  * fix error: vector size mismatch for arithmetic operator
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Upload windows build script
+  * Upload windows NSIS installer script
+
+  [ apprb ]
+  * QSharedPointer<ChatAction> instead ChatAction*
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * qtox.nsis: Option for desktop shortcut
+  * Add icon on windows
+
+  [ krepa098 ]
+  * format shader code
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Rescale smileys smoothly, fix #501
+  * Fix leak, enable NRVO in Core::getUsername
+  * Fix uninitialized return value in createVpxImage
+  * Handle toxcore failures in Core::onAvMediaChange
+  * Fix leak, enable NRVO in Core::getStatusMessage
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 26 Oct 2014 21:43:34 +0000
+
 qtox (0.0.0+git20141025.r1151-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
