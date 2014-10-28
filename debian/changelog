@@ -1,3 +1,14 @@
+qtox (0.0.0+git20141027.r1172-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add some core doc comments, remove dead code
+  * Fix small memory leaks
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 28 Oct 2014 02:01:02 +0000
+
 qtox (0.0.0+git20141026.r1170-1) unstable; urgency=medium
 
   [ apprb ]
