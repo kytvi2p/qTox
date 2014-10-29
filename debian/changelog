@@ -1,3 +1,18 @@
+qtox (0.0.0+git20141028.r1177-1) unstable; urgency=medium
+
+  [ Wouters Dorian ]
+  * Made Mute speakers button work
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add audio in/out device list (stubs)
+  * Add audio in/out device to settings
+  * Open the audio in/out devices of the settings
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 29 Oct 2014 16:41:55 +0000
+
 qtox (0.0.0+git20141027.r1172-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
