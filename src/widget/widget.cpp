@@ -892,7 +892,10 @@ void Widget::removeGroup(Group* g)
 {
     g->widget->setAsInactiveChatroom();
     if (static_cast<GenericChatroomWidget*>(g->widget) == activeChatroomWidget)
+    {
         activeChatroomWidget = nullptr;
+        onAddClicked();
+    }
     GroupList::removeGroup(g->groupId);
     core->removeGroup(g->groupId);
     delete g;
@@ -1016,7 +1019,7 @@ void Widget::onMessageSendResult(int friendId, const QString& message, int messa
         return;
 
     if (!messageId)
-        f->chatForm->addSystemInfoMessage("Message failed to send", "red", QDateTime::currentDateTime());
+        f->chatForm->addSystemInfoMessage(tr("Message failed to send"), "red", QDateTime::currentDateTime());
 }
 
 void Widget::onGroupSendResult(int groupId, const QString& message, int result)
@@ -1027,7 +1030,7 @@ void Widget::onGroupSendResult(int groupId, const QString& message, int result)
         return;
 
     if (result == -1)
-        g->chatForm->addSystemInfoMessage("Message failed to send", "red", QDateTime::currentDateTime());
+        g->chatForm->addSystemInfoMessage(tr("Message failed to send"), "red", QDateTime::currentDateTime());
 }
 
 void Widget::getPassword(QString info, int passtype, uint8_t* salt)
