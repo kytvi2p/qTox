@@ -22,7 +22,6 @@
 ToxCall Core::calls[TOXAV_MAX_CALLS];
 const int Core::videobufsize{TOXAV_MAX_VIDEO_WIDTH * TOXAV_MAX_VIDEO_HEIGHT * 4};
 uint8_t* Core::videobuf;
-int Core::videoBusyness;
 
 ALCdevice* Core::alOutDev, *Core::alInDev;
 ALCcontext* Core::alContext;
@@ -42,6 +41,7 @@ void Core::prepareCall(int friendId, int callId, ToxAv* toxav, bool videoEnabled
     calls[callId].callId = callId;
     calls[callId].friendId = friendId;
     calls[callId].muteMic = false;
+    calls[callId].muteVol = false;
     // the following three lines are also now redundant from startCall, but are
     // necessary there for outbound and here for inbound
     calls[callId].codecSettings = av_DefaultSettings;
@@ -72,10 +72,14 @@ void Core::prepareCall(int friendId, int callId, ToxAv* toxav, bool videoEnabled
 void Core::onAvMediaChange(void* toxav, int32_t callId, void* core)
 {
     ToxAvCSettings settings;
-    toxav_get_peer_csettings((ToxAv*)toxav, callId, 0, &settings);
-    int friendId = toxav_get_peer_id((ToxAv*)toxav, callId, 0);
+    int friendId;
+    if (toxav_get_peer_csettings((ToxAv*)toxav, callId, 0, &settings) < 0)
+        goto fail;
+    friendId = toxav_get_peer_id((ToxAv*)toxav, callId, 0);
+    if (friendId < 0)
+        goto fail;
 
-    qWarning() << "Core: Received media change from friend "<<friendId;
+    qDebug() << "Core: Received media change from friend "<<friendId;
 
     if (settings.call_type == TypeAudio)
     {
@@ -91,6 +95,11 @@ void Core::onAvMediaChange(void* toxav, int32_t callId, void* core)
         calls[callId].sendVideoTimer->start();
         emit ((Core*)core)->avMediaChange(friendId, callId, true);
     }
+    return;
+
+fail: // Centralized error handling
+    qWarning() << "Core: Toxcore error while receiving media change on call "<<callId;
+    return;
 }
 
 void Core::answerCall(int callId)
@@ -283,21 +292,18 @@ void Core::sendCallVideo(int callId)
     calls[callId].sendVideoTimer->start();
 }
 
-
-void Core::increaseVideoBusyness()
-{
-    videoBusyness++;
-}
-
-void Core::decreaseVideoBusyness()
-{
-  videoBusyness--;
-}
-
 void Core::micMuteToggle(int callId)
 {
     if (calls[callId].active) {
         calls[callId].muteMic = !calls[callId].muteMic;
+    }
+}
+
+void Core::volMuteToggle(int callId)
+{
+    if (calls[callId].active) {
+        calls[callId].muteVol = !calls[callId].muteVol;
+        alSourcef(calls[callId].alSource, AL_GAIN, calls[callId].muteVol ? 0.f : 1.f);
     }
 }
 

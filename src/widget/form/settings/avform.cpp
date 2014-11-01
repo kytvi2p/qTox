@@ -16,6 +16,15 @@
 
 #include "avform.h"
 #include "ui_avsettings.h"
+#include "src/misc/settings.h"
+
+#if defined(__APPLE__) && defined(__MACH__)
+ #include <OpenAL/al.h>
+ #include <OpenAL/alc.h>
+#else
+ #include <AL/alc.h>
+ #include <AL/al.h>
+#endif
 
 AVForm::AVForm() :
     GenericForm(tr("Audio/Video"), QPixmap(":/img/settings/av.png"))
@@ -23,8 +32,15 @@ AVForm::AVForm() :
     bodyUI = new Ui::AVSettings;
     bodyUI->setupUi(this);
 
+    getAudioOutDevices();
+    getAudioInDevices();
+
     connect(Camera::getInstance(), &Camera::propProbingFinished, this, &AVForm::onPropProbingFinished);
     connect(Camera::getInstance(), &Camera::resolutionProbingFinished, this, &AVForm::onResProbingFinished);
+
+    auto qcomboboxIndexChanged = (void(QComboBox::*)(const QString&)) &QComboBox::currentIndexChanged;
+    connect(bodyUI->inDevCombobox, qcomboboxIndexChanged, this, &AVForm::onInDevChanged);
+    connect(bodyUI->outDevCombobox, qcomboboxIndexChanged, this, &AVForm::onOutDevChanged);
 }
 
 AVForm::~AVForm()
@@ -102,4 +118,70 @@ void AVForm::onResProbingFinished(QList<QSize> res)
 void AVForm::hideEvent(QHideEvent *)
 {
     bodyUI->CamVideoSurface->setSource(nullptr);
+}
+
+void AVForm::getAudioInDevices()
+{
+    QString settingsInDev = Settings::getInstance().getInDev();
+    bool inDevFound = false;
+    bodyUI->inDevCombobox->clear();
+    const ALchar *pDeviceList = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
+    if (pDeviceList)
+    {
+        while (*pDeviceList)
+        {
+            int len = strlen(pDeviceList);
+            QString inDev = QString::fromLocal8Bit(pDeviceList,len);
+            bodyUI->inDevCombobox->addItem(inDev);
+            if (settingsInDev == inDev)
+            {
+                bodyUI->inDevCombobox->setCurrentIndex(bodyUI->inDevCombobox->count()-1);
+                inDevFound = true;
+            }
+            pDeviceList += len+1;
+        }
+    }
+
+    if (!inDevFound)
+        Settings::getInstance().setInDev(bodyUI->inDevCombobox->itemText(0));
+}
+
+void AVForm::getAudioOutDevices()
+{
+    QString settingsOutDev = Settings::getInstance().getOutDev();
+    bool outDevFound = false;
+    bodyUI->outDevCombobox->clear();
+    const ALchar *pDeviceList;
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
+        pDeviceList = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    else
+        pDeviceList = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+    if (pDeviceList)
+    {
+        while (*pDeviceList)
+        {
+            int len = strlen(pDeviceList);
+            QString outDev = QString::fromLocal8Bit(pDeviceList,len);
+            bodyUI->outDevCombobox->addItem(outDev);
+            if (settingsOutDev == outDev)
+            {
+                bodyUI->outDevCombobox->setCurrentIndex(bodyUI->outDevCombobox->count()-1);
+                outDevFound = true;
+            }
+            pDeviceList += len+1;
+        }
+    }
+
+    if (!outDevFound)
+        Settings::getInstance().setOutDev(bodyUI->outDevCombobox->itemText(0));
+}
+
+void AVForm::onInDevChanged(const QString &deviceDescriptor)
+{
+    Settings::getInstance().setInDev(deviceDescriptor);
+}
+
+void AVForm::onOutDevChanged(const QString& deviceDescriptor)
+{
+    Settings::getInstance().setOutDev(deviceDescriptor);
 }

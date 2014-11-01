@@ -43,6 +43,7 @@
 ChatForm::ChatForm(Friend* chatFriend)
     : f(chatFriend)
     , audioInputFlag(false)
+    , audioOutputFlag(false)
     , callId(0)
 {
     nameLabel->setText(f->getName());
@@ -68,6 +69,7 @@ ChatForm::ChatForm(Friend* chatFriend)
     connect(videoButton, &QPushButton::clicked, this, &ChatForm::onVideoCallTriggered);
     connect(msgEdit, &ChatTextEdit::enterPressed, this, &ChatForm::onSendTriggered);
     connect(micButton, SIGNAL(clicked()), this, SLOT(onMicMuteToggle()));
+    connect(volButton, SIGNAL(clicked()), this, SLOT(onVolMuteToggle()));
     connect(chatWidget, &ChatAreaWidget::onFileTranfertInterract, this, &ChatForm::onFileTansBtnClicked);
     connect(Core::getInstance(), &Core::fileSendFailed, this, &ChatForm::onFileSendFailed);
 
@@ -120,7 +122,7 @@ void ChatForm::onAttachClicked()
             continue;
         if (file.isSequential())
         {
-            QMessageBox::critical(0, "Bad Idea", "You're trying to send a special (sequential) file, that's not going to work!");
+            QMessageBox::critical(0, tr("Bad Idea"), tr("You're trying to send a special (sequential) file, that's not going to work!"));
             file.close();
             continue;
         }
@@ -153,7 +155,8 @@ void ChatForm::startFileSend(ToxFile file)
         name = "";
     previousName = Widget::getInstance()->getUsername();
 
-    chatWidget->insertMessage(new FileTransferAction(fileTrans, getElidedName(name), QTime::currentTime().toString("hh:mm"), true));
+    chatWidget->insertMessage(ChatActionPtr(new FileTransferAction(fileTrans, getElidedName(name),
+                                                                   QTime::currentTime().toString("hh:mm"), true)));
 }
 
 void ChatForm::onFileRecvRequest(ToxFile file)
@@ -185,7 +188,8 @@ void ChatForm::onFileRecvRequest(ToxFile file)
         name = "";
     previousName = f->getName();
 
-    chatWidget->insertMessage(new FileTransferAction(fileTrans, getElidedName(name), QTime::currentTime().toString("hh:mm"), false));
+    chatWidget->insertMessage(ChatActionPtr(new FileTransferAction(fileTrans, getElidedName(name),
+                                                                   QTime::currentTime().toString("hh:mm"), false)));
 
     if (!Settings::getInstance().getAutoAcceptDir(Core::getInstance()->getFriendAddress(f->friendId)).isEmpty()
      || !Settings::getInstance().getGlobalAutoAcceptDir().isEmpty())
@@ -232,6 +236,7 @@ void ChatForm::onAvStart(int FriendId, int CallId, bool video)
         return;
 
     audioInputFlag = true;
+    audioOutputFlag = true;
     callId = CallId;
     callButton->disconnect();
     videoButton->disconnect();
@@ -261,8 +266,11 @@ void ChatForm::onAvCancel(int FriendId, int)
         return;
 
     audioInputFlag = false;
+    audioOutputFlag = false;
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
     callButton->disconnect();
     videoButton->disconnect();
     callButton->setObjectName("green");
@@ -281,8 +289,11 @@ void ChatForm::onAvEnd(int FriendId, int)
         return;
 
     audioInputFlag = false;
+    audioOutputFlag = false;
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
     callButton->disconnect();
     videoButton->disconnect();
     callButton->setObjectName("green");
@@ -354,8 +365,11 @@ void ChatForm::onAvEnding(int FriendId, int)
         return;
 
     audioInputFlag = false;
+    audioOutputFlag = false;
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
     callButton->disconnect();
     videoButton->disconnect();
     callButton->setObjectName("green");
@@ -376,8 +390,11 @@ void ChatForm::onAvRequestTimeout(int FriendId, int)
         return;
 
     audioInputFlag = false;
+    audioOutputFlag = false;
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
     callButton->disconnect();
     videoButton->disconnect();
     callButton->setObjectName("green");
@@ -398,8 +415,11 @@ void ChatForm::onAvPeerTimeout(int FriendId, int)
         return;
 
     audioInputFlag = false;
+    audioOutputFlag = false;
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
     callButton->disconnect();
     videoButton->disconnect();
     callButton->setObjectName("green");
@@ -432,28 +452,34 @@ void ChatForm::onAvMediaChange(int FriendId, int CallId, bool video)
 void ChatForm::onAnswerCallTriggered()
 {
     audioInputFlag = true;
+    audioOutputFlag = true;
     emit answerCall(callId);
 }
 
 void ChatForm::onHangupCallTriggered()
 {
     audioInputFlag = false;
+    audioOutputFlag = false;
     emit hangupCall(callId);
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
 }
 
 void ChatForm::onCallTriggered()
 {
-  audioInputFlag = true;
-  callButton->disconnect();
-  videoButton->disconnect();
-  emit startCall(f->friendId);
+    audioInputFlag = true;
+    audioOutputFlag = true;
+    callButton->disconnect();
+    videoButton->disconnect();
+    emit startCall(f->friendId);
 }
 
 void ChatForm::onVideoCallTriggered()
 {
     audioInputFlag = true;
+    audioOutputFlag = true;
     callButton->disconnect();
     videoButton->disconnect();
     emit startVideoCall(f->friendId, true);
@@ -465,6 +491,7 @@ void ChatForm::onAvCallFailed(int FriendId)
         return;
 
     audioInputFlag = false;
+    audioOutputFlag = false;
     callButton->disconnect();
     videoButton->disconnect();
     connect(callButton, SIGNAL(clicked()), this, SLOT(onCallTriggered()));
@@ -474,8 +501,11 @@ void ChatForm::onAvCallFailed(int FriendId)
 void ChatForm::onCancelCallTriggered()
 {
     audioInputFlag = false;
+    audioOutputFlag = false;
     micButton->setObjectName("green");
     micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
     callButton->disconnect();
     videoButton->disconnect();
     callButton->setObjectName("green");
@@ -504,6 +534,21 @@ void ChatForm::onMicMuteToggle()
         Style::repolish(micButton);
     }
 }
+
+void ChatForm::onVolMuteToggle()
+{
+    if (audioOutputFlag == true)
+    {
+        emit volMuteToggle(callId);
+        if (volButton->objectName() == "red")
+            volButton->setObjectName("green");
+        else
+            volButton->setObjectName("red");
+
+        Style::repolish(volButton);
+    }
+}
+
 
 void ChatForm::onFileTansBtnClicked(QString widgetName, QString buttonName)
 {
@@ -587,7 +632,7 @@ void ChatForm::onLoadHistory()
 
         QString storedPrevName = previousName;
         previousName = "";
-        QList<ChatAction*> historyMessages;
+        QList<ChatActionPtr> historyMessages;
 
         for (const auto &it : msgs)
         {
@@ -595,23 +640,17 @@ void ChatForm::onLoadHistory()
             if (it.sender == Core::getInstance()->getSelfId().publicKey)
                 name = Core::getInstance()->getUsername();
 
-            ChatAction *ca = genMessageActionAction(name, it.message, false, it.timestamp.toLocalTime());
+            ChatActionPtr ca = genMessageActionAction(name, it.message, false, it.timestamp.toLocalTime());
             historyMessages.append(ca);
         }
         previousName = storedPrevName;
 
-        for (ChatAction *ca : chatWidget->getMesages())
-            historyMessages.append(ca);
-
         int savedSliderPos = chatWidget->verticalScrollBar()->maximum() - chatWidget->verticalScrollBar()->value();
 
-        chatWidget->getMesages().clear();
-        chatWidget->clear();
         if (earliestMessage != nullptr)
             *earliestMessage = fromTime;
 
-        for (ChatAction *ca : historyMessages)
-            chatWidget->insertMessage(ca);
+        chatWidget->insertMessagesTop(historyMessages);
 
         savedSliderPos = chatWidget->verticalScrollBar()->maximum() - savedSliderPos;
         chatWidget->verticalScrollBar()->setValue(savedSliderPos);

@@ -52,17 +52,17 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->smileyPackBrowser->setCurrentIndex(bodyUI->smileyPackBrowser->findData(Settings::getInstance().getSmileyPack()));
     reloadSmiles();
 
+    bodyUI->styleBrowser->addItem(tr("None"));
     bodyUI->styleBrowser->addItems(QStyleFactory::keys());
-    bodyUI->styleBrowser->addItem("None");
         
     if(QStyleFactory::keys().contains(Settings::getInstance().getStyle()))
         bodyUI->styleBrowser->setCurrentText(Settings::getInstance().getStyle());
     else
-        bodyUI->styleBrowser->setCurrentText("None");
+        bodyUI->styleBrowser->setCurrentText(tr("None"));
     
     bodyUI->autoAwaySpinBox->setValue(Settings::getInstance().getAutoAwayTime());
     
-    bodyUI->cbUDPDisabled->setChecked(Settings::getInstance().getForceTCP());
+    bodyUI->cbEnableUDP->setChecked(!Settings::getInstance().getForceTCP());
     bodyUI->proxyAddr->setText(Settings::getInstance().getProxyAddr());
     int port = Settings::getInstance().getProxyPort();
     if (port != -1)
@@ -80,7 +80,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     connect(bodyUI->statusChanges, &QCheckBox::stateChanged, this, &GeneralForm::onSetStatusChange);
     connect(bodyUI->smileyPackBrowser, SIGNAL(currentIndexChanged(int)), this, SLOT(onSmileyBrowserIndexChanged(int)));
     // new syntax can't handle overloaded signals... (at least not in a pretty way)
-    connect(bodyUI->cbUDPDisabled, &QCheckBox::stateChanged, this, &GeneralForm::onUDPUpdated);
+    connect(bodyUI->cbEnableUDP, &QCheckBox::stateChanged, this, &GeneralForm::onUDPUpdated);
     connect(bodyUI->proxyAddr, &QLineEdit::editingFinished, this, &GeneralForm::onProxyAddrEdited);
     connect(bodyUI->proxyPort, SIGNAL(valueChanged(int)), this, SLOT(onProxyPortEdited(int)));
     connect(bodyUI->cbUseProxy, &QCheckBox::stateChanged, this, &GeneralForm::onUseProxyUpdated);
@@ -127,7 +127,11 @@ void GeneralForm::onSetMinimizeToTray()
 
 void GeneralForm::onStyleSelected(QString style)
 {
-    Settings::getInstance().setStyle(style);
+    if(bodyUI->styleBrowser->currentIndex() == 0)
+        Settings::getInstance().setStyle("None");
+    else
+        Settings::getInstance().setStyle(style);
+    
     this->setStyle(QStyleFactory::create(style));
     parent->setBodyHeadStyle(style);
 }
@@ -153,7 +157,7 @@ void GeneralForm::onSmileyBrowserIndexChanged(int index)
 
 void GeneralForm::onUDPUpdated()
 {
-    Settings::getInstance().setForceTCP(bodyUI->cbUDPDisabled->isChecked());
+    Settings::getInstance().setForceTCP(!bodyUI->cbEnableUDP->isChecked());
 }
 
 void GeneralForm::onProxyAddrEdited()

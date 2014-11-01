@@ -38,13 +38,20 @@ public:
     ~AVForm();
     virtual void present();
 
-private slots:
+private:
+    void getAudioInDevices();
+    void getAudioOutDevices();
 
+private slots:
     void on_ContrastSlider_sliderMoved(int position);
     void on_SaturationSlider_sliderMoved(int position);
     void on_BrightnessSlider_sliderMoved(int position);
     void on_HueSlider_sliderMoved(int position);
     void on_videoModescomboBox_activated(int index);
+
+    // audio
+    void onInDevChanged(const QString& deviceDescriptor);
+    void onOutDevChanged(const QString& deviceDescriptor);
 
     // camera
     void onPropProbingFinished(Camera::Prop prop, double val);

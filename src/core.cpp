@@ -39,6 +39,7 @@
 #include <QList>
 #include <QBuffer>
 #include <QMessageBox>
+#include <QMutexLocker>
 
 const QString Core::CONFIG_FILE_NAME = "data";
 const QString Core::TOX_EXT = ".tox";
@@ -51,7 +52,6 @@ Core::Core(Camera* cam, QThread *coreThread, QString loadPath) :
     qDebug() << "Core: loading Tox from" << loadPath;
 
     videobuf = new uint8_t[videobufsize];
-    videoBusyness=0;
 
     for (int i = 0; i < ptCounter; i++)
         pwsaltedkeys[i] = nullptr;
@@ -73,7 +73,11 @@ Core::Core(Camera* cam, QThread *coreThread, QString loadPath) :
     }
 
     // OpenAL init
-    alOutDev = alcOpenDevice(nullptr);
+    QString outDevDescr = Settings::getInstance().getOutDev();                                     ;
+    if (outDevDescr.isEmpty())
+        alOutDev = alcOpenDevice(nullptr);
+    else
+        alOutDev = alcOpenDevice(outDevDescr.toStdString().c_str());
     if (!alOutDev)
     {
         qWarning() << "Core: Cannot open output audio device";
@@ -89,7 +93,13 @@ Core::Core(Camera* cam, QThread *coreThread, QString loadPath) :
         else
             alGenSources(1, &alMainSource);
     }
-    alInDev = alcCaptureOpenDevice(NULL,av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16,
+
+    QString inDevDescr = Settings::getInstance().getInDev();
+    if (inDevDescr.isEmpty())
+        alInDev = alcCaptureOpenDevice(nullptr,av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16,
+                                   (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+    else
+        alInDev = alcCaptureOpenDevice(inDevDescr.toStdString().c_str(),av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16,
                                    (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
     if (!alInDev)
         qWarning() << "Core: Cannot open input audio device";
@@ -253,6 +263,7 @@ void Core::start()
     tox_callback_group_invite(tox, onGroupInvite, this);
     tox_callback_group_message(tox, onGroupMessage, this);
     tox_callback_group_namelist_change(tox, onGroupNamelistChange, this);
+    tox_callback_group_action(tox, onGroupAction, this);
     tox_callback_file_send_request(tox, onFileSendRequestCallback, this);
     tox_callback_file_control(tox, onFileControlCallback, this);
     tox_callback_file_data(tox, onFileDataCallback, this);
@@ -457,6 +468,12 @@ void Core::onConnectionStatusChanged(Tox*/* tox*/, int friendId, uint8_t status,
 void Core::onAction(Tox*/* tox*/, int friendId, const uint8_t *cMessage, uint16_t cMessageSize, void *core)
 {
     emit static_cast<Core*>(core)->friendMessageReceived(friendId, CString::toString(cMessage, cMessageSize), true);
+}
+
+void Core::onGroupAction(Tox*, int groupnumber, int peernumber, const uint8_t *action, uint16_t length, void* _core)
+{
+    Core* core = static_cast<Core*>(_core);
+    emit core->groupMessageReceived(groupnumber, CString::toString(action, length), core->getGroupPeerName(groupnumber, peernumber));
 }
 
 void Core::onGroupInvite(Tox*, int friendnumber, const uint8_t *group_public_key, uint16_t length,void *core)
@@ -759,6 +776,8 @@ void Core::sendGroupMessage(int groupId, const QString& message)
 
 void Core::sendFile(int32_t friendId, QString Filename, QString FilePath, long long filesize)
 {
+    QMutexLocker mlocker(&fileSendMutex);
+
     QByteArray fileName = Filename.toUtf8();
     int fileNum = tox_new_file_sender(tox, friendId, filesize, (uint8_t*)fileName.data(), fileName.size());
     if (fileNum == -1)
@@ -959,13 +978,13 @@ void Core::removeGroup(int groupId)
 
 QString Core::getUsername()
 {
+    QString sname;
     int size = tox_get_self_name_size(tox);
     uint8_t* name = new uint8_t[size];
     if (tox_get_self_name(tox, name) == size)
-        return QString(CString::toString(name, size));
-    else
-        return QString();
+        sname = CString::toString(name, size);
     delete[] name;
+    return sname;
 }
 
 void Core::setUsername(const QString& username)
@@ -1016,13 +1035,13 @@ QString Core::getIDString()
 
 QString Core::getStatusMessage()
 {
+    QString sname;
     int size = tox_get_self_status_message_size(tox);
     uint8_t* name = new uint8_t[size];
     if (tox_get_self_status_message(tox, name, size) == size)
-        return QString(CString::toString(name, size));
-    else
-        return QString();
+        sname = CString::toString(name, size);
     delete[] name;
+    return sname;
 }
 
 void Core::setStatusMessage(const QString& message)

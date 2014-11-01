@@ -1,3 +1,118 @@
+qtox (0.0.0+git20141030.r1208-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Olexandr Nesterenko ]
+  * add localized strings
+  * Update Ukrainian translation
+
+  [ apprb ]
+  * Setting forms: similar outlook and inner structure
+  * multiple file sending race condition fix
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Index cylgom and krepa smiley packs in repo
+  * Embed cylgom and krepa emoticon packs
+
+  [ X-NicON ]
+  * more strings for translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Better preview of cylgom emoticons
+
+  [ agilob ]
+  * prevent duplicating emoticons on the list
+  * network setting unification s/disable/enable/ UDP
+  * style selector is translatable now - made right
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Rename variable to match displayed text
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Handle received group actions
+  * Jump to Add Friend form when quitting groupchat
+  * Fix minimumSize being too small
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 30 Oct 2014 14:17:35 +0000
+
+qtox (0.0.0+git20141028.r1177-1) unstable; urgency=medium
+
+  [ Wouters Dorian ]
+  * Made Mute speakers button work
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add audio in/out device list (stubs)
+  * Add audio in/out device to settings
+  * Open the audio in/out devices of the settings
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 29 Oct 2014 16:41:55 +0000
+
+qtox (0.0.0+git20141027.r1172-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add some core doc comments, remove dead code
+  * Fix small memory leaks
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 28 Oct 2014 02:01:02 +0000
+
+qtox (0.0.0+git20141026.r1170-1) unstable; urgency=medium
+
+  [ apprb ]
+  * Reducing memory consumption: no reason to store all displayed ChatActions
+    in memory
+
+  [ Ansa89 ]
+  * Italian translation: update
+  * Italian translation: fix typo
+
+  [ krepa098 ]
+  * fix error: vector size mismatch for arithmetic operator
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Upload windows build script
+  * Upload windows NSIS installer script
+
+  [ apprb ]
+  * QSharedPointer<ChatAction> instead ChatAction*
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * qtox.nsis: Option for desktop shortcut
+  * Add icon on windows
+
+  [ krepa098 ]
+  * format shader code
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Rescale smileys smoothly, fix #501
+  * Fix leak, enable NRVO in Core::getUsername
+  * Fix uninitialized return value in createVpxImage
+  * Handle toxcore failures in Core::onAvMediaChange
+  * Fix leak, enable NRVO in Core::getStatusMessage
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 26 Oct 2014 21:43:34 +0000
+
 qtox (0.0.0+git20141025.r1151-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty
