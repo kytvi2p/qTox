@@ -36,11 +36,6 @@ Settings::Settings() :
     load();
 }
 
-Settings::~Settings()
-{
-    save();
-}
-
 Settings& Settings::getInstance()
 {
     static Settings settings;
@@ -119,6 +114,8 @@ void Settings::load()
         proxyPort = s.value("proxyPort", 0).toInt();
         currentProfile = s.value("currentProfile", "").toString();
     	autoAwayTime = s.value("autoAwayTime", 10).toInt();
+        autoSaveEnabled = s.value("autoSaveEnabled", false).toBool();
+        autoSaveDir = s.value("autoSaveDir", QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory)).toString();
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -130,7 +127,7 @@ void Settings::load()
 
     s.beginGroup("GUI");
         enableSmoothAnimation = s.value("smoothAnimation", true).toBool();
-        smileyPack = s.value("smileyPack", QString()).toString();
+        smileyPack = s.value("smileyPack", ":/smileys/cylgom/emoticons.xml").toString();
         customEmojiFont = s.value("customEmojiFont", true).toBool();
         emojiFontFamily = s.value("emojiFontFamily", "DejaVu Sans").toString();
         emojiFontPointSize = s.value("emojiFontPointSize", QApplication::font().pointSize()).toInt();
@@ -140,6 +137,7 @@ void Settings::load()
         minimizeOnClose = s.value("minimizeOnClose", false).toBool();
         minimizeToTray = s.value("minimizeToTray", false).toBool();
         useNativeStyle = s.value("nativeStyle", false).toBool();
+        useEmoticons = s.value("useEmoticons", true).toBool();
         style = s.value("style", "None").toString();
         statusChangeNotificationEnabled = s.value("statusChangeNotificationEnabled", false).toBool();
     s.endGroup();
@@ -243,6 +241,8 @@ void Settings::save(QString path)
         s.setValue("proxyPort", proxyPort);
         s.setValue("currentProfile", currentProfile);
         s.setValue("autoAwayTime", autoAwayTime);
+        s.setValue("autoSaveEnabled", autoSaveEnabled);
+        s.setValue("autoSaveDir", autoSaveDir);
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -264,7 +264,8 @@ void Settings::save(QString path)
         s.setValue("minimizeOnClose", minimizeOnClose);
         s.setValue("minimizeToTray", minimizeToTray);
         s.setValue("nativeStyle", useNativeStyle);
-        s.setValue("style",style);
+        s.setValue("useEmoticons", useEmoticons);
+        s.setValue("style", style);
         s.setValue("statusChangeNotificationEnabled", statusChangeNotificationEnabled);
     s.endGroup();
 
@@ -300,7 +301,8 @@ QString Settings::getSettingsDirPath()
 
     // workaround for https://bugreports.qt-project.org/browse/QTBUG-38845
 #ifdef Q_OS_WIN
-    return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+    return QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+                           + QDir::separator() + "AppData" + QDir::separator() + "Roaming" + QDir::separator() + "tox");
 #else
     return QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "tox");
 #endif
@@ -407,6 +409,26 @@ void Settings::setStyle(const QString& newStyle)
     style = newStyle;
 }
 
+void Settings::setUseEmoticons(bool newValue)
+{
+    useEmoticons = newValue;
+}
+
+bool Settings::getUseEmoticons() const
+{
+    return useEmoticons;
+}
+
+void Settings::setAutoSaveEnabled(bool newValue)
+{
+    autoSaveEnabled = newValue;
+}
+
+bool Settings::getAutoSaveEnabled() const
+{
+    return autoSaveEnabled;
+}
+
 void Settings::setAutostartInTray(bool newValue)
 {
     autostartInTray = newValue;
@@ -451,6 +473,17 @@ QString Settings::getTranslation() const
 void Settings::setTranslation(QString newValue)
 {
     translation = newValue;
+}
+
+
+QString Settings::getAutoSaveFilesDir() const
+{
+    return autoSaveDir;
+}
+
+void Settings::setAutoSaveFilesDir(QString newValue)
+{
+    autoSaveDir = newValue;
 }
 
 bool Settings::getForceTCP() const

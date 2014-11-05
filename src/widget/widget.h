@@ -66,6 +66,7 @@ public:
     void setTranslation();
     Q_INVOKABLE QMessageBox::StandardButton showWarningMsgBox(const QString& title, const QString& msg,
                                               QMessageBox::StandardButtons buttonss = QMessageBox::Ok);
+    Q_INVOKABLE void setEnabledThreadsafe(bool enabled);
     ~Widget();
 
     virtual void closeEvent(QCloseEvent *event);
@@ -109,7 +110,7 @@ private slots:
     void onFriendRequestReceived(const QString& userId, const QString& message);
     void onEmptyGroupCreated(int groupId);
     void onGroupInviteReceived(int32_t friendId, const uint8_t *publicKey,uint16_t length);
-    void onGroupMessageReceived(int groupnumber, const QString& message, const QString& author);
+    void onGroupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);
     void onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
     void removeFriend(int friendId);
     void copyFriendIdToClipboard(int friendId);

@@ -121,8 +121,8 @@ void Widget::init()
     profilePicture = new MaskablePixmapWidget(this, QSize(40, 40), ":/img/avatar_mask.png");
     profilePicture->setPixmap(QPixmap(":/img/contact_dark.png"));
     profilePicture->setClickable(true);
-    ui->horizontalLayout_3->insertWidget(0, profilePicture);
-    ui->horizontalLayout_3->insertSpacing(1, 7);
+    ui->myProfile->insertWidget(0, profilePicture);
+    ui->myProfile->insertSpacing(1, 7);
 
     ui->mainContent->setLayout(new QVBoxLayout());
     ui->mainHead->setLayout(new QVBoxLayout());
@@ -139,6 +139,8 @@ void Widget::init()
     
     ui->mainHead->setStyleSheet(Style::getStylesheet(":ui/settings/mainHead.css"));    
     ui->mainContent->setStyleSheet(Style::getStylesheet(":ui/settings/mainContent.css"));
+    
+    ui->statusHead->setStyleSheet(Style::getStylesheet(":/ui/window/statusPanel.css"));
 
     contactListWidget = new FriendListWidget();
     ui->friendList->setWidget(contactListWidget);
@@ -253,6 +255,9 @@ void Widget::setTranslation()
     if ((locale = Settings::getInstance().getTranslation()).isEmpty())
         locale = QLocale::system().name().section('_', 0, 0);
     
+    if (locale == "en")
+        return;
+
     if (translator->load(locale, ":translations/"))
         qDebug() << "Loaded translation" << locale;
     else
@@ -593,7 +598,7 @@ void Widget::setStatusMessage(const QString &statusMessage)
 
 void Widget::addFriend(int friendId, const QString &userId)
 {
-    qDebug() << "Widget: Adding friend with id" << userId;
+    //qDebug() << "Widget: Adding friend with id" << userId;
     Friend* newfriend = FriendList::addFriend(friendId, userId);
     QLayout* layout = contactListWidget->getFriendLayout(Status::Offline);
     layout->addWidget(newfriend->widget);
@@ -623,6 +628,7 @@ void Widget::addFriend(int friendId, const QString &userId)
     connect(core, &Core::avPeerTimeout, newfriend->chatForm, &ChatForm::onAvPeerTimeout);
     connect(core, &Core::avMediaChange, newfriend->chatForm, &ChatForm::onAvMediaChange);
     connect(core, &Core::avCallFailed, newfriend->chatForm, &ChatForm::onAvCallFailed);
+    connect(core, &Core::avRejected, newfriend->chatForm, &ChatForm::onAvRejected);
     connect(core, &Core::friendAvatarChanged, newfriend->chatForm, &ChatForm::onAvatarChange);
     connect(core, &Core::friendAvatarChanged, newfriend->widget, &FriendWidget::onAvatarChange);
     connect(core, &Core::friendAvatarRemoved, newfriend->chatForm, &ChatForm::onAvatarRemoved);
@@ -632,7 +638,7 @@ void Widget::addFriend(int friendId, const QString &userId)
     QPixmap avatar = Settings::getInstance().getSavedAvatar(userId);
     if (!avatar.isNull())
     {
-        qWarning() << "Widget: loadded avatar for id" << userId;
+        //qWarning() << "Widget: loadded avatar for id" << userId;
         newfriend->chatForm->onAvatarChange(friendId, avatar);
         newfriend->widget->onAvatarChange(friendId, avatar);
     }
@@ -717,7 +723,7 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
         return;
 
     QDateTime timestamp = QDateTime::currentDateTime();
-    f->chatForm->addMessage(f->getName(), message, isAction, timestamp);
+    f->chatForm->addMessage(f->getToxID(), message, isAction, timestamp);
 
     if (isAction)
         HistoryKeeper::getInstance()->addChatEntry(f->userId, "/me " + message, f->userId, timestamp);
@@ -799,6 +805,9 @@ void Widget::removeFriend(Friend* f)
     delete f;
     if (ui->mainHead->layout()->isEmpty())
         onAddClicked();
+
+    contactListWidget->hide();
+    contactListWidget->show();
 }
 
 void Widget::removeFriend(int friendId)
@@ -834,18 +843,19 @@ void Widget::onGroupInviteReceived(int32_t friendId, const uint8_t* publicKey,ui
     }
 }
 
-void Widget::onGroupMessageReceived(int groupnumber, const QString& message, const QString& author)
+void Widget::onGroupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction)
 {
     Group* g = GroupList::findGroup(groupnumber);
     if (!g)
         return;
 
     QString name = core->getUsername();
+
     bool targeted = (author != name) && message.contains(name, Qt::CaseInsensitive);
     if (targeted)
         g->chatForm->addAlertMessage(author, message, QDateTime::currentDateTime());
     else
-        g->chatForm->addMessage(author, message, false, QDateTime::currentDateTime());
+        g->chatForm->addMessage(author, message, isAction, QDateTime::currentDateTime());
 
     if ((static_cast<GenericChatroomWidget*>(g->widget) != activeChatroomWidget) || isMinimized() || !isActiveWindow())
     {
@@ -901,6 +911,9 @@ void Widget::removeGroup(Group* g)
     delete g;
     if (ui->mainHead->layout()->isEmpty())
         onAddClicked();
+
+    contactListWidget->hide();
+    contactListWidget->show();
 }
 
 void Widget::removeGroup(int groupId)
@@ -932,6 +945,7 @@ Group *Widget::createGroup(int groupId)
     connect(newgroup->widget, SIGNAL(removeGroup(int)), this, SLOT(removeGroup(int)));
     connect(newgroup->widget, SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), newgroup->chatForm, SLOT(focusInput()));
     connect(newgroup->chatForm, SIGNAL(sendMessage(int,QString)), core, SLOT(sendGroupMessage(int,QString)));
+    connect(newgroup->chatForm, SIGNAL(sendAction(int,QString)), core, SLOT(sendGroupAction(int,QString)));
     return newgroup;
 }
 
@@ -1062,5 +1076,20 @@ QMessageBox::StandardButton Widget::showWarningMsgBox(const QString& title, cons
     else
     {
         return QMessageBox::warning(this, title, msg, buttons);
+    }
+}
+
+void Widget::setEnabledThreadsafe(bool enabled)
+{
+    // We can only do this from the GUI thread
+    if (QThread::currentThread() != qApp->thread())
+    {
+        QMetaObject::invokeMethod(this, "setEnabledThreadsafe", Qt::BlockingQueuedConnection,
+                                  Q_ARG(bool, enabled));
+        return;
+    }
+    else
+    {
+        return setEnabled(enabled);
     }
 }
