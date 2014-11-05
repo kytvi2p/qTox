@@ -46,6 +46,8 @@ public:
     static const QString CONFIG_FILE_NAME;
     static QString sanitize(QString name);
 
+    QString getPeerName(const ToxID& id) const;
+
     int getGroupNumberPeers(int groupId) const; ///< Return the number of peers in the group chat on success, or -1 on failure
     QString getGroupPeerName(int groupId, int peerId) const; ///< Get the name of a peer of a group
     QList<QString> getGroupPeerNames(int groupId) const; ///< Get the names of the peers of a group
@@ -57,11 +59,11 @@ public:
     void saveConfiguration();
     void saveConfiguration(const QString& path);
     
-    QString getIDString(); ///< Get the 12 first characters of our Tox ID
+    QString getIDString() const; ///< Get the 12 first characters of our Tox ID
     
-    QString getUsername(); ///< Returns our username, or an empty string on failure
-    QString getStatusMessage(); ///< Returns our status message, or an empty string on failure
-    ToxID getSelfId(); ///< Returns our Tox ID
+    QString getUsername() const; ///< Returns our username, or an empty string on failure
+    QString getStatusMessage() const; ///< Returns our status message, or an empty string on failure
+    ToxID getSelfId() const; ///< Returns our Tox ID
 
     VideoSource* getVideoSourceFromCall(int callNumber); ///< Get a call's video source
 
@@ -89,6 +91,7 @@ public slots:
 
     void sendMessage(int friendId, const QString& message);
     void sendGroupMessage(int groupId, const QString& message);
+    void sendGroupAction(int groupId, const QString& message);
     void sendAction(int friendId, const QString& action);
     void sendTyping(int friendId, bool typing);
 
@@ -137,7 +140,7 @@ signals:
 
     void emptyGroupCreated(int groupnumber);
     void groupInviteReceived(int friendnumber, const uint8_t *group_public_key,uint16_t length);
-    void groupMessageReceived(int groupnumber, const QString& message, const QString& author);
+    void groupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);
     void groupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
 
     void usernameSet(const QString& username);
@@ -185,6 +188,7 @@ signals:
     void avPeerTimeout(int friendId, int callIndex);
     void avMediaChange(int friendId, int callIndex, bool videoEnabled);
     void avCallFailed(int friendId);
+    void avRejected(int friendId, int callIndex);
 
     void videoFrameReceived(vpx_image* frame);
 

@@ -1,3 +1,113 @@
+qtox (0.0.0+git20141105.r1281-1) unstable; urgency=medium
+
+  [ Сухарик ]
+  * smileys/cylgom: add some unicode
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows: Save data in %APPDATA%/tox/ as per the STS
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ X-NicON ]
+  * Removed untranslatable strings
+
+  [ Сухарик ]
+  * translations/ru: release
+
+  [ dubslow ]
+  * fix jenkins git issue
+  * add logging to file; should make bug reports easier to handle (it's a bit
+    of a hack, but it works)
+  * remove a couple of debug statements
+  * fix git_version issue without git
+  * fix sodium cloning
+
+  [ apprb ]
+  * proper sending/receiving group actions
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #591
+
+  [ saneki ]
+  * Sql typo
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix crash on exit
+  * Don't triple save on exit
+  * Fix #557
+  * Fix #459
+  * Fix #96 with a flow layout for groupchat user list
+  * Fix spacing of chat form head, fixes #598
+  * Fix #599
+  * Fix #600
+  * Add tooltip for emoticons, fix #597
+  * Fix #592
+  * Fix #602
+  * Try to improve file transfer speed
+  * Silence buggy QTextBrowser qWarning spam
+  * Don't log null/same avatar infos
+  * Don't try to load the 'en' translation
+  * Use Tox IDs internally as message author ID
+
+  [ agilob ]
+  * Call notifications
+  * default smiley pack is cylgom
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix Core::getPeerName for long names
+  * Fix possible heap corruption in CUserId()
+
+  [ agilob ]
+  * style for qlineedit in status panel
+  * call duration
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ agilob ]
+  * status panel, indicate editing
+
+  [ Zetok Zalbavar ]
+  * Update INSTALL.md dependencies list
+
+  [ agilob ]
+  * lineedit consistent corners
+  * nulling timer
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+
+  [ dubslow ]
+  * workaround #618
+
+  [ Ansa89 ]
+  * Italian trtanslation: update
+
+  [ D3cryptor ]
+  * Bulgarian translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Release, enable bulgarian translation
+  * Bulgarian translation: 'българин' -> 'Български'
+  * Put translations in alphabetical order
+
+  [ dubslow ]
+  * fix #624
+
+  [ agilob ]
+  * updated polish translation
+  * more pl translations
+  * another unused opration
+  * autosaveDir, useEmoicons, selectTimestamp added to GUI and settings
+  * autosavedir: keep previous directory in case of cancelling
+  * autoaccept: unused code
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 05 Nov 2014 19:25:19 +0000
+
 qtox (0.0.0+git20141030.r1208-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty

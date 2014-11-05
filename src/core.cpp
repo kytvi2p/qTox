@@ -108,7 +108,6 @@ Core::Core(Camera* cam, QThread *coreThread, QString loadPath) :
 Core::~Core()
 {
     if (tox) {
-        saveConfiguration();
         toxav_kill(toxav);
         tox_kill(tox);
     }
@@ -473,7 +472,8 @@ void Core::onAction(Tox*/* tox*/, int friendId, const uint8_t *cMessage, uint16_
 void Core::onGroupAction(Tox*, int groupnumber, int peernumber, const uint8_t *action, uint16_t length, void* _core)
 {
     Core* core = static_cast<Core*>(_core);
-    emit core->groupMessageReceived(groupnumber, CString::toString(action, length), core->getGroupPeerName(groupnumber, peernumber));
+    emit core->groupMessageReceived(groupnumber, CString::toString(action, length),
+                                    core->getGroupPeerName(groupnumber, peernumber), true);
 }
 
 void Core::onGroupInvite(Tox*, int friendnumber, const uint8_t *group_public_key, uint16_t length,void *core)
@@ -485,7 +485,8 @@ void Core::onGroupInvite(Tox*, int friendnumber, const uint8_t *group_public_key
 void Core::onGroupMessage(Tox*, int groupnumber, int peernumber, const uint8_t * message, uint16_t length, void *_core)
 {
     Core* core = static_cast<Core*>(_core);
-    emit core->groupMessageReceived(groupnumber, CString::toString(message, length), core->getGroupPeerName(groupnumber, peernumber));
+    emit core->groupMessageReceived(groupnumber, CString::toString(message, length),
+                                    core->getGroupPeerName(groupnumber, peernumber), false);
 }
 
 void Core::onGroupNamelistChange(Tox*, int groupnumber, int peernumber, uint8_t change, void *core)
@@ -664,7 +665,7 @@ void Core::onAvatarInfoCallback(Tox*, int32_t friendnumber, uint8_t format,
 
     if (format == TOX_AVATAR_FORMAT_NONE)
     {
-        qDebug() << "Core: Got null avatar info from" << core->getFriendUsername(friendnumber);
+        //qDebug() << "Core: Got null avatar info from" << core->getFriendUsername(friendnumber);
         emit core->friendAvatarRemoved(friendnumber);
         QFile::remove(QDir(Settings::getSettingsDirPath()).filePath("avatars/"+core->getFriendAddress(friendnumber).left(64)+".png"));
         QFile::remove(QDir(Settings::getSettingsDirPath()).filePath("avatars/"+core->getFriendAddress(friendnumber).left(64)+".hash"));
@@ -678,8 +679,8 @@ void Core::onAvatarInfoCallback(Tox*, int32_t friendnumber, uint8_t format,
             qDebug() << "Core: Got new avatar info from" << core->getFriendUsername(friendnumber);
             tox_request_avatar_data(core->tox, friendnumber);
         }
-        else
-            qDebug() << "Core: Got same avatar info from" << core->getFriendUsername(friendnumber);
+        //else
+        //    qDebug() << "Core: Got same avatar info from" << core->getFriendUsername(friendnumber);
     }
 }
 
@@ -769,6 +770,20 @@ void Core::sendGroupMessage(int groupId, const QString& message)
     for (auto &cMsg :cMessages)
     {
         int ret = tox_group_message_send(tox, groupId, cMsg.data(), cMsg.size());
+
+        if (ret == -1)
+            emit groupSentResult(groupId, message, ret);
+    }
+}
+
+void Core::sendGroupAction(int groupId, const QString& message)
+{
+    QList<CString> cMessages = splitMessage(message);
+
+    for (auto &cMsg :cMessages)
+    {
+        int ret = tox_group_action_send(tox, groupId, cMsg.data(), cMsg.size());
+
         if (ret == -1)
             emit groupSentResult(groupId, message, ret);
     }
@@ -976,7 +991,7 @@ void Core::removeGroup(int groupId)
     tox_del_groupchat(tox, groupId);
 }
 
-QString Core::getUsername()
+QString Core::getUsername() const
 {
     QString sname;
     int size = tox_get_self_name_size(tox);
@@ -1019,21 +1034,21 @@ void Core::setAvatar(uint8_t format, const QByteArray& data)
         tox_send_avatar_info(tox, i);
 }
 
-ToxID Core::getSelfId()
+ToxID Core::getSelfId() const
 {
     uint8_t friendAddress[TOX_FRIEND_ADDRESS_SIZE];
     tox_get_address(tox, friendAddress);
     return ToxID::fromString(CFriendAddress::toString(friendAddress));
 }
 
-QString Core::getIDString()
+QString Core::getIDString() const
 {
     return getSelfId().toString().left(12);
     // 12 is the smallest multiple of four such that
     // 16^n > 10^10 (which is roughly the planet's population)
 }
 
-QString Core::getStatusMessage()
+QString Core::getStatusMessage() const
 {
     QString sname;
     int size = tox_get_self_status_message_size(tox);
@@ -1340,6 +1355,7 @@ void Core::switchConfiguration(const QString& profile)
     clearPassword(ptHistory);
     toxTimer->stop();
     
+    Widget::getInstance()->setEnabledThreadsafe(false);
     if (tox) {
         toxav_kill(toxav);
         toxav = nullptr;
@@ -1357,6 +1373,7 @@ void Core::switchConfiguration(const QString& profile)
     HistoryKeeper::getInstance()->resetInstance();
 
     start();
+    Widget::getInstance()->setEnabledThreadsafe(true);
 }
 
 void Core::loadFriends()
@@ -1509,7 +1526,7 @@ void Core::sendAllFileData(Core *core, ToxFile* file)
         return;
     }
     emit core->fileTransferInfo(file->friendId, file->fileNum, file->filesize, file->bytesSent, ToxFile::SENDING);
-    qApp->processEvents();
+//    qApp->processEvents();
     long long chunkSize = tox_file_data_size(core->tox, file->friendId);
     if (chunkSize == -1)
     {
@@ -1697,4 +1714,36 @@ bool Core::isPasswordSet(PasswordType passtype)
         return true;
 
     return false;
+}
+
+QString Core::getPeerName(const ToxID& id) const
+{
+    QString name;
+    CUserId cid(id.toString());
+
+    int friendId = tox_get_friend_number(tox, (uint8_t*)cid.data());
+    if (friendId < 0)
+    {
+        qWarning() << "Core::getPeerName: No such peer "+id.toString();
+        return name;
+    }
+
+    const int nameSize = tox_get_name_size(tox, friendId);
+    if (nameSize <= 0)
+    {
+        qWarning() << "Core::getPeerName: Can't get name of friend "+QString().setNum(friendId)+" ("+id.toString()+")";
+        return name;
+    }
+
+    uint8_t* cname = new uint8_t[nameSize<TOX_MAX_NAME_LENGTH ? TOX_MAX_NAME_LENGTH : nameSize];
+    if (tox_get_name(tox, friendId, cname) != nameSize)
+    {
+        qWarning() << "Core::getPeerName: Can't get name of friend "+QString().setNum(friendId)+" ("+id.toString()+")";
+        delete[] cname;
+        return name;
+    }
+
+    name = name.fromLocal8Bit((char*)cname, nameSize);
+    delete[] cname;
+    return name;
 }

@@ -27,13 +27,12 @@
 #include <QMimeData>
 #include <QDragEnterEvent>
 #include "src/historykeeper.h"
+#include "src/misc/flowlayout.h"
 
 GroupChatForm::GroupChatForm(Group* chatGroup)
     : group(chatGroup)
 {
     nusersLabel = new QLabel();
-    namesList = new QLabel();
-    namesList->setObjectName("peersLabel");
 
     tabber = new TabCompleter(msgEdit, group);
 
@@ -51,17 +50,19 @@ GroupChatForm::GroupChatForm(Group* chatGroup)
 
     avatar->setPixmap(QPixmap(":/img/group_dark.png"), Qt::transparent);
 
-    namesList->setText(QStringList(group->peers.values()).join(", "));
-
     msgEdit->setObjectName("group");
 
+    namesListLayout = new FlowLayout(0,5,0);
+    QStringList names(group->peers.values());
+    for (const QString& name : names)
+        namesListLayout->addWidget(new QLabel(name));
+
     headTextLayout->addWidget(nusersLabel);
-    headTextLayout->addWidget(namesList);
+    headTextLayout->addLayout(namesListLayout);
     headTextLayout->addStretch();
 
     nameLabel->setMinimumHeight(12);
     nusersLabel->setMinimumHeight(12);
-    namesList->setMinimumHeight(12);
 
     connect(sendButton, SIGNAL(clicked()), this, SLOT(onSendTriggered()));
     connect(msgEdit, SIGNAL(enterPressed()), this, SLOT(onSendTriggered()));
@@ -76,14 +77,41 @@ void GroupChatForm::onSendTriggered()
     QString msg = msgEdit->toPlainText();
     if (msg.isEmpty())
         return;
+
     msgEdit->clear();
-    emit sendMessage(group->groupId, msg);
+
+    if (msg.startsWith("/me "))
+    {
+        msg = msg.right(msg.length() - 4);
+        emit sendAction(group->groupId, msg);
+    } else {
+        emit sendMessage(group->groupId, msg);
+    }
 }
 
 void GroupChatForm::onUserListChanged()
 {
     nusersLabel->setText(tr("%1 users in chat").arg(group->nPeers));
-    namesList->setText(QStringList(group->peers.values()).join(", "));
+
+    QLayoutItem *child;
+    while ((child = namesListLayout->takeAt(0)))
+    {
+        child->widget()->hide();
+        delete child->widget();
+        delete child;
+    }
+
+    QStringList names(group->peers.values());
+    unsigned nNames = names.size();
+    for (unsigned i=0; i<nNames; ++i)
+    {
+        QString nameStr = names[i];
+        if (i!=nNames-1)
+            nameStr+=", ";
+        QLabel* nameLabel = new QLabel(nameStr);
+        nameLabel->setObjectName("peersLabel");
+        namesListLayout->addWidget(nameLabel);
+    }
 }
 
 void GroupChatForm::dragEnterEvent(QDragEnterEvent *ev)

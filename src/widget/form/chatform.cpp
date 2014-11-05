@@ -56,9 +56,13 @@ ChatForm::ChatForm(Friend* chatFriend)
     statusMessageLabel->setMinimumHeight(Style::getFont(Style::Medium).pixelSize());
 
     netcam = new NetCamView();
+    timer = nullptr;
 
     headTextLayout->addWidget(statusMessageLabel);
     headTextLayout->addStretch();
+    callDuration = new QLabel();
+    headTextLayout->addWidget(callDuration, 1, Qt::AlignCenter);
+    callDuration->hide();    
 
     menu.addAction(tr("Load History..."), this, SLOT(onLoadHistory()));
 
@@ -92,19 +96,19 @@ void ChatForm::onSendTriggered()
     QString msg = msgEdit->toPlainText();
     if (msg.isEmpty())
         return;
-    QString name = Widget::getInstance()->getUsername();
+
     QDateTime timestamp = QDateTime::currentDateTime();
     HistoryKeeper::getInstance()->addChatEntry(f->userId, msg, Core::getInstance()->getSelfId().publicKey, timestamp);
 
     if (msg.startsWith("/me "))
     {
         msg = msg.right(msg.length() - 4);
-        addMessage(name, msg, true, timestamp);
+        addSelfMessage(msg, true, timestamp);
         emit sendAction(f->friendId, msg);
     }
     else
     {
-        addMessage(name, msg, false, timestamp);
+        addSelfMessage(msg, false, timestamp);
         emit sendMessage(f->friendId, msg);
     }
     msgEdit->clear();
@@ -150,10 +154,13 @@ void ChatForm::startFileSend(ToxFile file)
     connect(Core::getInstance(), SIGNAL(fileTransferRemotePausedUnpaused(ToxFile,bool)), fileTrans, SLOT(onFileTransferRemotePausedUnpaused(ToxFile,bool)));
     connect(Core::getInstance(), SIGNAL(fileTransferBrokenUnbroken(ToxFile, bool)), fileTrans, SLOT(onFileTransferBrokenUnbroken(ToxFile, bool)));
 
-    QString name = Widget::getInstance()->getUsername();
-    if (name == previousName)
-        name = "";
-    previousName = Widget::getInstance()->getUsername();
+    QString name;
+    if (!previousId.isMine())
+    {
+        Core* core = Core::getInstance();
+        name = core->getUsername();
+        previousId = core->getSelfId();
+    }
 
     chatWidget->insertMessage(ChatActionPtr(new FileTransferAction(fileTrans, getElidedName(name),
                                                                    QTime::currentTime().toString("hh:mm"), true)));
@@ -183,10 +190,13 @@ void ChatForm::onFileRecvRequest(ToxFile file)
         f->widget->updateStatusLight();
     }
 
-    QString name = f->getName();
-    if (name == previousName)
-        name = "";
-    previousName = f->getName();
+    QString name;
+    ToxID friendId = f->getToxID();
+    if (friendId != previousId)
+    {
+        name = f->getName();
+        previousId = friendId;
+    }
 
     chatWidget->insertMessage(ChatActionPtr(new FileTransferAction(fileTrans, getElidedName(name),
                                                                    QTime::currentTime().toString("hh:mm"), false)));
@@ -198,6 +208,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
 
 void ChatForm::onAvInvite(int FriendId, int CallId, bool video)
 {
+    qDebug() << "onAvInvite";
     if (FriendId != f->friendId)
         return;
 
@@ -220,6 +231,8 @@ void ChatForm::onAvInvite(int FriendId, int CallId, bool video)
         videoButton->style()->polish(videoButton);
         connect(callButton, SIGNAL(clicked()), this, SLOT(onAnswerCallTriggered()));
     }
+    
+    addSystemInfoMessage(tr("%1 calling").arg(f->getName()), "white", QDateTime::currentDateTime());    
 
     Widget* w = Widget::getInstance();
     if (!w->isFriendWidgetCurActiveWidget(f)|| w->isMinimized() || !w->isActiveWindow())
@@ -232,6 +245,7 @@ void ChatForm::onAvInvite(int FriendId, int CallId, bool video)
 
 void ChatForm::onAvStart(int FriendId, int CallId, bool video)
 {
+    qDebug() << "onAvStart";
     if (FriendId != f->friendId)
         return;
 
@@ -240,6 +254,7 @@ void ChatForm::onAvStart(int FriendId, int CallId, bool video)
     callId = CallId;
     callButton->disconnect();
     videoButton->disconnect();
+        
     if (video)
     {
         callButton->setObjectName("grey");
@@ -258,10 +273,14 @@ void ChatForm::onAvStart(int FriendId, int CallId, bool video)
         videoButton->style()->polish(videoButton);
         connect(callButton, SIGNAL(clicked()), this, SLOT(onHangupCallTriggered()));
     }
+    
+    startCounter();
 }
 
 void ChatForm::onAvCancel(int FriendId, int)
 {
+    qDebug() << "onAvCancel";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -281,10 +300,14 @@ void ChatForm::onAvCancel(int FriendId, int)
     connect(videoButton, SIGNAL(clicked()), this, SLOT(onVideoCallTriggered()));
 
     netcam->hide();
+    
+    addSystemInfoMessage(tr("%1 stopped calling").arg(f->getName()), "white", QDateTime::currentDateTime());        
 }
 
 void ChatForm::onAvEnd(int FriendId, int)
 {
+    qDebug() << "onAvEnd";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -304,10 +327,13 @@ void ChatForm::onAvEnd(int FriendId, int)
     connect(videoButton, SIGNAL(clicked()), this, SLOT(onVideoCallTriggered()));
 
     netcam->hide();
+    
+    stopCounter();
 }
 
 void ChatForm::onAvRinging(int FriendId, int CallId, bool video)
-{
+{    
+    qDebug() << "onAvRinging";
     if (FriendId != f->friendId)
         return;
 
@@ -330,10 +356,14 @@ void ChatForm::onAvRinging(int FriendId, int CallId, bool video)
         videoButton->style()->polish(videoButton);
         connect(callButton, SIGNAL(clicked()), this, SLOT(onCancelCallTriggered()));
     }
+    
+    addSystemInfoMessage(tr("Calling to %1").arg(f->getName()), "white", QDateTime::currentDateTime());    
 }
 
 void ChatForm::onAvStarting(int FriendId, int CallId, bool video)
 {
+    qDebug() << "onAvStarting";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -357,10 +387,14 @@ void ChatForm::onAvStarting(int FriendId, int CallId, bool video)
         videoButton->style()->polish(videoButton);
         connect(callButton, SIGNAL(clicked()), this, SLOT(onHangupCallTriggered()));
     }
+    
+    startCounter();
 }
 
 void ChatForm::onAvEnding(int FriendId, int)
 {
+    qDebug() << "onAvEnding";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -380,12 +414,16 @@ void ChatForm::onAvEnding(int FriendId, int)
     videoButton->disconnect();
     connect(callButton, SIGNAL(clicked()), this, SLOT(onCallTriggered()));
     connect(videoButton, SIGNAL(clicked()), this, SLOT(onVideoCallTriggered()));
-
+    
     netcam->hide();
+        
+    stopCounter();
 }
 
 void ChatForm::onAvRequestTimeout(int FriendId, int)
 {
+    qDebug() << "onAvRequestTimeout";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -411,6 +449,8 @@ void ChatForm::onAvRequestTimeout(int FriendId, int)
 
 void ChatForm::onAvPeerTimeout(int FriendId, int)
 {
+    qDebug() << "onAvPeerTimeout";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -434,8 +474,39 @@ void ChatForm::onAvPeerTimeout(int FriendId, int)
     netcam->hide();
 }
 
+void ChatForm::onAvRejected(int FriendId, int)
+{
+    qDebug() << "onAvRejected";
+    
+    if (FriendId != f->friendId)
+        return;
+
+    audioInputFlag = false;
+    audioOutputFlag = false;
+    micButton->setObjectName("green");
+    micButton->style()->polish(micButton);
+    volButton->setObjectName("green");
+    volButton->style()->polish(volButton);
+    callButton->disconnect();
+    videoButton->disconnect();
+    callButton->setObjectName("green");
+    callButton->style()->polish(callButton);
+    callButton->disconnect();
+    videoButton->setObjectName("green");
+    videoButton->style()->polish(videoButton);
+    videoButton->disconnect();
+    connect(callButton, SIGNAL(clicked()), this, SLOT(onCallTriggered()));
+    connect(videoButton, SIGNAL(clicked()), this, SLOT(onVideoCallTriggered()));
+    
+    addSystemInfoMessage(tr("Call rejected"), "white", QDateTime::currentDateTime());
+
+    netcam->hide();
+}
+
 void ChatForm::onAvMediaChange(int FriendId, int CallId, bool video)
 {
+    qDebug() << "onAvMediaChange";
+    
     if (FriendId != f->friendId || CallId != callId)
         return;
 
@@ -451,13 +522,17 @@ void ChatForm::onAvMediaChange(int FriendId, int CallId, bool video)
 
 void ChatForm::onAnswerCallTriggered()
 {
+    qDebug() << "onAnswerCallTriggered";
+        
     audioInputFlag = true;
     audioOutputFlag = true;
     emit answerCall(callId);
 }
 
 void ChatForm::onHangupCallTriggered()
-{
+{    
+    qDebug() << "onHangupCallTriggered";
+    
     audioInputFlag = false;
     audioOutputFlag = false;
     emit hangupCall(callId);
@@ -469,6 +544,8 @@ void ChatForm::onHangupCallTriggered()
 
 void ChatForm::onCallTriggered()
 {
+    qDebug() << "onCallTriggered";
+    
     audioInputFlag = true;
     audioOutputFlag = true;
     callButton->disconnect();
@@ -478,6 +555,8 @@ void ChatForm::onCallTriggered()
 
 void ChatForm::onVideoCallTriggered()
 {
+    qDebug() << "onVideoCallTriggered";
+    
     audioInputFlag = true;
     audioOutputFlag = true;
     callButton->disconnect();
@@ -487,6 +566,8 @@ void ChatForm::onVideoCallTriggered()
 
 void ChatForm::onAvCallFailed(int FriendId)
 {
+    qDebug() << "onAvCallFailed";
+    
     if (FriendId != f->friendId)
         return;
 
@@ -500,6 +581,8 @@ void ChatForm::onAvCallFailed(int FriendId)
 
 void ChatForm::onCancelCallTriggered()
 {
+    qDebug() << "onCancelCallTriggered";
+    
     audioInputFlag = false;
     audioOutputFlag = false;
     micButton->setObjectName("green");
@@ -518,7 +601,7 @@ void ChatForm::onCancelCallTriggered()
     connect(videoButton, SIGNAL(clicked()), this, SLOT(onVideoCallTriggered()));
 
     netcam->hide();
-    emit cancelCall(callId, f->friendId);
+    emit cancelCall(callId, f->friendId);    
 }
 
 void ChatForm::onMicMuteToggle()
@@ -630,20 +713,16 @@ void ChatForm::onLoadHistory()
 
         auto msgs = HistoryKeeper::getInstance()->getChatHistory(HistoryKeeper::ctSingle, f->userId, fromTime, toTime);
 
-        QString storedPrevName = previousName;
-        previousName = "";
+        ToxID storedPrevId;
+        std::swap(storedPrevId, previousId);
         QList<ChatActionPtr> historyMessages;
 
         for (const auto &it : msgs)
         {
-            QString name = f->getName();
-            if (it.sender == Core::getInstance()->getSelfId().publicKey)
-                name = Core::getInstance()->getUsername();
-
-            ChatActionPtr ca = genMessageActionAction(name, it.message, false, it.timestamp.toLocalTime());
+            ChatActionPtr ca = genMessageActionAction(ToxID::fromString(it.sender), it.message, false, it.timestamp.toLocalTime());
             historyMessages.append(ca);
         }
-        previousName = storedPrevName;
+        std::swap(storedPrevId, previousId);
 
         int savedSliderPos = chatWidget->verticalScrollBar()->maximum() - chatWidget->verticalScrollBar()->value();
 
@@ -655,4 +734,60 @@ void ChatForm::onLoadHistory()
         savedSliderPos = chatWidget->verticalScrollBar()->maximum() - savedSliderPos;
         chatWidget->verticalScrollBar()->setValue(savedSliderPos);
     }
+}
+
+void ChatForm::startCounter()
+{
+    if(!timer)
+    {
+        timer = new QTimer();
+        connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
+        timer->start(1000);
+        timeElapsed.start();
+        callDuration->show();
+    }
+}
+
+void ChatForm::stopCounter()
+{
+    if(timer)
+    {
+        addSystemInfoMessage(tr("Call with %1 ended. %2").arg(f->getName(),
+                                                              secondsToDHMS(timeElapsed.elapsed()/1000)),
+                             "white", QDateTime::currentDateTime());
+        timer->stop();
+        callDuration->setText("");
+        callDuration->hide();
+        timer = nullptr;
+        delete timer;
+    }
+}
+
+void ChatForm::updateTime()
+{
+    callDuration->setText(secondsToDHMS(timeElapsed.elapsed()/1000));
+}
+
+
+QString ChatForm::secondsToDHMS(quint32 duration)
+{
+    QString res;
+    QString cD = tr("Call duration: ");
+    int seconds = (int) (duration % 60);
+    duration /= 60;
+    int minutes = (int) (duration % 60);
+    duration /= 60;
+    int hours = (int) (duration % 24);
+    int days = (int) (duration / 24);
+    
+    if(minutes == 0)
+        return cD + res.sprintf("%02ds", seconds);
+    
+    if(hours == 0 && days == 0)
+        return cD + res.sprintf("%02dm %02ds", minutes, seconds);
+    
+    if (days == 0)
+        return cD + res.sprintf("%02dh %02dm %02ds", hours, minutes, seconds);
+    //I assume no one will ever have call longer than ~30days
+    return cD + res.sprintf("%dd%02dh %02dm %02ds", days, hours, minutes, seconds);
 }

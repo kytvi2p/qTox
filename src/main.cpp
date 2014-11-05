@@ -19,12 +19,53 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <QDebug>
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
+
+#ifdef LOG_TO_FILE
+static QtMessageHandler dflt;
+static QTextStream* logFile {nullptr};
+
+void myMessageHandler(QtMsgType type, const QMessageLogContext& ctxt, const QString& msg)
+{
+    if (!logFile)
+        return;
+
+    // Silence qWarning spam due to bug in QTextBrowser (trying to open a file for base64 images)
+    if (ctxt.function == QString("virtual bool QFSFileEngine::open(QIODevice::OpenMode)")
+            && msg == QString("QFSFileEngine::open: No file name specified"))
+        return;
+
+    dflt(type, ctxt, msg);
+    *logFile << QTime::currentTime().toString("HH:mm:ss' '") << msg << '\n';
+    logFile->flush();
+}
+#endif
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationName("qTox");
     a.setOrganizationName("Tox");
+
+#ifdef LOG_TO_FILE
+    logFile = new QTextStream;
+    dflt = qInstallMessageHandler(nullptr);
+    QFile logfile(QDir(Settings::getSettingsDirPath()).filePath("qtox.log"));
+    if (logfile.open(QIODevice::Append))
+    {
+        logFile->setDevice(&logfile);
+        *logFile << QDateTime::currentDateTime().toString("\nyyyy-dd-MM HH:mm:ss' file logger starting\n'");
+        qInstallMessageHandler(myMessageHandler);
+    }
+    else
+    {
+        fprintf(stderr, "Couldn't open log file!!!\n");
+        delete logFile;
+        logFile = nullptr;
+    }
+#endif
 
     // Windows platform plugins DLL hell fix
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
@@ -41,6 +82,10 @@ int main(int argc, char *argv[])
     int errorcode = a.exec();
 
     delete w;
+#ifdef LOG_TO_FILE
+    delete logFile;
+    logFile = nullptr;
+#endif
 
     return errorcode;
 }
