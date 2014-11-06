@@ -22,7 +22,6 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QPushButton>
-#include <QDnsLookup>
 
 namespace Ui {class MainWindow;}
 
@@ -34,16 +33,16 @@ public:
     ~AddFriendForm();
 
     void show(Ui::MainWindow &ui);
-    bool isToxId(const QString& value) const;
-    void showWarning(const QString& message) const;
     QString getMessage() const;
 
 signals:
     void friendRequested(const QString& friendAddress, const QString& message);
 
+protected:
+    void showWarning(const QString& message) const;
+
 private slots:
     void onSendTriggered();
-    void handleDnsLookup();
 
 private:
     QLabel headLabel, toxIdLabel, messageLabel;
@@ -52,9 +51,6 @@ private:
     QTextEdit message;
     QVBoxLayout layout, headLayout;
     QWidget *head, *main;
-
-    /** will be used for dns discovery if necessary */
-    QDnsLookup dns;
 };
 
 #endif // ADDFRIENDFORM_H

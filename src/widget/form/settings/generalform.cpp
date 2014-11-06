@@ -27,8 +27,8 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 
-static QStringList locales = {"bg", "de", "en", "fr", "it", "mannol", "pirate", "pl", "ru", "fi", "uk"};
-static QStringList langs = {"Български", "Deustch", "English", "Français", "Italiano", "mannol", "Pirate", "Polski", "Русский", "Suomi", "Українська"};
+static QStringList locales = {"bg", "de", "en", "fr", "it", "mannol", "pirate", "pl", "ru", "fi", "sv", "uk"};
+static QStringList langs = {"Български", "Deustch", "English", "Français", "Italiano", "mannol", "Pirate", "Polski", "Русский", "Suomi", "Svenska", "Українська"};
 
 static QStringList timeFormats = {"hh:mm AP", "hh:mm", "hh:mm:ss AP", "hh:mm:ss"};
 
@@ -51,7 +51,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->statusChanges->setChecked(Settings::getInstance().getStatusChangeNotificationEnabled());
     bodyUI->useEmoticons->setChecked(Settings::getInstance().getUseEmoticons());
     bodyUI->autoacceptFiles->setChecked(Settings::getInstance().getAutoSaveEnabled());
-    bodyUI->autoSaveFilesDir->setText(Settings::getInstance().getAutoSaveFilesDir());
+    bodyUI->autoSaveFilesDir->setText(Settings::getInstance().getGlobalAutoAcceptDir());
     
     for (auto entry : SmileyPack::listSmileyPacks())
     {
@@ -172,8 +172,7 @@ void GeneralForm::onEmoticonSizeChanged()
 
 void GeneralForm::onTimestampSelected(int index)
 {
-    Settings::getInstance().setTimestampFormat(
-                bodyUI->timestamp->currentText().split(" ").at(0));
+    Settings::getInstance().setTimestampFormat(timeFormats.at(index));
 }
 
 void GeneralForm::onAutoAwayChanged()
@@ -185,26 +184,22 @@ void GeneralForm::onAutoAwayChanged()
 
 void GeneralForm::onAutoAcceptFileChange()
 {
+    Settings::getInstance().setAutoSaveEnabled(bodyUI->autoacceptFiles->isChecked());
+    
     if(bodyUI->autoacceptFiles->isChecked() == true)
-    {
-        Settings::getInstance().setAutoSaveEnabled(true);
         connect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()), this, SLOT(onAutoSaveDirChange()));
-    }
     else
-    {
-        Settings::getInstance().setAutoSaveEnabled(false);
         disconnect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()),this, SLOT(onAutoSaveDirChange()));
-    }
 }
 
 void GeneralForm::onAutoSaveDirChange()
 {
-    QString previousDir = Settings::getInstance().getAutoSaveFilesDir();
+    QString previousDir = Settings::getInstance().getGlobalAutoAcceptDir();
     QString directory = QFileDialog::getExistingDirectory(0, tr("Choose an auto accept directory","popup title"));
     if(directory.isEmpty())
         directory = previousDir;
     
-    Settings::getInstance().setAutoSaveFilesDir(directory);
+    Settings::getInstance().setGlobalAutoAcceptDir(directory);
     bodyUI->autoSaveFilesDir->setText(directory);
 }
 
