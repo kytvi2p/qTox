@@ -12,6 +12,7 @@ Build-Depends: debhelper (>= 9),
  libtoxav-dev (>= 0.0.0+20140925.1),
  libtoxcore-dev (>= 0.0.0+20140925.1),
  libtoxencryptsave-dev,
+ libtoxdns-dev,
  qt5-qmake,
  qtbase5-dev
 Vcs-Git: git://killyourtv.i2p/git/qTox.git
