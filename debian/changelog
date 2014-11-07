@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141106.r1320-1ubuntu1) trusty; urgency=medium
+
+  * Building for Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 07 Nov 2014 01:18:07 +0000
+
 qtox (0.0.0+git20141106.r1320-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
@@ -63,12 +69,6 @@ qtox (0.0.0+git20141106.r1320-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 06 Nov 2014 22:04:11 +0000
-
-qtox (0.0.0+git20141105.r1281-1ubuntu1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 05 Nov 2014 19:28:52 +0000
 
 qtox (0.0.0+git20141105.r1281-1) unstable; urgency=medium
 
