@@ -69,9 +69,7 @@ win32 {
     LIBS += -lz -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -ljpeg -ltiff -lpng -ljasper -lIlmImf -lHalf -lws2_32
 } else {
     macx {
-        BUNDLEID = im.tox.qtox
         ICON = img/icons/qtox.icns
-        QMAKE_INFO_PLIST = res/info.plist
         LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lsodium -lvpx -framework OpenAL -lopencv_core -lopencv_highgui
     } else {
         # If we're building a package, static link libtox[core,av] and libsodium, since they are not provided by any package
@@ -87,7 +85,11 @@ win32 {
         }
 
         contains(JENKINS, YES) {
+<<<<<<< HEAD
+            LIBS = ./libs/lib/libsodium.a ./libs/lib/libtoxcore.a ./libs/lib/libtoxav.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxdns.a ./libs/lib/libvpx.a ./libs/lib/libopus.a -lopencv_core -lopencv_highgui -lopenal
+=======
             LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxdns.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxcore.a ./libs/lib/libsodium.a /usr/lib/libopencv_core.so /usr/lib/libopencv_highgui.so /usr/lib/libopencv_imgproc.so -lopenal -s
+>>>>>>> pr640
         }
     }
 }
@@ -149,10 +151,7 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/widget/form/setpassworddialog.h \
     src/widget/form/tabcompleter.h \
     src/video/videoframe.h \
-    src/misc/flowlayout.h \
-    src/ipc.h \
-    src/widget/toxuri.h \
-    src/toxdns.h
+    src/misc/flowlayout.h
 
 SOURCES += \
     src/widget/form/addfriendform.cpp \
@@ -211,7 +210,4 @@ SOURCES += \
     src/video/netvideosource.cpp \
     src/widget/form/tabcompleter.cpp \
     src/video/videoframe.cpp \
-    src/misc/flowlayout.cpp \
-    src/widget/toxuri.cpp \
-    src/toxdns.cpp \
-    src/ipc.cpp
+    src/misc/flowlayout.cpp

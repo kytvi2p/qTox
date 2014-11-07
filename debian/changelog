@@ -1,3 +1,69 @@
+qtox (0.0.0+git20141106.r1320-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Check Tox DNS protocol version, reject if not tox1
+  * Fix compilation warning
+
+  [ agilob ]
+  * global autoaccept files
+
+  [ willeponken ]
+  * Swedish translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Implement tox3 support, keep tox1 as silent fallback
+
+  [ agilob ]
+  * cleaning in settings.cpp filetransferinstance.cpp and friendwidget.cpp,
+    global autoaccept, per friend and qmenunu simplificated
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Enable swedish translation
+
+  [ agilob ]
+  * window titles
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add .gitattribute, fix github linguist mistakes
+  * Fix typo
+
+  [ Sean ]
+  * Add identifier, prepare for code signing on OS X
+  * Add info.plist for OS X install
+  * Add info.plist install, fix @dubslow
+
+  [ Сухарик ]
+  * update russian translation
+  * merge some of https://github.com/tux3/qTox/pull/642
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Сухарик ]
+  * small change
+
+  [ agilob ]
+  * disabling emoitcons
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Implement IPC, Tox URI, refactor Tox DNS
+  * IPC: Yield ownership on exit
+  * Tox URI: Handle nonstandard tox:// URI scheme as well
+
+  [ agilob ]
+  * highight tox:// in chat
+  * tox:id
+
+  [ dubslow ]
+  * fix #650
+  * fix dep issue from groupchat
+
+  [ Kill Your TV ]
+  * Add dependency on libtoxdns-dev
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 06 Nov 2014 22:04:11 +0000
+
 qtox (0.0.0+git20141105.r1281-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty
