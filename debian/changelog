@@ -1,3 +1,85 @@
+qtox (0.0.0+git20141109.r1371-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Warn user if we try to use DNS with a SOCKS5 proxy
+
+  [ dubslow ]
+  * threadify file logger
+
+  [ Zetok Zalbavar ]
+  * Make emoticons more compatible with other clients
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Olexandr Nesterenko ]
+  * remove *.qm files
+
+  [ apprb ]
+  * struct Friend refactoring
+  * only public key is necessary
+  * possiblity to setup alias
+  * load/save aliases from the settings file
+  * Alias: remove unnecessary symbols + size limit
+  * main window title proper updating
+  * default friend name
+
+  [ dubslow ]
+  * handle tox save files, also fix IdentForm bug
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: System-wide Tox URI protocol support
+
+  [ dubslow ]
+  * Same mistake every time...
+  * remove incorrect line
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: .tox file format, app registration
+
+  [ Zetok Zalbavar ]
+  * Correct qTox.desktop
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: Fix Tox URI handling
+  * Build .qm files in qmake, before RCC runs
+  * Fix #670
+  * Fix #671
+  * Remove dead assignement, useless include
+  * Fix #674
+  * Fix #673
+  * Autoload last week of history on startup
+  * Don't free actions owned by the system tray menu
+  * Update french translation
+  * Add boolean 'sent_ok' to new history DBs
+  * Show the date for each new day when loading history
+  * Use Fusion by default if available
+  * Highlight on main buttons hover, fixes #295
+  * Don't notify the same status change twice
+
+  [ apprb ]
+  * 93a4d30 (Add boolean 'sent_ok' to new history DBs) fix: default value
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Remove backup qtox.pro.orig
+  * ToxDNS lacked the Q_OBJECT macro
+
+  [ Zetok Zalbavar ]
+  * Minor touch-up
+  * Update Polish translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * New build-dep on qttools5-dev-tools
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 09 Nov 2014 21:09:26 +0000
+
 qtox (0.0.0+git20141106.r1320-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
