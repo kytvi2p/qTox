@@ -31,6 +31,8 @@
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/maskablepixmapwidget.h"
 #include "src/core.h"
+#include "src/friendlist.h"
+#include "src/friend.h"
 
 GenericChatForm::GenericChatForm(QWidget *parent) :
     QWidget(parent),
@@ -149,9 +151,9 @@ GenericChatForm::GenericChatForm(QWidget *parent) :
     headWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatHead.css"));
 }
 
-int GenericChatForm::getNumberOfMessages()
+bool GenericChatForm::isEmpty()
 {
-    return chatWidget->getNumberOfMessages();
+    return chatWidget->isEmpty();
 }
 
 void GenericChatForm::setName(const QString &newName)
@@ -342,8 +344,13 @@ ChatActionPtr GenericChatForm::genMessageActionAction(const ToxID& author, QStri
     QString authorStr;
     if (isMe)
         authorStr = core->getUsername();
-    else
-        authorStr = core->getPeerName(author);
+    else {
+        Friend *f = FriendList::findFriend(author.publicKey);
+        if (f)
+            authorStr = f->getDisplayedName();
+        else
+            authorStr = core->getPeerName(author);
+    }
 
     if (authorStr.isEmpty()) // Fallback if we can't find a username
         authorStr = author.toString();

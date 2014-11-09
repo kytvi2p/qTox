@@ -37,17 +37,10 @@ FORMS    += \
     
 CONFIG   += c++11
 
-TRANSLATIONS = translations/de.ts \
-               translations/fr.ts \
-               translations/it.ts \
-               translations/ru.ts \
-               translations/pirate.ts \
-               translations/pl.ts \
-               translations/fi.ts \
-               translations/mannol.ts \
-               translations/uk.ts \
-               translations/sv.ts \
-               translations/bg.ts
+# Rules for creating/updating {ts|qm}-files
+include(translations/i18n.pri)
+# Build all the qm files now, to make RCC happy
+system($$fromfile(translations/i18n.pri, updateallqm))
 
 RESOURCES += res.qrc
 
@@ -152,7 +145,8 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/misc/flowlayout.h \
     src/ipc.h \
     src/widget/toxuri.h \
-    src/toxdns.h
+    src/toxdns.h \
+    src/widget/toxsave.h
 
 SOURCES += \
     src/widget/form/addfriendform.cpp \
@@ -214,4 +208,5 @@ SOURCES += \
     src/misc/flowlayout.cpp \
     src/widget/toxuri.cpp \
     src/toxdns.cpp \
-    src/ipc.cpp
+    src/ipc.cpp \
+    src/widget/toxsave.cpp    
