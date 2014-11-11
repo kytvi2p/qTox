@@ -479,10 +479,22 @@ void Core::onGroupAction(Tox*, int groupnumber, int peernumber, const uint8_t *a
                                     core->getGroupPeerName(groupnumber, peernumber), true);
 }
 
-void Core::onGroupInvite(Tox*, int friendnumber, const uint8_t *group_public_key, uint16_t length,void *core)
+void Core::onGroupInvite(Tox*, int friendnumber, uint8_t type, const uint8_t *data, uint16_t length,void *core)
 {
-    qDebug() << QString("Core: Group invite by %1").arg(friendnumber);
-    emit static_cast<Core*>(core)->groupInviteReceived(friendnumber, group_public_key,length);
+    if (type == TOX_GROUPCHAT_TYPE_TEXT)
+    {
+        qDebug() << QString("Core: Text group invite by %1").arg(friendnumber);
+        emit static_cast<Core*>(core)->groupInviteReceived(friendnumber,type,data,length);
+    }
+    else if (type == TOX_GROUPCHAT_TYPE_AV)
+    {
+        qDebug() << QString("Core: AV group invite by %1").arg(friendnumber);
+        emit static_cast<Core*>(core)->groupInviteReceived(friendnumber,type,data,length);
+    }
+    else
+    {
+        qWarning() << "Core: Group invite with unknown type "<<type;
+    }
 }
 
 void Core::onGroupMessage(Tox*, int groupnumber, int peernumber, const uint8_t * message, uint16_t length, void *_core)
@@ -1469,10 +1481,23 @@ QList<QString> Core::getGroupPeerNames(int groupId) const
     return names;
 }
 
-int Core::joinGroupchat(int32_t friendnumber, const uint8_t* friend_group_public_key,uint16_t length) const
+int Core::joinGroupchat(int32_t friendnumber, uint8_t type, const uint8_t* friend_group_public_key,uint16_t length) const
 {
-    qDebug() << QString("Trying to join groupchat invite by friend %1").arg(friendnumber);
-    return tox_join_groupchat(tox, friendnumber, friend_group_public_key,length);
+    if (type == TOX_GROUPCHAT_TYPE_TEXT)
+    {
+        qDebug() << QString("Trying to join text groupchat invite sent by friend %1").arg(friendnumber);
+        return tox_join_groupchat(tox, friendnumber, friend_group_public_key,length);
+    }
+    else if (type == TOX_GROUPCHAT_TYPE_AV)
+    {
+        qDebug() << QString("Trying to join AV groupchat invite sent by friend %1").arg(friendnumber);
+        return toxav_join_av_groupchat(tox, friendnumber, friend_group_public_key, length, playGroupAudio, const_cast<Core*>(this));
+    }
+    else
+    {
+        qWarning() << "Core::joinGroupchat: Unknown groupchat type "<<type;
+        return -1;
+    }
 }
 
 void Core::quitGroupChat(int groupId) const
@@ -1603,9 +1628,14 @@ void Core::groupInviteFriend(int friendId, int groupId)
     tox_invite_friend(tox, friendId, groupId);
 }
 
-void Core::createGroup()
+void Core::createGroup(uint8_t type)
 {
-    emit emptyGroupCreated(tox_add_groupchat(tox));
+    if (type == TOX_GROUPCHAT_TYPE_TEXT)
+        emit emptyGroupCreated(tox_add_groupchat(tox));
+    else if (type == TOX_GROUPCHAT_TYPE_AV)
+        emit emptyGroupCreated(toxav_add_av_groupchat(tox, playGroupAudio, this));
+    else
+        qWarning() << "Core::createGroup: Unknown type "<<type;
 }
 
 bool Core::hasFriendWithAddress(const QString &addr) const
@@ -1782,7 +1812,7 @@ QString Core::getPeerName(const ToxID& id) const
     const int nameSize = tox_get_name_size(tox, friendId);
     if (nameSize <= 0)
     {
-        qWarning() << "Core::getPeerName: Can't get name of friend "+QString().setNum(friendId)+" ("+id.toString()+")";
+        //qDebug() << "Core::getPeerName: Can't get name of friend "+QString().setNum(friendId)+" ("+id.toString()+")";
         return name;
     }
 

@@ -16,6 +16,7 @@
 
 #include "friend.h"
 #include "friendlist.h"
+#include "src/misc/settings.h"
 #include <QMenu>
 #include <QDebug>
 #include <QHash>
@@ -49,7 +50,10 @@ void FriendList::removeFriend(int friendId)
 {
     auto f_it = friendList.find(friendId);
     if (f_it != friendList.end())
+    {
+        Settings::getInstance().removeFriendSettings(f_it.value()->getToxID());
         friendList.erase(f_it);
+    }
 }
 
 void FriendList::clear()
@@ -64,6 +68,8 @@ Friend* FriendList::findFriend(QString userId)
     if (id != tox2id.end())
     {
         Friend *f = findFriend(*id);
+        if (!f)
+            return nullptr;
         if (f->getToxID() == ToxID::fromString(userId))
             return f;
     }

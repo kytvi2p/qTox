@@ -849,7 +849,18 @@ void Settings::setFriendAlias(const ToxID &id, const QString &alias)
     if (it != friendLst.end())
     {
         it->alias = alias;
+    } else {
+        friendProp fp;
+        fp.addr = key;
+        fp.alias = alias;
+        friendLst[key] = fp;
     }
+}
+
+void Settings::removeFriendSettings(const ToxID &id)
+{
+    QString key = id.publicKey;
+    friendLst.remove(key);
 }
 
 bool Settings::getFauxOfflineMessaging() const
