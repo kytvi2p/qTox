@@ -1,3 +1,64 @@
+qtox (0.0.0+git20141111.r1415-1) unstable; urgency=medium
+
+  [ saneki ]
+  * Additional error info for failedToAddFriend, checks if friend is added
+    already
+  * Formatting, tr() for UI strings
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kristian Buchman ]
+  * Add the option to open qTox when a message is recived
+
+  [ dubslow ]
+  * switch to relevant chat room when minimized fixes #688, except that for me
+    it doesn't actually unminimize
+  * UI things
+  * properly unminimize
+
+  [ apprb ]
+  * read receipt infrastructure
+  * store delivering status in the DB
+  * ChatAction refactoring
+  * displaying undelivered messages in chat area
+  * group messages
+  * faux offline messaging
+
+  [ apprb ]
+  * Faux offline messaging: enable/disable
+  * DB: autoupdate
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #694
+  * Update genflist tool to search recursively
+
+  [ dubslow ]
+  * default faux offline on, fix #696
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Disable silently falling back to tox1 when tox3 fails
+
+  [ dubslow ]
+  * respond to copying id, fixes #537
+
+  [ apprb ]
+  * fix DB updating speed
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Marcel ]
+  * fixes #707
+
+  [ apprb ]
+  * HistoryKeeper::getChatHistory(..): fix in sql statement
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 11 Nov 2014 13:54:04 +0000
+
 qtox (0.0.0+git20141109.r1371-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
