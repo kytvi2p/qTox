@@ -45,6 +45,10 @@ IdentityForm::IdentityForm() :
     toxId->setFont(Style::getFont(Style::Small));
     
     bodyUI->toxGroup->layout()->addWidget(toxId);
+
+    timer.setInterval(1000);
+    timer.setSingleShot(true);
+    connect(&timer, &QTimer::timeout, this, [=]() {bodyUI->toxIdLabel->setText(bodyUI->toxIdLabel->text().replace(" ✔", ""));});
     
     connect(bodyUI->toxIdLabel, SIGNAL(clicked()), this, SLOT(copyIdClicked()));
     connect(toxId, SIGNAL(clicked()), this, SLOT(copyIdClicked()));
@@ -68,8 +72,8 @@ IdentityForm::IdentityForm() :
     connect(core, &Core::avPeerTimeout, this, &IdentityForm::enableSwitching);
     connect(core, &Core::avRequestTimeout, this, &IdentityForm::enableSwitching);
 
-    connect(Core::getInstance(), &Core::usernameSet, this, [=](const QString& val) { bodyUI->userName->setText(val); });
-    connect(Core::getInstance(), &Core::statusMessageSet, this, [=](const QString& val) { bodyUI->statusMessage->setText(val); });
+    connect(core, &Core::usernameSet, this, [=](const QString& val) { bodyUI->userName->setText(val); });
+    connect(core, &Core::statusMessageSet, this, [=](const QString& val) { bodyUI->statusMessage->setText(val); });
 }
 
 IdentityForm::~IdentityForm()
@@ -84,6 +88,9 @@ void IdentityForm::copyIdClicked()
     txt.replace('\n',"");
     QApplication::clipboard()->setText(txt);
     toxId->setCursorPosition(0);
+
+    bodyUI->toxIdLabel->setText(bodyUI->toxIdLabel->text() + " ✔");
+    timer.start();
 }
 
 void IdentityForm::onUserNameEdited()
@@ -201,11 +208,12 @@ void IdentityForm::onImportClicked()
         return;
     }
 
-    if (info.exists() && !checkContinue(tr("Profile already exists", "import confirm title"),
+    QString profilePath = QDir(Settings::getSettingsDirPath()).filePath(profile + Core::TOX_EXT);
+
+    if (QFileInfo(profilePath).exists() && !checkContinue(tr("Profile already exists", "import confirm title"),
             tr("A profile named \"%1\" already exists. Do you want to erase it?", "import confirm text").arg(profile)))
         return;
 
-    QString profilePath = QDir(Settings::getSettingsDirPath()).filePath(profile + Core::TOX_EXT);
     QFile::copy(path, profilePath);
     bodyUI->profiles->addItem(profile);
 }

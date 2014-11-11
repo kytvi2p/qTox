@@ -27,6 +27,8 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 
+#include "src/autoupdate.h"
+
 static QStringList locales = {"bg", "de", "en", "fr", "it", "mannol", "pirate", "pl", "ru", "fi", "sv", "uk"};
 static QStringList langs = {"Български", "Deustch", "English", "Français", "Italiano", "mannol", "Pirate", "Polski", "Русский", "Suomi", "Svenska", "Українська"};
 
@@ -39,6 +41,10 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     
     bodyUI = new Ui::GeneralSettings;
     bodyUI->setupUi(this);
+
+    bodyUI->checkUpdates->setVisible(AUTOUPDATE_ENABLED);
+    bodyUI->checkUpdates->setChecked(Settings::getInstance().getCheckUpdates());
+    bodyUI->trayLayout->addStretch();
     
     bodyUI->cbEnableIPv6->setChecked(Settings::getInstance().getEnableIPv6());
     for (int i = 0; i < langs.size(); i++)
@@ -52,6 +58,8 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->useEmoticons->setChecked(Settings::getInstance().getUseEmoticons());
     bodyUI->autoacceptFiles->setChecked(Settings::getInstance().getAutoSaveEnabled());
     bodyUI->autoSaveFilesDir->setText(Settings::getInstance().getGlobalAutoAcceptDir());
+    bodyUI->showInFront->setChecked(Settings::getInstance().getShowInFront());
+    bodyUI->cbFauxOfflineMessaging->setChecked(Settings::getInstance().getFauxOfflineMessaging());
     
     for (auto entry : SmileyPack::listSmileyPacks())
     {
@@ -93,6 +101,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     onUseProxyUpdated();
 
     //general
+    connect(bodyUI->checkUpdates, &QCheckBox::stateChanged, this, &GeneralForm::onCheckUpdateChanged);
     connect(bodyUI->transComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onTranslationUpdated()));
     connect(bodyUI->cbMakeToxPortable, &QCheckBox::stateChanged, this, &GeneralForm::onMakeToxPortableUpdated);
     connect(bodyUI->startInTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetAutostartInTray);
@@ -100,6 +109,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     connect(bodyUI->minimizeToTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetMinimizeToTray);
     connect(bodyUI->statusChanges, &QCheckBox::stateChanged, this, &GeneralForm::onSetStatusChange);
     connect(bodyUI->autoAwaySpinBox, SIGNAL(editingFinished()), this, SLOT(onAutoAwayChanged()));
+    connect(bodyUI->showInFront, &QCheckBox::stateChanged, this, &GeneralForm::onSetShowInFront);
     connect(bodyUI->autoacceptFiles, &QCheckBox::stateChanged, this, &GeneralForm::onAutoAcceptFileChange);
     if(bodyUI->autoacceptFiles->isChecked())
         connect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()), this, SLOT(onAutoSaveDirChange()));
@@ -116,6 +126,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     connect(bodyUI->proxyAddr, &QLineEdit::editingFinished, this, &GeneralForm::onProxyAddrEdited);
     connect(bodyUI->proxyPort, SIGNAL(valueChanged(int)), this, SLOT(onProxyPortEdited(int)));
     connect(bodyUI->reconnectButton, &QPushButton::clicked, this, &GeneralForm::onReconnectClicked);
+    connect(bodyUI->cbFauxOfflineMessaging, &QCheckBox::stateChanged, this, &GeneralForm::onFauxOfflineMessaging);
 }
 
 GeneralForm::~GeneralForm()
@@ -279,4 +290,19 @@ void GeneralForm::reloadSmiles()
     bodyUI->smile3->setToolTip(smiles[2]);
     bodyUI->smile4->setToolTip(smiles[3]);
     bodyUI->smile5->setToolTip(smiles[4]);
+}
+
+void GeneralForm::onCheckUpdateChanged()
+{
+    Settings::getInstance().setCheckUpdates(bodyUI->checkUpdates->isChecked());
+}
+
+void GeneralForm::onSetShowInFront()
+{
+   Settings::getInstance().setShowInFront(bodyUI->showInFront->isChecked());
+}
+
+void GeneralForm::onFauxOfflineMessaging()
+{
+    Settings::getInstance().setFauxOfflineMessaging(bodyUI->cbFauxOfflineMessaging->isChecked());
 }

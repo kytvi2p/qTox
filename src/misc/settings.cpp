@@ -26,6 +26,7 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include <QList>
+#include <QStyleFactory>
 
 const QString Settings::FILENAME = "settings.ini";
 bool Settings::makeToxPortable{false};
@@ -92,12 +93,16 @@ void Settings::load()
             useCustomDhtList=false;
     s.endGroup();
 
-    friendAddresses.clear();
+    friendLst.clear();
     s.beginGroup("Friends");
         int size = s.beginReadArray("fullAddresses");
-        for (int i = 0; i < size; i ++) {
+        for (int i = 0; i < size; i ++)
+        {
             s.setArrayIndex(i);
-            friendAddresses.append(s.value("addr").toString());
+            friendProp fp;
+            fp.addr = s.value("addr").toString();
+            fp.alias = s.value("alias").toString();
+            friendLst[ToxID::fromString(fp.addr).publicKey] = fp;
         }
         s.endArray();
     s.endGroup();
@@ -114,6 +119,9 @@ void Settings::load()
         proxyPort = s.value("proxyPort", 0).toInt();
         currentProfile = s.value("currentProfile", "").toString();
     	autoAwayTime = s.value("autoAwayTime", 10).toInt();
+        checkUpdates = s.value("checkUpdates", false).toBool();
+        showInFront = s.value("showInFront", false).toBool();
+        fauxOfflineMessaging = s.value("fauxOfflineMessaging", true).toBool();
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -136,8 +144,15 @@ void Settings::load()
         minimizeToTray = s.value("minimizeToTray", false).toBool();
         useNativeStyle = s.value("nativeStyle", false).toBool();
         useEmoticons = s.value("useEmoticons", true).toBool();
-        style = s.value("style", "None").toString();
         statusChangeNotificationEnabled = s.value("statusChangeNotificationEnabled", false).toBool();
+        style = s.value("style", "").toString();
+        if (style == "") // Default to Fusion if available, otherwise no style
+        {
+            if (QStyleFactory::keys().contains("Fusion"))
+                style = "Fusion";
+            else
+                style = "None";
+        }
     s.endGroup();
 
     s.beginGroup("State");
@@ -219,10 +234,14 @@ void Settings::save(QString path)
     s.endGroup();
 
     s.beginGroup("Friends");
-        s.beginWriteArray("fullAddresses", friendAddresses.size());
-        for (int i = 0; i < friendAddresses.size(); i ++) {
-            s.setArrayIndex(i);
-            s.setValue("addr", friendAddresses[i]);
+        s.beginWriteArray("fullAddresses", friendLst.size());
+        int index = 0;
+        for (auto &frnd : friendLst)
+        {
+            s.setArrayIndex(index);
+            s.setValue("addr", frnd.addr);
+            s.setValue("alias", frnd.alias);
+            index++;
         }
         s.endArray();
     s.endGroup();
@@ -239,6 +258,9 @@ void Settings::save(QString path)
         s.setValue("proxyPort", proxyPort);
         s.setValue("currentProfile", currentProfile);
         s.setValue("autoAwayTime", autoAwayTime);
+        s.setValue("checkUpdates", checkUpdates);
+        s.setValue("showInFront", showInFront);
+        s.setValue("fauxOfflineMessaging", fauxOfflineMessaging);
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -460,6 +482,16 @@ bool Settings::getStatusChangeNotificationEnabled() const
 void Settings::setStatusChangeNotificationEnabled(bool newValue)
 {
     statusChangeNotificationEnabled = newValue;
+}
+
+bool Settings::getShowInFront() const
+{
+   return showInFront;
+}
+
+void Settings::setShowInFront(bool newValue)
+{
+   showInFront = newValue;
 }
 
 QString Settings::getTranslation() const
@@ -711,6 +743,16 @@ void Settings::setWindowState(const QByteArray &value)
     windowState = value;
 }
 
+bool Settings::getCheckUpdates() const
+{
+    return checkUpdates;
+}
+
+void Settings::setCheckUpdates(bool newValue)
+{
+    checkUpdates = newValue;
+}
+
 QByteArray Settings::getSplitterState() const
 {
     return splitterState;
@@ -759,4 +801,74 @@ QString Settings::getOutDev() const
 void Settings::setOutDev(const QString& deviceSpecifier)
 {
     outDev = deviceSpecifier;
+}
+
+QString Settings::getFriendAdress(const QString &publicKey) const
+{
+    QString key = ToxID::fromString(publicKey).publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        return it->addr;
+    }
+
+    return QString();
+}
+
+void Settings::updateFriendAdress(const QString &newAddr)
+{
+    QString key = ToxID::fromString(newAddr).publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        it->addr = newAddr;
+    } else {
+        friendProp fp;
+        fp.addr = newAddr;
+        fp.alias = "";
+        friendLst[newAddr] = fp;
+    }
+}
+
+QString Settings::getFriendAlias(const ToxID &id) const
+{
+    QString key = id.publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        return it->alias;
+    }
+
+    return QString();
+}
+
+void Settings::setFriendAlias(const ToxID &id, const QString &alias)
+{
+    QString key = id.publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        it->alias = alias;
+    } else {
+        friendProp fp;
+        fp.addr = key;
+        fp.alias = alias;
+        friendLst[key] = fp;
+    }
+}
+
+void Settings::removeFriendSettings(const ToxID &id)
+{
+    QString key = id.publicKey;
+    friendLst.remove(key);
+}
+
+bool Settings::getFauxOfflineMessaging() const
+{
+    return fauxOfflineMessaging;
+}
+
+void Settings::setFauxOfflineMessaging(bool value)
+{
+    fauxOfflineMessaging = value;
 }

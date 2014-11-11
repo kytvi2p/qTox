@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014 by Project Tox <https://tox.im>
+
+    This file is part of qTox, a Qt-based graphical interface for Tox.
+
+    This program is libre software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the COPYING file for more details.
+*/
+
+
 #ifndef QTOXDNS_H
 #define QTOXDNS_H
 
@@ -5,9 +22,14 @@
 #include <QDnsLookup>
 #include <QObject>
 
+/// Tox1 is not encrypted, it's unsafe
+#define TOX1_SILENT_FALLBACK 0
+
 /// Handles tox1 and tox3 DNS queries
 class ToxDNS : public QObject
 {
+    Q_OBJECT
+
 public:
     struct tox3_server ///< Represents a tox3 server
     {
@@ -22,8 +44,8 @@ public:
     /// Tries to map a text string to a ToxID struct, will query Tox DNS records if necessary
     static ToxID resolveToxAddress(const QString& address, bool silent=true);
 
-    static QString queryTox1(const QString& record, bool silent=true); ///< Record should look like user@domain.tld
-    static QString queryTox3(const tox3_server& server, const QString& record, bool silent=true); ///< Record should look like user@domain.tld, may fallback on queryTox1
+    static QString queryTox1(const QString& record, bool silent=true); ///< Record should look like user@domain.tld. Do *NOT* use tox1 without a good reason, it's unsafe.
+    static QString queryTox3(const tox3_server& server, const QString& record, bool silent=true); ///< Record should look like user@domain.tld, will *NOT* fallback on queryTox1 anymore
 
 protected:
     static void showWarning(const QString& message);

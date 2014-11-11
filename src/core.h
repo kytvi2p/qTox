@@ -21,6 +21,8 @@
 #include <QObject>
 #include <QMutex>
 
+#include <tox/tox.h>
+
 #include "corestructs.h"
 #include "coreav.h"
 #include "coredefines.h"
@@ -45,6 +47,7 @@ public:
     static const QString TOX_EXT;
     static const QString CONFIG_FILE_NAME;
     static QString sanitize(QString name);
+    static QList<CString> splitMessage(const QString &message);
 
     QString getPeerName(const ToxID& id) const;
 
@@ -53,7 +56,9 @@ public:
     QList<QString> getGroupPeerNames(int groupId) const; ///< Get the names of the peers of a group
     QString getFriendAddress(int friendNumber) const; ///< Get the full address if known, or Tox ID of a friend
     QString getFriendUsername(int friendNumber) const; ///< Get the username of a friend
-    int joinGroupchat(int32_t friendNumber, const uint8_t* pubkey,uint16_t length) const; ///< Accept a groupchat invite
+    bool hasFriendWithAddress(const QString &addr) const; ///< Check if we have a friend by address
+    bool hasFriendWithPublicKey(const QString &pubkey) const; ///< Check if we have a friend by public key
+    int joinGroupchat(int32_t friendNumber, uint8_t type, const uint8_t* pubkey,uint16_t length) const; ///< Accept a groupchat invite
     void quitGroupChat(int groupId) const; ///< Quit a groupchat
 
     void saveConfiguration();
@@ -80,7 +85,7 @@ public slots:
     void acceptFriendRequest(const QString& userId);
     void requestFriendship(const QString& friendAddress, const QString& message);
     void groupInviteFriend(int friendId, int groupId);
-    void createGroup();
+    void createGroup(uint8_t type = TOX_GROUPCHAT_TYPE_AV);
 
     void removeFriend(int friendId);
     void removeGroup(int groupId);
@@ -90,10 +95,10 @@ public slots:
     void setStatusMessage(const QString& message);
     void setAvatar(uint8_t format, const QByteArray& data);
 
-    void sendMessage(int friendId, const QString& message);
+    int sendMessage(int friendId, const QString& message);
     void sendGroupMessage(int groupId, const QString& message);
     void sendGroupAction(int groupId, const QString& message);
-    void sendAction(int friendId, const QString& action);
+    int sendAction(int friendId, const QString& action);
     void sendTyping(int friendId, bool typing);
 
     void sendFile(int32_t friendId, QString Filename, QString FilePath, long long filesize);
@@ -140,7 +145,7 @@ signals:
     void friendLastSeenChanged(int friendId, const QDateTime& dateTime);
 
     void emptyGroupCreated(int groupnumber);
-    void groupInviteReceived(int friendnumber, const uint8_t *group_public_key,uint16_t length);
+    void groupInviteReceived(int friendnumber, uint8_t type, const uint8_t *group_public_key,uint16_t length);
     void groupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);
     void groupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
 
@@ -152,9 +157,10 @@ signals:
 
     void messageSentResult(int friendId, const QString& message, int messageId);
     void groupSentResult(int groupId, const QString& message, int result);
-    void actionSentResult(int friendId, const QString& action, int success);
 
-    void failedToAddFriend(const QString& userId);
+    void receiptRecieved(int friedId, int receipt);
+
+    void failedToAddFriend(const QString& userId, const QString& errorInfo = QString());
     void failedToRemoveFriend(int friendId);
     void failedToSetUsername(const QString& username);
     void failedToSetStatusMessage(const QString& message);
@@ -203,7 +209,7 @@ private:
     static void onConnectionStatusChanged(Tox* tox, int friendId, uint8_t status, void* core);
     static void onAction(Tox* tox, int friendId, const uint8_t* cMessage, uint16_t cMessageSize, void* core);
     static void onGroupAction(Tox* tox, int groupnumber, int peernumber, const uint8_t * action, uint16_t length, void* core);
-    static void onGroupInvite(Tox *tox, int friendnumber, const uint8_t *group_public_key, uint16_t length,void *userdata);
+    static void onGroupInvite(Tox *tox, int friendnumber, uint8_t type, const uint8_t *data, uint16_t length,void *userdata);
     static void onGroupMessage(Tox *tox, int groupnumber, int friendgroupnumber, const uint8_t * message, uint16_t length, void *userdata);
     static void onGroupNamelistChange(Tox *tox, int groupnumber, int peernumber, uint8_t change, void *userdata);
     static void onFileSendRequestCallback(Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize,
@@ -213,6 +219,7 @@ private:
     static void onFileDataCallback(Tox *tox, int32_t friendnumber, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata);
     static void onAvatarInfoCallback(Tox* tox, int32_t friendnumber, uint8_t format, uint8_t *hash, void *userdata);
     static void onAvatarDataCallback(Tox* tox, int32_t friendnumber, uint8_t format, uint8_t *hash, uint8_t *data, uint32_t datalen, void *userdata);
+    static void onReadReceiptCallback(Tox *tox, int32_t friendnumber, uint32_t receipt, void *core);
 
     static void onAvInvite(void* toxav, int32_t call_index, void* core);
     static void onAvStart(void* toxav, int32_t call_index, void* core);
@@ -226,11 +233,14 @@ private:
     static void onAvPeerTimeout(void* toxav, int32_t call_index, void* core);
     static void onAvMediaChange(void *toxav, int32_t call_index, void* core);
 
+    static void playGroupAudio(Tox* tox, int  groupnumber, int friendgroupnumber, const int16_t* out_audio,
+                unsigned out_audio_samples, uint8_t decoder_channels, unsigned audio_sample_rate, void* userdata);
+
     static void prepareCall(int friendId, int callId, ToxAv *toxav, bool videoEnabled);
     static void cleanupCall(int callId);
     static void playCallAudio(ToxAv *toxav, int32_t callId, int16_t *data, int samples, void *user_data); // Callback
     static void sendCallAudio(int callId, ToxAv* toxav);
-    static void playAudioBuffer(int callId, int16_t *data, int samples, unsigned channels, int sampleRate);
+    static void playAudioBuffer(ALuint alSource, const int16_t *data, int samples, unsigned channels, int sampleRate);
     static void playCallVideo(ToxAv* toxav, int32_t callId, vpx_image_t* img, void *user_data);
     void sendCallVideo(int callId);
 
@@ -245,8 +255,6 @@ private:
 
     void checkLastOnline(int friendId);
 
-    QList<CString> splitMessage(const QString &message);
-
 private slots:
      void onFileTransferFinished(ToxFile file);
 
@@ -260,7 +268,7 @@ private:
     int dhtServerId;
     static QList<ToxFile> fileSendQueue, fileRecvQueue;
     static ToxCall calls[];
-    QMutex fileSendMutex;
+    QMutex fileSendMutex, messageSendMutex;
     bool ready;
 
     uint8_t* pwsaltedkeys[PasswordType::ptCounter]; // use the pw's hash as the "pw"

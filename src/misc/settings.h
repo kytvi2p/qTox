@@ -21,6 +21,8 @@
 #include <QObject>
 #include <QPixmap>
 
+class ToxID;
+
 class Settings : public QObject
 {
     Q_OBJECT
@@ -96,6 +98,12 @@ public:
 
     int getAutoAwayTime() const;
     void setAutoAwayTime(int newValue);
+
+    bool getCheckUpdates() const;
+    void setCheckUpdates(bool newValue);
+
+    bool getShowInFront() const;
+    void setShowInFront(bool newValue);
 
     QPixmap getSavedAvatar(const QString& ownerId);
     void saveAvatar(QPixmap& pic, const QString& ownerId);
@@ -185,8 +193,18 @@ public:
     QByteArray getSplitterState() const;
     void setSplitterState(const QByteArray &value);
 
+    QString getFriendAdress(const QString &publicKey) const;
+    void updateFriendAdress(const QString &newAddr);
+
+    QString getFriendAlias(const ToxID &id) const;
+    void setFriendAlias(const ToxID &id, const QString &alias);
+
+    void removeFriendSettings(const ToxID &id);
+
+    bool getFauxOfflineMessaging() const;
+    void setFauxOfflineMessaging(bool value);
+
 public:
-    QList<QString> friendAddresses;
     void save();
     void save(QString path);
     void load();
@@ -205,6 +223,7 @@ private:
     int dhtServerId;
     bool dontShowDhtDialog;
 
+    bool fauxOfflineMessaging;
     bool enableIPv6;
     QString translation;
     static bool makeToxPortable;
@@ -212,6 +231,8 @@ private:
     bool closeToTray;
     bool minimizeToTray;
     bool useEmoticons;
+    bool checkUpdates;
+    bool showInFront;
 
     bool forceTCP;
 
@@ -257,6 +278,15 @@ private:
     // Audio
     QString inDev;
     QString outDev;
+
+    struct friendProp
+    {
+        QString alias;
+        QString addr;
+    };
+
+    QHash<QString, friendProp> friendLst;
+
 
 signals:
     //void dataChanged();

@@ -18,16 +18,22 @@
 #include "misc/settings.h"
 #include "src/ipc.h"
 #include "src/widget/toxuri.h"
+#include "src/widget/toxsave.h"
+#include "src/autoupdate.h"
 #include <QApplication>
 #include <QFontDatabase>
 #include <QDebug>
 #include <QFile>
 #include <QDir>
 #include <QDateTime>
+#include <QMutexLocker>
+
+#include <sodium.h>
 
 #ifdef LOG_TO_FILE
 static QtMessageHandler dflt;
 static QTextStream* logFile {nullptr};
+static QMutex mutex;
 
 void myMessageHandler(QtMsgType type, const QMessageLogContext& ctxt, const QString& msg)
 {
@@ -39,6 +45,7 @@ void myMessageHandler(QtMsgType type, const QMessageLogContext& ctxt, const QStr
             && msg == QString("QFSFileEngine::open: No file name specified"))
         return;
 
+    QMutexLocker locker(&mutex);
     dflt(type, ctxt, msg);
     *logFile << QTime::currentTime().toString("HH:mm:ss' '") << msg << '\n';
     logFile->flush();
@@ -50,6 +57,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setApplicationName("qTox");
     a.setOrganizationName("Tox");
+
+    sodium_init(); // For the auto-updater
 
 #ifdef LOG_TO_FILE
     logFile = new QTextStream;
@@ -79,9 +88,16 @@ int main(int argc, char *argv[])
     // Install Unicode 6.1 supporting font
     QFontDatabase::addApplicationFont("://DejaVuSans.ttf");
 
+    // Check whether we have an update waiting to be installed
+#if AUTOUPDATE_ENABLED
+    if (AutoUpdater::isLocalUpdateReady())
+        AutoUpdater::installLocalUpdate(); ///< NORETURN
+#endif
+
     // Inter-process communication
     IPC ipc;
     ipc.registerEventHandler(&toxURIEventHandler);
+    ipc.registerEventHandler(&toxSaveEventHandler);
 
     // Process arguments
     if (argc >= 2)
@@ -104,10 +120,25 @@ int main(int argc, char *argv[])
                     return EXIT_SUCCESS;
             }
         }
+        else if (firstParam.endsWith(".tox"))
+        {
+            if (ipc.isCurrentOwner()) // Don't bother sending an event if we're going to process it ourselves
+            {
+                handleToxSave(firstParam.toUtf8());
+            }
+            else
+            {
+                time_t event = ipc.postEvent(firstParam.toUtf8());
+                ipc.waitUntilProcessed(event);
+                // If someone else processed it, we're done here, no need to actually start qTox
+                if (!ipc.isCurrentOwner())
+                    return EXIT_SUCCESS;
+            }
+        }
     }
 
     // Run
-    Widget* w = Widget::getInstance();
+    Widget* w = Widget::getInstance();    
     int errorcode = a.exec();
 
     delete w;

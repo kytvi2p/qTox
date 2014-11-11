@@ -37,17 +37,10 @@ FORMS    += \
     
 CONFIG   += c++11
 
-TRANSLATIONS = translations/de.ts \
-               translations/fr.ts \
-               translations/it.ts \
-               translations/ru.ts \
-               translations/pirate.ts \
-               translations/pl.ts \
-               translations/fi.ts \
-               translations/mannol.ts \
-               translations/uk.ts \
-               translations/sv.ts \
-               translations/bg.ts
+# Rules for creating/updating {ts|qm}-files
+include(translations/i18n.pri)
+# Build all the qm files now, to make RCC happy
+system($$fromfile(translations/i18n.pri, updateallqm))
 
 RESOURCES += res.qrc
 
@@ -64,7 +57,7 @@ contains(JENKINS,YES) {
 # Rules for Windows, Mac OSX, and Linux
 win32 {
     RC_FILE = windows/qtox.rc
-    LIBS += -liphlpapi -L$$PWD/libs/lib -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lvpx -lpthread
+    LIBS += -liphlpapi -L$$PWD/libs/lib -lsodium -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lvpx -lpthread
     LIBS += -L$$PWD/libs/lib -lopencv_core248 -lopencv_highgui248 -lopencv_imgproc248 -lOpenAL32 -lopus
     LIBS += -lz -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -ljpeg -ltiff -lpng -ljasper -lIlmImf -lHalf -lws2_32
 } else {
@@ -83,7 +76,7 @@ win32 {
 	    LIBS += -Wl,-Bdynamic -lv4l1 -lv4l2 -lavformat -lavcodec -lavutil -lswscale -lusb-1.0
 
         } else {
-            LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lvpx -lopenal -lopencv_core -lopencv_highgui -lopencv_imgproc
+            LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lvpx -lsodium -lopenal -lopencv_core -lopencv_highgui -lopencv_imgproc
         }
 
         contains(JENKINS, YES) {
@@ -152,7 +145,10 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/misc/flowlayout.h \
     src/ipc.h \
     src/widget/toxuri.h \
-    src/toxdns.h
+    src/toxdns.h \
+    src/widget/toxsave.h \
+    src/autoupdate.h \
+    src/misc/serialize.h
 
 SOURCES += \
     src/widget/form/addfriendform.cpp \
@@ -214,4 +210,7 @@ SOURCES += \
     src/misc/flowlayout.cpp \
     src/widget/toxuri.cpp \
     src/toxdns.cpp \
-    src/ipc.cpp
+    src/ipc.cpp \
+    src/widget/toxsave.cpp \    
+    src/autoupdate.cpp \
+    src/misc/serialize.cpp
