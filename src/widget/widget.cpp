@@ -31,6 +31,9 @@
 #include "src/video/camera.h"
 #include "form/chatform.h"
 #include "maskablepixmapwidget.h"
+#include "src/historykeeper.h"
+#include "form/inputpassworddialog.h"
+#include "src/autoupdate.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
@@ -45,9 +48,7 @@
 #include <QTimer>
 #include <QStyleFactory>
 #include <QTranslator>
-#include "src/historykeeper.h"
 #include <tox/tox.h>
-#include "form/inputpassworddialog.h"
 
 Widget *Widget::instance{nullptr};
 
@@ -212,6 +213,7 @@ void Widget::init()
     connect(core, &Core::friendStatusMessageChanged, this, &Widget::onFriendStatusMessageChanged);
     connect(core, &Core::friendRequestReceived, this, &Widget::onFriendRequestReceived);
     connect(core, &Core::friendMessageReceived, this, &Widget::onFriendMessageReceived);
+    connect(core, &Core::receiptRecieved, this, &Widget::onReceiptRecieved);
     connect(core, &Core::groupInviteReceived, this, &Widget::onGroupInviteReceived);
     connect(core, &Core::groupMessageReceived, this, &Widget::onGroupMessageReceived);
     connect(core, &Core::groupNamelistChanged, this, &Widget::onGroupNamelistChanged);
@@ -244,6 +246,11 @@ void Widget::init()
     coreThread->start();
 
     addFriendForm->show(*ui);
+
+#if (AUTOUPDATE_ENABLED)
+    if (Settings::getInstance().getCheckUpdates())
+        AutoUpdater::checkUpdatesAsyncInteractive();
+#endif
 }
 
 void Widget::setTranslation()
@@ -323,8 +330,7 @@ void Widget::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::WindowStateChange)
     {
-        if(isMinimized() == true
-                && Settings::getInstance().getMinimizeToTray() == true)
+        if(isMinimized() && Settings::getInstance().getMinimizeToTray())
         {
             this->hide();
         }
@@ -644,9 +650,14 @@ void Widget::addFriend(int friendId, const QString &userId)
     }
 }
 
-void Widget::addFriendFailed(const QString&)
+void Widget::addFriendFailed(const QString&, const QString& errorInfo)
 {
-    QMessageBox::critical(0,"Error","Couldn't request friendship");
+    QString info = QString(tr("Couldn't request friendship"));
+    if(!errorInfo.isEmpty()) {
+        info = info + (QString(": ") + errorInfo);
+    }
+
+    QMessageBox::critical(0,"Error",info);
 }
 
 void Widget::onFriendStatusChanged(int friendId, Status status)
@@ -664,7 +675,7 @@ void Widget::onFriendStatusChanged(int friendId, Status status)
     
     //won't print the message if there were no messages before
     if(!f->getChatForm()->isEmpty()
-            && Settings::getInstance().getStatusChangeNotificationEnabled() == true)
+            && Settings::getInstance().getStatusChangeNotificationEnabled())
     {
         QString fStatus = "";
         switch(f->getStatus()){
@@ -680,6 +691,11 @@ void Widget::onFriendStatusChanged(int friendId, Status status)
         if (isActualChange)
             f->getChatForm()->addSystemInfoMessage(tr("%1 is now %2", "e.g. \"Dubslow is now online\"").arg(f->getDisplayedName()).arg(fStatus),
                                           "white", QDateTime::currentDateTime());
+    }
+
+    if (isActualChange && status != Status::Offline)
+    { // wait a little
+        QTimer::singleShot(250, f->getChatForm(), SLOT(deliverOfflineMsgs()));
     }
 }
 
@@ -727,35 +743,51 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
         return;
 
     QDateTime timestamp = QDateTime::currentDateTime();
-    f->getChatForm()->addMessage(f->getToxID(), message, isAction, timestamp);
+    f->getChatForm()->addMessage(f->getToxID(), message, isAction, timestamp, true);
 
     if (isAction)
-        HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, "/me " + message, f->getToxID().publicKey, timestamp);
+        HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, "/me " + message, f->getToxID().publicKey, timestamp, true);
     else
-        HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, message, f->getToxID().publicKey, timestamp);
+        HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, message, f->getToxID().publicKey, timestamp, true);
 
     if (activeChatroomWidget != nullptr)
     {
         if ((static_cast<GenericChatroomWidget*>(f->getFriendWidget()) != activeChatroomWidget) || isMinimized() || !isActiveWindow())
         {
             f->setEventFlag(true);
-            newMessageAlert();
+            newMessageAlert(f->getFriendWidget());
         }
     }
     else
     {
         f->setEventFlag(true);
-        newMessageAlert();
+        newMessageAlert(f->getFriendWidget());
     }
 
     f->getFriendWidget()->updateStatusLight();
 }
 
-void Widget::newMessageAlert()
+void Widget::onReceiptRecieved(int friendId, int receipt)
+{
+    Friend* f = FriendList::findFriend(friendId);
+    if (!f)
+        return;
+
+    f->getChatForm()->dischargeReceipt(receipt);
+}
+
+void Widget::newMessageAlert(GenericChatroomWidget* chat)
 {
     QApplication::alert(this);
 
     static QFile sndFile(":audio/notification.pcm");
+    if ((isMinimized() || !isActiveWindow()) && Settings::getInstance().getShowInFront())
+    {
+        this->show();
+        showNormal();
+        activateWindow();
+        emit chat->chatroomWidgetClicked(chat);
+    }
     static QByteArray sndData;
     if (sndData.isEmpty())
     {
@@ -867,7 +899,7 @@ void Widget::onGroupMessageReceived(int groupnumber, const QString& message, con
         g->hasNewMessages = 1;
         if (targeted)
         {
-            newMessageAlert();
+            newMessageAlert(g->widget);
             g->userWasMentioned = 1; // useful for highlighting line or desktop notifications
         }
         g->widget->updateStatusLight();
@@ -1030,12 +1062,10 @@ void Widget::setStatusBusy()
 void Widget::onMessageSendResult(int friendId, const QString& message, int messageId)
 {
     Q_UNUSED(message)
+    Q_UNUSED(messageId)
     Friend* f = FriendList::findFriend(friendId);
     if (!f)
         return;
-
-    if (!messageId)
-        f->getChatForm()->addSystemInfoMessage(tr("Message failed to send"), "red", QDateTime::currentDateTime());
 }
 
 void Widget::onGroupSendResult(int groupId, const QString& message, int result)
@@ -1093,5 +1123,31 @@ void Widget::setEnabledThreadsafe(bool enabled)
     else
     {
         return setEnabled(enabled);
+    }
+}
+
+bool Widget::askMsgboxQuestion(const QString& title, const QString& msg)
+{
+    // We can only display widgets from the GUI thread
+    if (QThread::currentThread() != qApp->thread())
+    {
+        bool ret;
+        QMetaObject::invokeMethod(this, "askMsgboxQuestion", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(bool, ret),
+                                  Q_ARG(const QString&, title), Q_ARG(const QString&, msg));
+        return ret;
+    }
+    else
+    {
+        return QMessageBox::question(this, title, msg) == QMessageBox::StandardButton::Yes;
+    }
+}
+
+void Widget::clearAllReceipts()
+{
+    QList<Friend*> frnds = FriendList::getAllFriends();
+    for (Friend *f : frnds)
+    {
+        f->getChatForm()->clearReciepts();
     }
 }

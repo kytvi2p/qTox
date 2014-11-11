@@ -57,7 +57,7 @@ public:
     QThread* getCoreThread();
     Camera* getCamera();
     static Widget* getInstance();
-    void newMessageAlert();
+    void newMessageAlert(GenericChatroomWidget* chat);
     bool isFriendWidgetCurActiveWidget(Friend* f);
     bool getIsWindowMinimized();
     static QList<QString> searchProfiles();
@@ -67,11 +67,13 @@ public:
     Q_INVOKABLE QMessageBox::StandardButton showWarningMsgBox(const QString& title, const QString& msg,
                                               QMessageBox::StandardButtons buttonss = QMessageBox::Ok);
     Q_INVOKABLE void setEnabledThreadsafe(bool enabled);
+    Q_INVOKABLE bool askMsgboxQuestion(const QString& title, const QString& msg);
     ~Widget();
 
     virtual void closeEvent(QCloseEvent *event);
     virtual void changeEvent(QEvent *event);
     
+    void clearAllReceipts();
 
 public slots:
     void onSettingsClicked();
@@ -101,13 +103,14 @@ private slots:
     void setUsername(const QString& username);
     void setStatusMessage(const QString &statusMessage);
     void addFriend(int friendId, const QString& userId);
-    void addFriendFailed(const QString& userId);
+    void addFriendFailed(const QString& userId, const QString& errorInfo = QString());
     void onFriendStatusChanged(int friendId, Status status);
     void onFriendStatusMessageChanged(int friendId, const QString& message);
     void onFriendUsernameChanged(int friendId, const QString& username);
     void onChatroomWidgetClicked(GenericChatroomWidget *);
     void onFriendMessageReceived(int friendId, const QString& message, bool isAction);
     void onFriendRequestReceived(const QString& userId, const QString& message);
+    void onReceiptRecieved(int friendId, int receipt);
     void onEmptyGroupCreated(int groupId);
     void onGroupInviteReceived(int32_t friendId, const uint8_t *publicKey,uint16_t length);
     void onGroupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);

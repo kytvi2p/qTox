@@ -268,6 +268,7 @@ void Core::start()
     tox_callback_file_data(tox, onFileDataCallback, this);
     tox_callback_avatar_info(tox, onAvatarInfoCallback, this);
     tox_callback_avatar_data(tox, onAvatarDataCallback, this);
+    tox_callback_read_receipt(tox, onReadReceiptCallback, this);
 
     toxav_register_callstate_callback(toxav, onAvInvite, av_OnInvite, this);
     toxav_register_callstate_callback(toxav, onAvStart, av_OnStart, this);
@@ -700,6 +701,11 @@ void Core::onAvatarDataCallback(Tox*, int32_t friendnumber, uint8_t,
     }
 }
 
+void Core::onReadReceiptCallback(Tox*, int32_t friendnumber, uint32_t receipt, void *core)
+{
+     emit static_cast<Core*>(core)->receiptRecieved(friendnumber, receipt);
+}
+
 void Core::acceptFriendRequest(const QString& userId)
 {
     int friendId = tox_add_friend_norequest(tox, CUserId(userId).data());
@@ -713,38 +719,48 @@ void Core::acceptFriendRequest(const QString& userId)
 
 void Core::requestFriendship(const QString& friendAddress, const QString& message)
 {
-    qDebug() << "Core: requesting friendship of "+friendAddress;
-    CString cMessage(message);
-
-    int friendId = tox_add_friend(tox, CFriendAddress(friendAddress).data(), cMessage.data(), cMessage.size());
     const QString userId = friendAddress.mid(0, TOX_CLIENT_ID_SIZE * 2);
-    if (friendId < 0) {
-        emit failedToAddFriend(userId);
-    } else {
-        // Update our friendAddresses
-        Settings::getInstance().updateFriendAdress(friendAddress);
-        emit friendAdded(friendId, userId);
+
+    if(hasFriendWithAddress(friendAddress))
+    {
+        emit failedToAddFriend(userId, QString(tr("Friend is already added")));
+    }
+    else
+    {
+        qDebug() << "Core: requesting friendship of "+friendAddress;
+        CString cMessage(message);
+
+        int friendId = tox_add_friend(tox, CFriendAddress(friendAddress).data(), cMessage.data(), cMessage.size());
+        if (friendId < 0)
+        {
+            emit failedToAddFriend(userId);
+        }
+        else
+        {
+            // Update our friendAddresses
+            Settings::getInstance().updateFriendAdress(friendAddress);
+            emit friendAdded(friendId, userId);
+        }
     }
     saveConfiguration();
 }
 
-void Core::sendMessage(int friendId, const QString& message)
+int Core::sendMessage(int friendId, const QString& message)
 {
-    QList<CString> cMessages = splitMessage(message);
-
-    for (auto &cMsg :cMessages)
-    {
-        int messageId = tox_send_message(tox, friendId, cMsg.data(), cMsg.size());
-        if (messageId == 0)
-            emit messageSentResult(friendId, message, messageId);
-    }
+    QMutexLocker ml(&messageSendMutex);
+    CString cMessage(message);
+    int receipt = tox_send_message(tox, friendId, cMessage.data(), cMessage.size());
+    emit messageSentResult(friendId, message, receipt);
+    return receipt;
 }
 
-void Core::sendAction(int friendId, const QString &action)
+int Core::sendAction(int friendId, const QString &action)
 {
+    QMutexLocker ml(&messageSendMutex);
     CString cMessage(action);
-    int ret = tox_send_action(tox, friendId, cMessage.data(), cMessage.size());
-    emit actionSentResult(friendId, action, ret);
+    int receipt = tox_send_action(tox, friendId, cMessage.data(), cMessage.size());
+    emit messageSentResult(friendId, action, receipt);
+    return receipt;
 }
 
 void Core::sendTyping(int friendId, bool typing)
@@ -1590,6 +1606,51 @@ void Core::groupInviteFriend(int friendId, int groupId)
 void Core::createGroup()
 {
     emit emptyGroupCreated(tox_add_groupchat(tox));
+}
+
+bool Core::hasFriendWithAddress(const QString &addr) const
+{
+    // Valid length check
+    if(addr.length() != (TOX_FRIEND_ADDRESS_SIZE * 2))
+    {
+        return false;
+    }
+
+    QString pubkey = addr.left(TOX_CLIENT_ID_SIZE * 2);
+    return hasFriendWithPublicKey(pubkey);
+}
+
+bool Core::hasFriendWithPublicKey(const QString &pubkey) const
+{
+    // Valid length check
+    if(pubkey.length() != (TOX_CLIENT_ID_SIZE * 2))
+    {
+        return false;
+    }
+
+    bool found = false;
+    const uint32_t friendCount = tox_count_friendlist(tox);
+    if (friendCount > 0)
+    {
+        int32_t *ids = new int32_t[friendCount];
+        tox_get_friendlist(tox, ids, friendCount);
+        for (int32_t i = 0; i < static_cast<int32_t>(friendCount); ++i)
+        {
+            // getFriendAddress may return either id (public key) or address
+            QString addrOrId = getFriendAddress(ids[i]);
+
+            // Set true if found
+            if(addrOrId.toUpper().startsWith(pubkey.toUpper()))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        delete[] ids;
+    }
+
+    return found;
 }
 
 QString Core::getFriendAddress(int friendNumber) const

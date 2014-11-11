@@ -45,6 +45,7 @@ public:
     static const QString TOX_EXT;
     static const QString CONFIG_FILE_NAME;
     static QString sanitize(QString name);
+    static QList<CString> splitMessage(const QString &message);
 
     QString getPeerName(const ToxID& id) const;
 
@@ -53,6 +54,8 @@ public:
     QList<QString> getGroupPeerNames(int groupId) const; ///< Get the names of the peers of a group
     QString getFriendAddress(int friendNumber) const; ///< Get the full address if known, or Tox ID of a friend
     QString getFriendUsername(int friendNumber) const; ///< Get the username of a friend
+    bool hasFriendWithAddress(const QString &addr) const; ///< Check if we have a friend by address
+    bool hasFriendWithPublicKey(const QString &pubkey) const; ///< Check if we have a friend by public key
     int joinGroupchat(int32_t friendNumber, const uint8_t* pubkey,uint16_t length) const; ///< Accept a groupchat invite
     void quitGroupChat(int groupId) const; ///< Quit a groupchat
 
@@ -90,10 +93,10 @@ public slots:
     void setStatusMessage(const QString& message);
     void setAvatar(uint8_t format, const QByteArray& data);
 
-    void sendMessage(int friendId, const QString& message);
+    int sendMessage(int friendId, const QString& message);
     void sendGroupMessage(int groupId, const QString& message);
     void sendGroupAction(int groupId, const QString& message);
-    void sendAction(int friendId, const QString& action);
+    int sendAction(int friendId, const QString& action);
     void sendTyping(int friendId, bool typing);
 
     void sendFile(int32_t friendId, QString Filename, QString FilePath, long long filesize);
@@ -152,9 +155,10 @@ signals:
 
     void messageSentResult(int friendId, const QString& message, int messageId);
     void groupSentResult(int groupId, const QString& message, int result);
-    void actionSentResult(int friendId, const QString& action, int success);
 
-    void failedToAddFriend(const QString& userId);
+    void receiptRecieved(int friedId, int receipt);
+
+    void failedToAddFriend(const QString& userId, const QString& errorInfo = QString());
     void failedToRemoveFriend(int friendId);
     void failedToSetUsername(const QString& username);
     void failedToSetStatusMessage(const QString& message);
@@ -213,6 +217,7 @@ private:
     static void onFileDataCallback(Tox *tox, int32_t friendnumber, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata);
     static void onAvatarInfoCallback(Tox* tox, int32_t friendnumber, uint8_t format, uint8_t *hash, void *userdata);
     static void onAvatarDataCallback(Tox* tox, int32_t friendnumber, uint8_t format, uint8_t *hash, uint8_t *data, uint32_t datalen, void *userdata);
+    static void onReadReceiptCallback(Tox *tox, int32_t friendnumber, uint32_t receipt, void *core);
 
     static void onAvInvite(void* toxav, int32_t call_index, void* core);
     static void onAvStart(void* toxav, int32_t call_index, void* core);
@@ -245,8 +250,6 @@ private:
 
     void checkLastOnline(int friendId);
 
-    QList<CString> splitMessage(const QString &message);
-
 private slots:
      void onFileTransferFinished(ToxFile file);
 
@@ -260,7 +263,7 @@ private:
     int dhtServerId;
     static QList<ToxFile> fileSendQueue, fileRecvQueue;
     static ToxCall calls[];
-    QMutex fileSendMutex;
+    QMutex fileSendMutex, messageSendMutex;
     bool ready;
 
     uint8_t* pwsaltedkeys[PasswordType::ptCounter]; // use the pw's hash as the "pw"

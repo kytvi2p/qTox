@@ -99,6 +99,12 @@ public:
     int getAutoAwayTime() const;
     void setAutoAwayTime(int newValue);
 
+    bool getCheckUpdates() const;
+    void setCheckUpdates(bool newValue);
+
+    bool getShowInFront() const;
+    void setShowInFront(bool newValue);
+
     QPixmap getSavedAvatar(const QString& ownerId);
     void saveAvatar(QPixmap& pic, const QString& ownerId);
 
@@ -193,6 +199,9 @@ public:
     QString getFriendAlias(const ToxID &id) const;
     void setFriendAlias(const ToxID &id, const QString &alias);
 
+    bool getFauxOfflineMessaging() const;
+    void setFauxOfflineMessaging(bool value);
+
 public:
     void save();
     void save(QString path);
@@ -212,6 +221,7 @@ private:
     int dhtServerId;
     bool dontShowDhtDialog;
 
+    bool fauxOfflineMessaging;
     bool enableIPv6;
     QString translation;
     static bool makeToxPortable;
@@ -219,6 +229,8 @@ private:
     bool closeToTray;
     bool minimizeToTray;
     bool useEmoticons;
+    bool checkUpdates;
+    bool showInFront;
 
     bool forceTCP;
 
@@ -272,6 +284,7 @@ private:
     };
 
     QHash<QString, friendProp> friendLst;
+
 
 signals:
     //void dataChanged();

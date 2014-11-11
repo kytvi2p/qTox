@@ -119,6 +119,9 @@ void Settings::load()
         proxyPort = s.value("proxyPort", 0).toInt();
         currentProfile = s.value("currentProfile", "").toString();
     	autoAwayTime = s.value("autoAwayTime", 10).toInt();
+        checkUpdates = s.value("checkUpdates", false).toBool();
+        showInFront = s.value("showInFront", false).toBool();
+        fauxOfflineMessaging = s.value("fauxOfflineMessaging", true).toBool();
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -255,6 +258,9 @@ void Settings::save(QString path)
         s.setValue("proxyPort", proxyPort);
         s.setValue("currentProfile", currentProfile);
         s.setValue("autoAwayTime", autoAwayTime);
+        s.setValue("checkUpdates", checkUpdates);
+        s.setValue("showInFront", showInFront);
+        s.setValue("fauxOfflineMessaging", fauxOfflineMessaging);
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -476,6 +482,16 @@ bool Settings::getStatusChangeNotificationEnabled() const
 void Settings::setStatusChangeNotificationEnabled(bool newValue)
 {
     statusChangeNotificationEnabled = newValue;
+}
+
+bool Settings::getShowInFront() const
+{
+   return showInFront;
+}
+
+void Settings::setShowInFront(bool newValue)
+{
+   showInFront = newValue;
 }
 
 QString Settings::getTranslation() const
@@ -727,6 +743,16 @@ void Settings::setWindowState(const QByteArray &value)
     windowState = value;
 }
 
+bool Settings::getCheckUpdates() const
+{
+    return checkUpdates;
+}
+
+void Settings::setCheckUpdates(bool newValue)
+{
+    checkUpdates = newValue;
+}
+
 QByteArray Settings::getSplitterState() const
 {
     return splitterState;
@@ -824,4 +850,14 @@ void Settings::setFriendAlias(const ToxID &id, const QString &alias)
     {
         it->alias = alias;
     }
+}
+
+bool Settings::getFauxOfflineMessaging() const
+{
+    return fauxOfflineMessaging;
+}
+
+void Settings::setFauxOfflineMessaging(bool value)
+{
+    fauxOfflineMessaging = value;
 }
