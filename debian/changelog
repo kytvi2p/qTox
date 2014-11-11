@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141111.r1425-1ubuntu1) trusty; urgency=medium
+
+  * Building for Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 11 Nov 2014 21:44:48 +0000
+
 qtox (0.0.0+git20141111.r1425-1) unstable; urgency=medium
 
   [ apprb ]
@@ -151,12 +157,6 @@ qtox (0.0.0+git20141109.r1371-1) unstable; urgency=medium
   * New build-dep on qttools5-dev-tools
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 09 Nov 2014 21:09:26 +0000
-
-qtox (0.0.0+git20141106.r1320-1ubuntu1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 07 Nov 2014 01:18:07 +0000
 
 qtox (0.0.0+git20141106.r1320-1) unstable; urgency=medium
 
