@@ -87,8 +87,8 @@ public slots:
     void groupInviteFriend(int friendId, int groupId);
     void createGroup(uint8_t type = TOX_GROUPCHAT_TYPE_AV);
 
-    void removeFriend(int friendId);
-    void removeGroup(int groupId);
+    void removeFriend(int friendId, bool fake = false);
+    void removeGroup(int groupId, bool fake = false);
 
     void setStatus(Status status);
     void setUsername(const QString& username);
@@ -116,6 +116,13 @@ public slots:
 
     void micMuteToggle(int callId);
     void volMuteToggle(int callId);
+
+    static void joinGroupCall(int groupId); ///< Starts a call in an existing AV groupchat
+    static void leaveGroupCall(int groupId); ///< Will not leave the group, just stop the call
+    static void disableGroupCallMic(int groupId);
+    static void disableGroupCallVol(int groupId);
+    static void enableGroupCallMic(int groupId);
+    static void enableGroupCallVol(int groupId);
 
     void setPassword(QString& password, PasswordType passtype, uint8_t* salt = nullptr);
     void clearPassword(PasswordType passtype);
@@ -145,7 +152,7 @@ signals:
     void friendLastSeenChanged(int friendId, const QDateTime& dateTime);
 
     void emptyGroupCreated(int groupnumber);
-    void groupInviteReceived(int friendnumber, uint8_t type, const uint8_t *group_public_key,uint16_t length);
+    void groupInviteReceived(int friendnumber, uint8_t type, QByteArray publicKey);
     void groupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);
     void groupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
 
@@ -235,6 +242,7 @@ private:
 
     static void playGroupAudio(Tox* tox, int  groupnumber, int friendgroupnumber, const int16_t* out_audio,
                 unsigned out_audio_samples, uint8_t decoder_channels, unsigned audio_sample_rate, void* userdata);
+    static void sendGroupCallAudio(int groupId, ToxAv* toxav);
 
     static void prepareCall(int friendId, int callId, ToxAv *toxav, bool videoEnabled);
     static void cleanupCall(int callId);
@@ -268,6 +276,7 @@ private:
     int dhtServerId;
     static QList<ToxFile> fileSendQueue, fileRecvQueue;
     static ToxCall calls[];
+    static QHash<int, ToxGroupCall> groupCalls; // Maps group IDs to ToxGroupCalls
     QMutex fileSendMutex, messageSendMutex;
     bool ready;
 
@@ -278,6 +287,8 @@ private:
 
     static ALCdevice* alOutDev, *alInDev;
     static ALCcontext* alContext;
+
+    static QThread *coreThread;
 public:
     static ALuint alMainSource;
 };

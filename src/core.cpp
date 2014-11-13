@@ -45,11 +45,15 @@ const QString Core::CONFIG_FILE_NAME = "data";
 const QString Core::TOX_EXT = ".tox";
 QList<ToxFile> Core::fileSendQueue;
 QList<ToxFile> Core::fileRecvQueue;
+QHash<int, ToxGroupCall> Core::groupCalls;
+QThread* Core::coreThread{nullptr};
 
-Core::Core(Camera* cam, QThread *coreThread, QString loadPath) :
+Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
     tox(nullptr), camera(cam), loadPath(loadPath), ready{false}
 {
     qDebug() << "Core: loading Tox from" << loadPath;
+
+    coreThread = CoreThread;
 
     videobuf = new uint8_t[videobufsize];
 
@@ -95,12 +99,15 @@ Core::Core(Camera* cam, QThread *coreThread, QString loadPath) :
     }
 
     QString inDevDescr = Settings::getInstance().getInDev();
+    int stereoFlag = av_DefaultSettings.audio_channels==1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
     if (inDevDescr.isEmpty())
-        alInDev = alcCaptureOpenDevice(nullptr,av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16,
-                                   (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+        alInDev = alcCaptureOpenDevice(nullptr,av_DefaultSettings.audio_sample_rate, stereoFlag,
+            (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4)
+                                       / 1000 * av_DefaultSettings.audio_channels);
     else
-        alInDev = alcCaptureOpenDevice(inDevDescr.toStdString().c_str(),av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16,
-                                   (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+        alInDev = alcCaptureOpenDevice(inDevDescr.toStdString().c_str(),av_DefaultSettings.audio_sample_rate, stereoFlag,
+            (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4)
+                                       / 1000 * av_DefaultSettings.audio_channels);
     if (!alInDev)
         qWarning() << "Core: Cannot open input audio device";
 }
@@ -481,15 +488,16 @@ void Core::onGroupAction(Tox*, int groupnumber, int peernumber, const uint8_t *a
 
 void Core::onGroupInvite(Tox*, int friendnumber, uint8_t type, const uint8_t *data, uint16_t length,void *core)
 {
+    QByteArray pk((char*)data, length);
     if (type == TOX_GROUPCHAT_TYPE_TEXT)
     {
         qDebug() << QString("Core: Text group invite by %1").arg(friendnumber);
-        emit static_cast<Core*>(core)->groupInviteReceived(friendnumber,type,data,length);
+        emit static_cast<Core*>(core)->groupInviteReceived(friendnumber,type,pk);
     }
     else if (type == TOX_GROUPCHAT_TYPE_AV)
     {
         qDebug() << QString("Core: AV group invite by %1").arg(friendnumber);
-        emit static_cast<Core*>(core)->groupInviteReceived(friendnumber,type,data,length);
+        emit static_cast<Core*>(core)->groupInviteReceived(friendnumber,type,pk);
     }
     else
     {
@@ -991,9 +999,9 @@ void Core::acceptFileRecvRequest(int friendId, int fileNum, QString path)
     tox_file_send_control(tox, file->friendId, 1, file->fileNum, TOX_FILECONTROL_ACCEPT, nullptr, 0);
 }
 
-void Core::removeFriend(int friendId)
+void Core::removeFriend(int friendId, bool fake)
 {
-    if (!tox)
+    if (!tox || fake)
         return;
     if (tox_del_friend(tox, friendId) == -1) {
         emit failedToRemoveFriend(friendId);
@@ -1003,9 +1011,9 @@ void Core::removeFriend(int friendId)
     }
 }
 
-void Core::removeGroup(int groupId)
+void Core::removeGroup(int groupId, bool fake)
 {
-    if (!tox)
+    if (!tox || fake)
         return;
     tox_del_groupchat(tox, groupId);
 }
@@ -1631,11 +1639,17 @@ void Core::groupInviteFriend(int friendId, int groupId)
 void Core::createGroup(uint8_t type)
 {
     if (type == TOX_GROUPCHAT_TYPE_TEXT)
+    {
         emit emptyGroupCreated(tox_add_groupchat(tox));
+    }
     else if (type == TOX_GROUPCHAT_TYPE_AV)
+    {
         emit emptyGroupCreated(toxav_add_av_groupchat(tox, playGroupAudio, this));
+    }
     else
+    {
         qWarning() << "Core::createGroup: Unknown type "<<type;
+    }
 }
 
 bool Core::hasFriendWithAddress(const QString &addr) const

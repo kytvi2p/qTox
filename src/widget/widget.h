@@ -112,7 +112,7 @@ private slots:
     void onFriendRequestReceived(const QString& userId, const QString& message);
     void onReceiptRecieved(int friendId, int receipt);
     void onEmptyGroupCreated(int groupId);
-    void onGroupInviteReceived(int32_t friendId, uint8_t type, const uint8_t *publicKey,uint16_t length);
+    void onGroupInviteReceived(int32_t friendId, uint8_t type, QByteArray invite);
     void onGroupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);
     void onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
     void removeFriend(int friendId);
@@ -133,8 +133,8 @@ private:
     void hideMainForms();
     virtual bool event(QEvent * e);
     Group* createGroup(int groupId);
-    void removeFriend(Friend* f);
-    void removeGroup(Group* g);
+    void removeFriend(Friend* f, bool fake = false);
+    void removeGroup(Group* g, bool fake = false);
     QString askProfiles();
     QString detectProfile();
     QSystemTrayIcon *icon;

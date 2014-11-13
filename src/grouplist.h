@@ -26,9 +26,9 @@ class GroupList
 {
 public:
     GroupList();
-    static Group* addGroup(int groupId, const QString& name);
+    static Group* addGroup(int groupId, const QString& name, bool isAvGroupchat);
     static Group* findGroup(int groupId);
-    static void removeGroup(int groupId);
+    static void removeGroup(int groupId, bool fake = false);
 
 public:
     static QList<Group*> groupList;
