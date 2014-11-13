@@ -1,3 +1,49 @@
+qtox (0.0.0+git20141113.r1450-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Start preparing for OS X auto-update
+
+  [ dubslow ]
+  * more robust exporting, fixes #716
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Build our Settings after our QApplication, fixes crash on startup
+  * Fix #719
+
+  [ dubslow ]
+  * fix minor switching bug introduced by 07ea2e
+
+  [ zero-one ]
+  * fixes #207
+
+  [ agilob ]
+  * fixes unreported bug in styles
+
+  [ apprb ]
+  * split message fix
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix use after free of groupchat invites
+  * Remove forgotten debug statement
+
+  [ dubslow ]
+  * minor tweaks to autoaway, one new debug message
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update update-server tools
+  * Fix #735
+  * simple_make: Install lupdate/lrelease with APT
+  * Prepare Core for av groupchats
+  * Add GUI for audio groupchats
+  * Fix typo
+  * Remember compile time timestamp
+  * Auto-updater: Check timestamps before updating
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 13 Nov 2014 14:38:58 +0000
+
 qtox (0.0.0+git20141111.r1425-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty

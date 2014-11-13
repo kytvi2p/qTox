@@ -171,6 +171,7 @@ void Widget::init()
     ui->statusButton->setEnabled(false);
 
     idleTimer = new QTimer();
+    idleTimer->setSingleShot(true);
     int mins = Settings::getInstance().getAutoAwayTime();
     if (mins > 0)
         idleTimer->start(mins * 1000*60);
@@ -296,7 +297,6 @@ Widget::~Widget()
 
 Widget* Widget::getInstance()
 {
-    
     if (!instance)
     {
         instance = new Widget();
@@ -498,6 +498,7 @@ void Widget::onStatusSet(Status status)
     {
     case Status::Online:
         ui->statusButton->setProperty("status" ,"online");
+        qDebug() << "Widget: something set the status to online";
         break;
     case Status::Away:
         ui->statusButton->setProperty("status" ,"away");
@@ -831,15 +832,18 @@ void Widget::onFriendRequestReceived(const QString& userId, const QString& messa
         emit friendRequestAccepted(userId);
 }
 
-void Widget::removeFriend(Friend* f)
+void Widget::removeFriend(Friend* f, bool fake)
 {
     f->getFriendWidget()->setAsInactiveChatroom();
     if (static_cast<GenericChatroomWidget*>(f->getFriendWidget()) == activeChatroomWidget)
+    {
         activeChatroomWidget = nullptr;
-    FriendList::removeFriend(f->getFriendID());
-    core->removeFriend(f->getFriendID());
+        onAddClicked();
+    }
+    FriendList::removeFriend(f->getFriendID(), fake);
+    core->removeFriend(f->getFriendID(), fake);
     delete f;
-    if (ui->mainHead->layout()->isEmpty())
+    if (ui->mainHead->layout()->isEmpty()) // tux3: this should have covered the case of the bug you "fixed" 5 lines above
         onAddClicked();
 
     contactListWidget->hide();
@@ -848,16 +852,16 @@ void Widget::removeFriend(Friend* f)
 
 void Widget::removeFriend(int friendId)
 {
-    removeFriend(FriendList::findFriend(friendId));
+    removeFriend(FriendList::findFriend(friendId), false);
 }
 
 void Widget::clearContactsList()
 {
     QList<Friend*> friends = FriendList::getAllFriends();
     for (Friend* f : friends)
-        removeFriend(f);
+        removeFriend(f, true);
     for (Group* g : GroupList::groupList)
-        removeGroup(g);
+        removeGroup(g, true);
 }
 
 void Widget::copyFriendIdToClipboard(int friendId)
@@ -870,11 +874,11 @@ void Widget::copyFriendIdToClipboard(int friendId)
     }
 }
 
-void Widget::onGroupInviteReceived(int32_t friendId, uint8_t type, const uint8_t* publicKey,uint16_t length)
+void Widget::onGroupInviteReceived(int32_t friendId, uint8_t type, QByteArray invite)
 {
     if (type == TOX_GROUPCHAT_TYPE_TEXT || type == TOX_GROUPCHAT_TYPE_AV)
     {
-        int groupId = core->joinGroupchat(friendId, type, publicKey,length);
+        int groupId = core->joinGroupchat(friendId, type, (uint8_t*)invite.data(), invite.length());
         if (groupId < 0)
         {
             qWarning() << "Widget::onGroupInviteReceived: Unable to accept  group invite";
@@ -943,7 +947,7 @@ void Widget::onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t Cha
         g->updatePeer(peernumber,core->getGroupPeerName(groupnumber, peernumber));
 }
 
-void Widget::removeGroup(Group* g)
+void Widget::removeGroup(Group* g, bool fake)
 {
     g->widget->setAsInactiveChatroom();
     if (static_cast<GenericChatroomWidget*>(g->widget) == activeChatroomWidget)
@@ -951,8 +955,8 @@ void Widget::removeGroup(Group* g)
         activeChatroomWidget = nullptr;
         onAddClicked();
     }
-    GroupList::removeGroup(g->groupId);
-    core->removeGroup(g->groupId);
+    GroupList::removeGroup(g->groupId, fake);
+    core->removeGroup(g->groupId, fake);
     delete g;
     if (ui->mainHead->layout()->isEmpty())
         onAddClicked();
@@ -981,7 +985,7 @@ Group *Widget::createGroup(int groupId)
     }
 
     QString groupName = QString("Groupchat #%1").arg(groupId);
-    Group* newgroup = GroupList::addGroup(groupId, groupName);
+    Group* newgroup = GroupList::addGroup(groupId, groupName, true);
     QLayout* layout = contactListWidget->getGroupLayout();
     layout->addWidget(newgroup->widget);
     newgroup->widget->updateStatusLight();
@@ -1026,7 +1030,7 @@ bool Widget::event(QEvent * e)
         case QEvent::KeyRelease:
             if (autoAwayActive)
             {
-                qDebug() << "Widget: auto away deactivated";
+                qDebug() << "Widget: auto away deactivated at" << QTime::currentTime().toString();
                 autoAwayActive = false;
                 emit statusSet(Status::Online);
                 int mins = Settings::getInstance().getAutoAwayTime();
@@ -1045,7 +1049,7 @@ void Widget::onUserAway()
     if (Settings::getInstance().getAutoAwayTime() > 0
         && ui->statusButton->property("status").toString() == "online") // leave user-set statuses in place
     {
-        qDebug() << "Widget: auto away activated";
+        qDebug() << "Widget: auto away activated" << QTime::currentTime().toString();
         emit statusSet(Status::Away);
         autoAwayActive = true;
     }

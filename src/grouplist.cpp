@@ -19,9 +19,9 @@
 
 QList<Group*> GroupList::groupList;
 
-Group* GroupList::addGroup(int groupId, const QString& name)
+Group* GroupList::addGroup(int groupId, const QString& name, bool isAvGroupchat)
 {
-    Group* newGroup = new Group(groupId, name);
+    Group* newGroup = new Group(groupId, name, isAvGroupchat);
     groupList.append(newGroup);
     return newGroup;
 }
@@ -34,7 +34,7 @@ Group* GroupList::findGroup(int groupId)
     return nullptr;
 }
 
-void GroupList::removeGroup(int groupId)
+void GroupList::removeGroup(int groupId, bool /*fake*/)
 {
     for (int i=0; i<groupList.size(); i++)
     {
