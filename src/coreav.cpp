@@ -48,7 +48,9 @@ void Core::prepareCall(int friendId, int callId, ToxAv* toxav, bool videoEnabled
     calls[callId].codecSettings.max_video_width = TOXAV_MAX_VIDEO_WIDTH;
     calls[callId].codecSettings.max_video_height = TOXAV_MAX_VIDEO_HEIGHT;
     calls[callId].videoEnabled = videoEnabled;
-    toxav_prepare_transmission(toxav, callId, av_jbufdc, av_VADd, videoEnabled);
+    int r = toxav_prepare_transmission(toxav, callId, av_jbufdc, av_VADd, videoEnabled);
+    if (r < 0)
+        qWarning() << QString("Error starting call %1: toxav_prepare_transmission failed with %2").arg(callId).arg(r);
 
     // Audio
     alGenSources(1, &calls[callId].alSource);
@@ -546,7 +548,7 @@ void Core::playAudioBuffer(ALuint alSource, const int16_t *data, int samples, un
     }
 
     ALuint bufid;
-    ALint processed, queued;
+    ALint processed = 0, queued = 16;
     alGetSourcei(alSource, AL_BUFFERS_PROCESSED, &processed);
     alGetSourcei(alSource, AL_BUFFERS_QUEUED, &queued);
     alSourcei(alSource, AL_LOOPING, AL_FALSE);
@@ -558,7 +560,7 @@ void Core::playAudioBuffer(ALuint alSource, const int16_t *data, int samples, un
         alDeleteBuffers(processed - 1, bufids + 1);
         bufid = bufids[0];
     }
-    else if(queued < 16)
+    else if(queued < 128)
     {
         alGenBuffers(1, &bufid);
     }
@@ -586,16 +588,20 @@ VideoSource *Core::getVideoSourceFromCall(int callNumber)
     return &calls[callNumber].videoSource;
 }
 
-void Core::playGroupAudio(Tox* /*tox*/, int  groupnumber, int /*friendgroupnumber*/, const int16_t* out_audio,
+void Core::playGroupAudio(Tox* /*tox*/, int  groupnumber, int friendgroupnumber, const int16_t* out_audio,
                 unsigned out_audio_samples, uint8_t decoder_channels, unsigned audio_sample_rate, void* /*userdata*/)
 {
     if (!groupCalls[groupnumber].active)
         return;
 
-    if (!groupCalls[groupnumber].muteVol)
+    if (groupCalls[groupnumber].muteVol)
         return;
 
-    playAudioBuffer(alMainSource, out_audio, out_audio_samples, decoder_channels, audio_sample_rate);
+    if (!groupCalls[groupnumber].alSources.contains(friendgroupnumber))
+        alGenSources(1, &groupCalls[groupnumber].alSources[friendgroupnumber]);
+
+    playAudioBuffer(groupCalls[groupnumber].alSources[friendgroupnumber], out_audio,
+                    out_audio_samples, decoder_channels, audio_sample_rate);
 }
 
 void Core::joinGroupCall(int groupId)
@@ -611,7 +617,7 @@ void Core::joinGroupCall(int groupId)
     groupCalls[groupId].codecSettings.max_video_height = TOXAV_MAX_VIDEO_HEIGHT;
 
     // Audio
-    alGenSources(1, &groupCalls[groupId].alSource);
+    //alGenSources(1, &groupCalls[groupId].alSource);
     alcCaptureStart(alInDev);
 
     // Go
@@ -653,6 +659,7 @@ void Core::sendGroupCallAudio(int groupId, ToxAv* toxav)
     alcGetIntegerv(alInDev, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
     if(samples >= framesize)
     {
+        memset(buf, 0, framesize*2); // Avoid uninitialized values (Valgrind)
         alcCaptureSamples(alInDev, buf, framesize);
         frame = 1;
     }
@@ -689,4 +696,14 @@ void Core::enableGroupCallMic(int groupId)
 void Core::enableGroupCallVol(int groupId)
 {
     groupCalls[groupId].muteVol = false;
+}
+
+bool Core::isGroupCallMicEnabled(int groupId)
+{
+    return !groupCalls[groupId].muteMic;
+}
+
+bool Core::isGroupCallVolEnabled(int groupId)
+{
+    return !groupCalls[groupId].muteVol;
 }

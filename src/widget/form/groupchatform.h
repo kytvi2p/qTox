@@ -32,6 +32,9 @@ public:
 
     void onUserListChanged();
 
+    void keyPressEvent(QKeyEvent* ev);
+    void keyReleaseEvent(QKeyEvent* ev);
+
 private slots:
     void onSendTriggered();
     void onMicMuteToggle();

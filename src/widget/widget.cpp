@@ -96,7 +96,9 @@ void Widget::init()
                 this,
                 SLOT(onIconClick(QSystemTrayIcon::ActivationReason)));
         
-        icon->show();
+        if (Settings::getInstance().getShowSystemTray()){
+            icon->show();
+        }
         
         if(Settings::getInstance().getAutostartInTray() == false)
             this->show();
@@ -196,6 +198,8 @@ void Widget::init()
     filesForm = new FilesForm();
     addFriendForm = new AddFriendForm;
     settingsWidget = new SettingsWidget();
+
+    connect(settingsWidget, SIGNAL(setShowSystemTray(bool)), this, SLOT(onSetShowSystemTray(bool)));
 
     connect(core, &Core::connected, this, &Widget::onConnected);
     connect(core, &Core::disconnected, this, &Widget::onDisconnected);
@@ -923,7 +927,7 @@ void Widget::onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t Cha
     Group* g = GroupList::findGroup(groupnumber);
     if (!g)
     {
-        qDebug() << "Widget::onGroupNamelistChanged: Group not found, creating it";
+        qDebug() << "Widget::onGroupNamelistChanged: Group "<<groupnumber<<" not found, creating it";
         g = createGroup(groupnumber);
     }
 
@@ -1028,8 +1032,8 @@ bool Widget::event(QEvent * e)
         case QEvent::Wheel:
         case QEvent::KeyPress:
         case QEvent::KeyRelease:
-            if (autoAwayActive)
-            {
+            if (autoAwayActive && ui->statusButton->property("status").toString() == "away")
+            { // be sure nothing else has changed the status in the meantime
                 qDebug() << "Widget: auto away deactivated at" << QTime::currentTime().toString();
                 autoAwayActive = false;
                 emit statusSet(Status::Online);
@@ -1104,6 +1108,11 @@ void Widget::getPassword(QString info, int passtype, uint8_t* salt)
             core->setPassword(pswd, pt, salt);
     }
 }
+
+void Widget::onSetShowSystemTray(bool newValue){
+    icon->setVisible(newValue);
+}
+
 
 QMessageBox::StandardButton Widget::showWarningMsgBox(const QString& title, const QString& msg, QMessageBox::StandardButtons buttons)
 {
