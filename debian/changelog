@@ -1,3 +1,51 @@
+qtox (0.0.0+git20141114.r1504-1) unstable; urgency=medium
+
+  [ Sean Qureshi ]
+  * Add files used to generate OS X pkgs
+
+  [ Sean ]
+  * Forgot the first rule of fight club
+  * The 2nd rule of fight club is actually the first rule
+  * The 3rd rule sucks
+  * Enable local user installs
+  * Update welcome.txt
+  * Update welcome.txt
+  * Add tox: integration for OS X
+  * Make everything magically work
+
+  [ apprb ]
+  * mysql synchronous set
+  * batch processing
+
+  [ Sean ]
+  * Fix mimetype, fix displayed name in titlebar, add a version string for
+    internal tracking, declare language support for localization
+  * Refactor info.plist
+
+  [ apprb ]
+  * AdvancedSettings tab introduced
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Horrible hack to get timestamps not to hang on windows
+  * Apply valgrind fix to 1on1 audio too
+
+  [ dubslow ]
+  * group title support
+  * show self title changes
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix CroppingLabel emitting textChanged twice
+  * Fix timers called from the wrong threads
+  * Add some debug messages
+  * Remove debug statements
+  * Update OSX auto-updates public key
+  * Fix #752
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 14 Nov 2014 21:58:47 +0000
+
 qtox (0.0.0+git20141114.r1476-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
