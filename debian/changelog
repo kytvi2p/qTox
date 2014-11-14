@@ -1,3 +1,50 @@
+qtox (0.0.0+git20141114.r1476-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows: Uninstall start menu entries
+  * Don't 'style' QGroupbot borders in settings
+  * Add simple push to talk with P
+  * Listen for push-to-talk shortcut on more widgets
+  * Silence IPC:processEvents failed to lock
+  * Fix possible crash on ~IPC
+  * Better debug output for groupchat not found
+  * Fix vol must be muted to actually hear things
+  * Use a source per call peer
+  * Augment audio queue size, fixes quality issues
+  * Fix push to talk even when text edit focused
+  * Fix memory disclosure in audio send code (valgrind)
+
+  [ Maximilian ]
+  * I implemented a new setting, which toggles the visibility of the system
+    tray icon. Background: On Ubuntu 14.04, system trays in Qt5 don't
+    integrate into Unity.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+  * Updater: Update OS X update server public key
+  * Fix conflicting declaration struct/class ToxID
+  * Fix conflicting declarations struct/class vpx_image
+  * Remove unused variable
+
+  [ dubslow ]
+  * minor autoaway tweak
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Enable auto-updates for OS X
+  * Update README.md
+
+  [ Sean ]
+  * Force install to local user
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * README: Mention package managers on Linux
+  * Add some debug info when toxav_prepare_transmission fails
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 14 Nov 2014 00:14:55 +0000
+
 qtox (0.0.0+git20141113.r1450-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty
