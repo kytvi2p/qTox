@@ -1,3 +1,15 @@
+qtox (0.0.0+git20141115.r1536-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix friendlist having a bad gray background
+  * Fix #767
+  * Rewrite horrible type casting pointer magic with shifts
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 15 Nov 2014 23:52:45 +0000
+
 qtox (0.0.0+git20141115.r1533-1) unstable; urgency=medium
 
   [ Ansa89 ]
