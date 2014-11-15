@@ -1,3 +1,21 @@
+qtox (0.0.0+git20141115.r1511-1) UNRELEASED; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Make sql tuning strings translatable
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add debug output
+  * Remove debug output
+  * Fix buffer overflow with >1 audio input channel
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Ansa89 <ansalonistefano@gmail.com>  Sat, 15 Nov 2014 16:49:07 +0000
+
 qtox (0.0.0+git20141114.r1504-1) unstable; urgency=medium
 
   [ Sean Qureshi ]
