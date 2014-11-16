@@ -1,3 +1,18 @@
+qtox (0.0.0+git20141116.r1559-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * Extra tooltip and word from the un-picked commit
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick f3019a8111f25ef0400c287d851b992d4ca3d839
+  * Add missing license headers
+  * Fix logic error in audio subscription code
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 16 Nov 2014 20:43:50 +0000
+
 qtox (0.0.0+git20141116.r1555-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
