@@ -79,6 +79,7 @@ public:
 
 public slots:
     void onSettingsClicked();
+    void setWindowTitle(const QString& title);
 
 signals:
     void friendRequestAccepted(const QString& userId);
@@ -162,6 +163,7 @@ private:
     MaskablePixmapWidget* profilePicture;
     bool notify(QObject *receiver, QEvent *event);
     bool autoAwayActive = false;
+    Status beforeDisconnect = Status::Offline;
     QTimer* idleTimer;
     QTranslator* translator;
 };

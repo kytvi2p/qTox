@@ -76,11 +76,10 @@ ChatForm::ChatForm(Friend* chatFriend)
     connect(chatWidget, &ChatAreaWidget::onFileTranfertInterract, this, &ChatForm::onFileTansBtnClicked);
     connect(Core::getInstance(), &Core::fileSendFailed, this, &ChatForm::onFileSendFailed);
     connect(this, SIGNAL(chatAreaCleared()), this, SLOT(clearReciepts()));
+    connect(nameLabel, &CroppingLabel::textChanged, this, [=](QString text, QString orig)
+        {if (text != orig) emit aliasChanged(text);} );
 
     setAcceptDrops(true);
-
-    if (Settings::getInstance().getEnableLogging())
-        loadHistory(QDateTime::currentDateTime().addDays(-7), true);
 }
 
 ChatForm::~ChatForm()
@@ -220,7 +219,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
     chatWidget->insertMessage(ChatActionPtr(new FileTransferAction(fileTrans, getElidedName(name),
                                                                    QTime::currentTime().toString("hh:mm"), false)));
 
-    if (!Settings::getInstance().getAutoAcceptDir(Core::getInstance()->getFriendAddress(f->getFriendID())).isEmpty()
+    if (!Settings::getInstance().getAutoAcceptDir(f->getToxID()).isEmpty()
      || Settings::getInstance().getAutoSaveEnabled())
         fileTrans->pressFromHtml("btnB");
 }

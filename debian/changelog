@@ -1,3 +1,142 @@
+qtox (0.0.0+git20141118.r1600-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * remember status when disconnected (should help with #715)
+  * fix crash if no boostrap nodes (fix #791 where "fix" means "mask the
+    underlying problem")
+  * set aliases from chat form (half of #780)
+  * fix bug (which is actually why aliasing was menu'd in the first place)
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ dubslow ]
+  * add group title menu option, other half of closes #780 also truncate all
+    group titles to max len
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix zlib link order on windows x64
+  * Update windows installer for x64
+  * Remove unnecessary OSX lib search paths
+  * README: Add qTox windows 64 bit download link
+
+  [ Kill Your TV ]
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 19 Nov 2014 03:13:23 +0000
+
+qtox (0.0.0+git20141118.r1588-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Vol button: Less blury, use Tox Red when pressed
+
+  [ Olexandr Nesterenko ]
+  * Update Ukrainian translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Mic button: Less blury, use Tox Red when pressed
+  * Call buttons: Use tox red
+  * Widget: Don't delete icon, it's a child
+  * Put group chats audio playing in its own thread
+  * Fix incorrect HINSTANCE -> int cast
+  * Fix more incorrect HINSTANCE casts
+  * Silence potentially uninitialized warning
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 18 Nov 2014 02:12:32 +0000
+
+qtox (0.0.0+git20141117.r1578-1) unstable; urgency=medium
+
+  [ Nokta-strigo ]
+  * There was wrong english string
+  * Translation of synchronous writing to DB settings
+  * Translated call control buttons
+  * Slightly improoved translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sean ]
+  * Update makedist.sh
+  * Create postinstall
+  * Create preinstall
+
+  [ apprb ]
+  * fix #775
+  * use GlobalAutoAcceptDir only if autosaving enabled
+
+  [ Maximilian ]
+  * The showSystemTrayIcon's default value is false for linux else it is
+    false.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick pull request #793
+
+  [ ovalseven8 ]
+  * Update de.ts
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 17 Nov 2014 17:28:09 +0000
+
+qtox (0.0.0+git20141116.r1559-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * Extra tooltip and word from the un-picked commit
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick f3019a8111f25ef0400c287d851b992d4ca3d839
+  * Add missing license headers
+  * Fix logic error in audio subscription code
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 16 Nov 2014 20:43:50 +0000
+
+qtox (0.0.0+git20141116.r1555-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows updater: Create backup and restore it on failure
+  * Search libs in ../../PlugIns on OS X
+  * Fix tox: url highlighting breaking the :tox: smiley
+  * Add more plugin search paths for OS X
+
+  [ dubslow ]
+  * auto away done right (fixes #751)
+  * "overhaul" window title, fix #753
+  * fix title editing issue, reported by "whoever"
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick most of #756
+
+  [ Maximilian ]
+  * Minor bug fix: The main window, will never be visible, when the user
+    unchecked 'Show system try' and checked 'Start in tray'.
+  * similar bug, when closing the window...
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick the first part of #762
+
+  [ apprb ]
+  * using ToxID instead of bare QString + proper alias using during widget
+    creation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Allow to change i/o audio devices without restart
+  * Allow to change audio i/o device mid-call
+  * Leave group calls when leaving a group
+  * Refactor audio out of code, better resource management
+  * Fix #778
+  * Fix #635
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 16 Nov 2014 19:26:36 +0000
+
 qtox (0.0.0+git20141115.r1536-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty

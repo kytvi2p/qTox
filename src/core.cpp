@@ -20,6 +20,7 @@
 #include "misc/settings.h"
 #include "widget/widget.h"
 #include "historykeeper.h"
+#include "src/audio.h"
 
 #include <tox/tox.h>
 #include <tox/toxencryptsave.h>
@@ -55,6 +56,9 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
 
     coreThread = CoreThread;
 
+    audioThread = new QThread();
+    audioThread->start();
+
     videobuf = new uint8_t[videobufsize];
 
     for (int i = 0; i < ptCounter; i++)
@@ -69,6 +73,8 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
 
     for (int i=0; i<TOXAV_MAX_CALLS;i++)
     {
+        calls[i].active = false;
+        calls[i].alSource = 0;
         calls[i].sendAudioTimer = new QTimer();
         calls[i].sendVideoTimer = new QTimer();
         calls[i].sendAudioTimer->moveToThread(coreThread);
@@ -78,38 +84,9 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
 
     // OpenAL init
     QString outDevDescr = Settings::getInstance().getOutDev();                                     ;
-    if (outDevDescr.isEmpty())
-        alOutDev = alcOpenDevice(nullptr);
-    else
-        alOutDev = alcOpenDevice(outDevDescr.toStdString().c_str());
-    if (!alOutDev)
-    {
-        qWarning() << "Core: Cannot open output audio device";
-    }
-    else
-    {
-        alContext=alcCreateContext(alOutDev,nullptr);
-        if (!alcMakeContextCurrent(alContext))
-        {
-            qWarning() << "Core: Cannot create output audio context";
-            alcCloseDevice(alOutDev);
-        }
-        else
-            alGenSources(1, &alMainSource);
-    }
-
+    Audio::openOutput(outDevDescr);
     QString inDevDescr = Settings::getInstance().getInDev();
-    int stereoFlag = av_DefaultSettings.audio_channels==1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-    if (inDevDescr.isEmpty())
-        alInDev = alcCaptureOpenDevice(nullptr,av_DefaultSettings.audio_sample_rate, stereoFlag,
-            (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4)
-                                       / 1000 * av_DefaultSettings.audio_channels);
-    else
-        alInDev = alcCaptureOpenDevice(inDevDescr.toStdString().c_str(),av_DefaultSettings.audio_sample_rate, stereoFlag,
-            (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4)
-                                       / 1000 * av_DefaultSettings.audio_channels);
-    if (!alInDev)
-        qWarning() << "Core: Cannot open input audio device";
+    Audio::openInput(inDevDescr);
 }
 
 Core::~Core()
@@ -125,15 +102,8 @@ Core::~Core()
         videobuf=nullptr;
     }
 
-    if (alContext)
-    {
-        alcMakeContextCurrent(nullptr);
-        alcDestroyContext(alContext);
-    }
-    if (alOutDev)
-        alcCloseDevice(alOutDev);
-    if (alInDev)
-        alcCaptureCloseDevice(alInDev);
+    Audio::closeInput();
+    Audio::closeOutput();
 
     clearPassword(Core::ptMain);
     clearPassword(Core::ptHistory);
@@ -370,6 +340,11 @@ void Core::bootstrapDht()
     QList<Settings::DhtServer> dhtServerList = s.getDhtServerList();
 
     int listSize = dhtServerList.size();
+    if (listSize == 0)
+    {
+        qDebug() << "Settings: no bootstrap list?!?";
+        return;
+    }
     static int j = qrand() % listSize;
 
     qDebug() << "Core: Bootstraping to the DHT ...";
@@ -1035,6 +1010,9 @@ void Core::removeGroup(int groupId, bool fake)
     if (!tox || fake)
         return;
     tox_del_groupchat(tox, groupId);
+
+    if (groupCalls[groupId].active)
+        leaveGroupCall(groupId);
 }
 
 QString Core::getUsername() const
@@ -1872,4 +1850,22 @@ void Core::setNospam(uint32_t nospam)
     uint8_t *nspm = reinterpret_cast<uint8_t*>(&nospam);
     std::reverse(nspm, nspm + 4);
     tox_set_nospam(tox, nospam);
+}
+
+void Core::resetCallSources()
+{
+    for (ToxGroupCall& call : groupCalls)
+        call.alSources.clear();
+
+    for (ToxCall& call : calls)
+    {
+        if (call.active && call.alSource)
+        {
+            ALuint tmp = call.alSource;
+            call.alSource = 0;
+            alDeleteSources(1, &tmp);
+
+            alGenSources(1, &call.alSource);
+        }
+    }
 }

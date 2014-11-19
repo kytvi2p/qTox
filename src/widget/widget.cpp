@@ -34,6 +34,7 @@
 #include "src/historykeeper.h"
 #include "form/inputpassworddialog.h"
 #include "src/autoupdate.h"
+#include "src/audio.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
@@ -98,10 +99,12 @@ void Widget::init()
         
         if (Settings::getInstance().getShowSystemTray()){
             icon->show();
+            if(Settings::getInstance().getAutostartInTray() == false)
+                this->show();
         }
-        
-        if(Settings::getInstance().getAutostartInTray() == false)
+        else
             this->show();
+
     }
     else
     {
@@ -178,9 +181,7 @@ void Widget::init()
 
     idleTimer = new QTimer();
     idleTimer->setSingleShot(true);
-    int mins = Settings::getInstance().getAutoAwayTime();
-    if (mins > 0)
-        idleTimer->start(mins * 1000*60);
+    setIdleTimer(Settings::getInstance().getAutoAwayTime());
 
     qRegisterMetaType<Status>("Status");
     qRegisterMetaType<vpx_image>("vpx_image");
@@ -298,7 +299,6 @@ Widget::~Widget()
         delete g;
     GroupList::groupList.clear();
     delete trayMenu;
-    delete icon;
     delete ui;
     delete translator;
     instance = nullptr;
@@ -321,7 +321,7 @@ QThread* Widget::getCoreThread()
 
 void Widget::closeEvent(QCloseEvent *event)
 {
-    if(Settings::getInstance().getCloseToTray() == true)
+    if(Settings::getInstance().getShowSystemTray() && Settings::getInstance().getCloseToTray() == true)
     {
         event->ignore();
         this->hide();
@@ -409,11 +409,6 @@ QString Widget::askProfiles()
         return profile;
 }
 
-void Widget::setIdleTimer(int minutes)
-{
-    idleTimer->start(minutes * 1000*60);
-}
-
 QString Widget::getUsername()
 {
     return core->getUsername();
@@ -471,11 +466,24 @@ void Widget::onSelfAvatarLoaded(const QPixmap& pic)
 void Widget::onConnected()
 {
     ui->statusButton->setEnabled(true);
-    emit statusSet(Status::Online);
+    if (beforeDisconnect == Status::Offline)
+        emit statusSet(Status::Online);
+    else
+        emit statusSet(beforeDisconnect);
 }
 
 void Widget::onDisconnected()
 {
+    QString stat = ui->statusButton->property("status").toString();
+    if      (stat == "online")
+        beforeDisconnect = Status::Online;
+    else if (stat == "busy")
+        beforeDisconnect = Status::Busy;
+    else if (stat == "away")
+        beforeDisconnect = Status::Away;
+    else
+        beforeDisconnect = Status::Offline;
+
     ui->statusButton->setEnabled(false);
     emit statusSet(Status::Offline);
 }
@@ -523,11 +531,16 @@ void Widget::onStatusSet(Status status)
     Style::repolish(ui->statusButton);
 }
 
+void Widget::setWindowTitle(const QString& title)
+{
+    QMainWindow::setWindowTitle("qTox - " + title);
+}
+
 void Widget::onAddClicked()
 {
     hideMainForms();
     addFriendForm->show(*ui);
-    setWindowTitle(tr("Add friend") + " - qTox");
+    setWindowTitle(tr("Add friend"));
 }
 
 void Widget::onGroupClicked()
@@ -539,7 +552,7 @@ void Widget::onTransferClicked()
 {
     hideMainForms();
     filesForm->show(*ui);
-    setWindowTitle(tr("File transfers") + " - qTox");
+    setWindowTitle(tr("File transfers"));
     activeChatroomWidget = nullptr;
 }
 
@@ -564,7 +577,7 @@ void Widget::onSettingsClicked()
 {
     hideMainForms();
     settingsWidget->show(*ui);
-    setWindowTitle(tr("Settings") + " - qTox");
+    setWindowTitle(tr("Settings"));
     activeChatroomWidget = nullptr;
 }
 
@@ -611,12 +624,13 @@ void Widget::setStatusMessage(const QString &statusMessage)
 void Widget::addFriend(int friendId, const QString &userId)
 {
     //qDebug() << "Widget: Adding friend with id" << userId;
-    Friend* newfriend = FriendList::addFriend(friendId, userId);
+    ToxID userToxId = ToxID::fromString(userId);
+    Friend* newfriend = FriendList::addFriend(friendId, userToxId);
     QLayout* layout = contactListWidget->getFriendLayout(Status::Offline);
     layout->addWidget(newfriend->getFriendWidget());
 
-    QString alias = Settings::getInstance().getFriendAlias(ToxID::fromString(userId));
-    newfriend->setAlias(alias);
+    if (Settings::getInstance().getEnableLogging())
+        newfriend->getChatForm()->loadHistory(QDateTime::currentDateTime().addDays(-7), true);
 
     connect(newfriend->getFriendWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*)));
     connect(newfriend->getFriendWidget(), SIGNAL(removeFriend(int)), this, SLOT(removeFriend(int)));
@@ -632,6 +646,7 @@ void Widget::addFriend(int friendId, const QString &userId)
     connect(newfriend->getChatForm(), SIGNAL(cancelCall(int,int)), core, SLOT(cancelCall(int,int)));
     connect(newfriend->getChatForm(), SIGNAL(micMuteToggle(int)), core, SLOT(micMuteToggle(int)));
     connect(newfriend->getChatForm(), SIGNAL(volMuteToggle(int)), core, SLOT(volMuteToggle(int)));
+    connect(newfriend->getChatForm(), &ChatForm::aliasChanged, newfriend->getFriendWidget(), &FriendWidget::setAlias);
     connect(core, &Core::fileReceiveRequested, newfriend->getChatForm(), &ChatForm::onFileRecvRequest);
     connect(core, &Core::avInvite, newfriend->getChatForm(), &ChatForm::onAvInvite);
     connect(core, &Core::avStart, newfriend->getChatForm(), &ChatForm::onAvStart);
@@ -741,7 +756,7 @@ void Widget::onChatroomWidgetClicked(GenericChatroomWidget *widget)
     }
     activeChatroomWidget = widget;
     widget->setAsActiveChatroom();
-    setWindowTitle(widget->getName() + " - qTox");
+    setWindowTitle(widget->getName());
     widget->resetEventFlags();
     widget->updateStatusLight();
 }
@@ -806,11 +821,7 @@ void Widget::newMessageAlert(GenericChatroomWidget* chat)
         sndFile.close();
     }
 
-    ALuint buffer;
-    alGenBuffers(1, &buffer);
-    alBufferData(buffer, AL_FORMAT_MONO16, sndData.data(), sndData.size(), 44100);
-    alSourcei(core->alMainSource, AL_BUFFER, buffer);
-    alSourcePlay(core->alMainSource);
+    Audio::playMono16Sound(sndData);
 }
 
 void Widget::playRingtone()
@@ -826,11 +837,7 @@ void Widget::playRingtone()
         sndFile1.close();
     }
 
-    ALuint buffer;
-    alGenBuffers(1, &buffer);
-    alBufferData(buffer, AL_FORMAT_MONO16, sndData1.data(), sndData1.size(), 44100);
-    alSourcei(core->alMainSource, AL_BUFFER, buffer);
-    alSourcePlay(core->alMainSource);
+    Audio::playMono16Sound(sndData1);
 }
 
 void Widget::onFriendRequestReceived(const QString& userId, const QString& message)
@@ -1054,15 +1061,19 @@ bool Widget::event(QEvent * e)
                 qDebug() << "Widget: auto away deactivated at" << QTime::currentTime().toString();
                 autoAwayActive = false;
                 emit statusSet(Status::Online);
-                int mins = Settings::getInstance().getAutoAwayTime();
-                if (mins > 0)
-                    idleTimer->start(mins * 1000*60);
             }
+            setIdleTimer(Settings::getInstance().getAutoAwayTime());
         default:
             break;
     }
 
     return QWidget::event(e);
+}
+
+void Widget::setIdleTimer(int minutes)
+{
+    if (minutes > 0)
+        idleTimer->start(minutes * 1000*60);
 }
 
 void Widget::onUserAway()

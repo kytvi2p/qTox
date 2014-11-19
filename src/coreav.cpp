@@ -16,16 +16,14 @@
 
 #include "core.h"
 #include "video/camera.h"
+#include "audio.h"
 #include <QDebug>
 #include <QTimer>
 
 ToxCall Core::calls[TOXAV_MAX_CALLS];
 const int Core::videobufsize{TOXAV_MAX_VIDEO_WIDTH * TOXAV_MAX_VIDEO_HEIGHT * 4};
 uint8_t* Core::videobuf;
-
-ALCdevice* Core::alOutDev, *Core::alInDev;
-ALCcontext* Core::alContext;
-ALuint Core::alMainSource;
+QThread* Core::audioThread{nullptr};
 
 bool Core::anyActiveCalls()
 {
@@ -53,8 +51,7 @@ void Core::prepareCall(int friendId, int callId, ToxAv* toxav, bool videoEnabled
         qWarning() << QString("Error starting call %1: toxav_prepare_transmission failed with %2").arg(callId).arg(r);
 
     // Audio
-    alGenSources(1, &calls[callId].alSource);
-    alcCaptureStart(alInDev);
+    Audio::suscribeInput();
 
     // Go
     calls[callId].active = true;
@@ -197,7 +194,7 @@ void Core::cleanupCall(int callId)
     calls[callId].sendVideoTimer->stop();
     if (calls[callId].videoEnabled)
         Camera::getInstance()->unsubscribe();
-    alcCaptureStop(alInDev);
+    Audio::unsuscribeInput();
 }
 
 void Core::playCallAudio(ToxAv* toxav, int32_t callId, int16_t *data, int samples, void *user_data)
@@ -206,6 +203,9 @@ void Core::playCallAudio(ToxAv* toxav, int32_t callId, int16_t *data, int sample
 
     if (!calls[callId].active)
         return;
+
+    if (!calls[callId].alSource)
+        alGenSources(1, &calls[callId].alSource);
 
     ToxAvCSettings dest;
     if(toxav_get_peer_csettings(toxav, callId, 0, &dest) == 0)
@@ -217,7 +217,7 @@ void Core::sendCallAudio(int callId, ToxAv* toxav)
     if (!calls[callId].active)
         return;
 
-    if (calls[callId].muteMic)
+    if (calls[callId].muteMic || !Audio::alInDev)
     {
         calls[callId].sendAudioTimer->start();
         return;
@@ -229,11 +229,11 @@ void Core::sendCallAudio(int callId, ToxAv* toxav)
 
     bool frame = false;
     ALint samples;
-    alcGetIntegerv(alInDev, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
+    alcGetIntegerv(Audio::alInDev, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
     if(samples >= framesize)
     {
         memset(buf, 0, bufsize); // Avoid uninitialized values (Valgrind)
-        alcCaptureSamples(alInDev, buf, framesize);
+        alcCaptureSamples(Audio::alInDev, buf, framesize);
         frame = 1;
     }
 
@@ -619,8 +619,7 @@ void Core::joinGroupCall(int groupId)
     groupCalls[groupId].codecSettings.max_video_height = TOXAV_MAX_VIDEO_HEIGHT;
 
     // Audio
-    //alGenSources(1, &groupCalls[groupId].alSource);
-    alcCaptureStart(alInDev);
+    Audio::suscribeInput();
 
     // Go
     Core* core = Core::getInstance();
@@ -632,6 +631,7 @@ void Core::joinGroupCall(int groupId)
     groupCalls[groupId].sendAudioTimer->setSingleShot(true);
     connect(groupCalls[groupId].sendAudioTimer, &QTimer::timeout, [=](){sendGroupCallAudio(groupId,toxav);});
     groupCalls[groupId].sendAudioTimer->start();
+    groupCalls[groupId].sendAudioTimer->moveToThread(audioThread);
 }
 
 void Core::leaveGroupCall(int groupId)
@@ -640,7 +640,9 @@ void Core::leaveGroupCall(int groupId)
     groupCalls[groupId].active = false;
     disconnect(groupCalls[groupId].sendAudioTimer,0,0,0);
     groupCalls[groupId].sendAudioTimer->stop();
-    alcCaptureStop(alInDev);
+    groupCalls[groupId].alSources.clear();
+    Audio::unsuscribeInput();
+    delete groupCalls[groupId].sendAudioTimer;
 }
 
 void Core::sendGroupCallAudio(int groupId, ToxAv* toxav)
@@ -648,7 +650,7 @@ void Core::sendGroupCallAudio(int groupId, ToxAv* toxav)
     if (!groupCalls[groupId].active)
         return;
 
-    if (groupCalls[groupId].muteMic)
+    if (groupCalls[groupId].muteMic || !Audio::alInDev)
     {
         groupCalls[groupId].sendAudioTimer->start();
         return;
@@ -660,11 +662,11 @@ void Core::sendGroupCallAudio(int groupId, ToxAv* toxav)
 
     bool frame = false;
     ALint samples;
-    alcGetIntegerv(alInDev, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
+    alcGetIntegerv(Audio::alInDev, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
     if(samples >= framesize)
     {
         memset(buf, 0, bufsize); // Avoid uninitialized values (Valgrind)
-        alcCaptureSamples(alInDev, buf, framesize);
+        alcCaptureSamples(Audio::alInDev, buf, framesize);
         frame = 1;
     }
 

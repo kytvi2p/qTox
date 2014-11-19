@@ -64,7 +64,7 @@ win32 {
     RC_FILE = windows/qtox.rc
     LIBS += -liphlpapi -L$$PWD/libs/lib -lsodium -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lvpx -lpthread
     LIBS += -L$$PWD/libs/lib -lopencv_core248 -lopencv_highgui248 -lopencv_imgproc248 -lOpenAL32 -lopus
-    LIBS += -lz -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -ljpeg -ltiff -lpng -ljasper -lIlmImf -lHalf -lws2_32
+    LIBS += -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -ljpeg -ltiff -lpng -ljasper -lIlmImf -lHalf -lws2_32 -lz
 } else {
     macx {
         BUNDLEID = im.tox.qtox
@@ -154,7 +154,8 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/widget/toxsave.h \
     src/autoupdate.h \
     src/misc/serialize.h \
-    src/widget/form/settings/advancedform.h
+    src/widget/form/settings/advancedform.h \
+    src/audio.h
 
 SOURCES += \
     src/widget/form/addfriendform.cpp \
@@ -220,4 +221,5 @@ SOURCES += \
     src/widget/toxsave.cpp \    
     src/autoupdate.cpp \
     src/misc/serialize.cpp \
-    src/widget/form/settings/advancedform.cpp
+    src/widget/form/settings/advancedform.cpp \
+    src/audio.cpp
