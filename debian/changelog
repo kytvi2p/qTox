@@ -1,3 +1,29 @@
+qtox (0.0.0+git20141118.r1600-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * remember status when disconnected (should help with #715)
+  * fix crash if no boostrap nodes (fix #791 where "fix" means "mask the
+    underlying problem")
+  * set aliases from chat form (half of #780)
+  * fix bug (which is actually why aliasing was menu'd in the first place)
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ dubslow ]
+  * add group title menu option, other half of closes #780 also truncate all
+    group titles to max len
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix zlib link order on windows x64
+  * Update windows installer for x64
+  * Remove unnecessary OSX lib search paths
+  * README: Add qTox windows 64 bit download link
+
+  [ Kill Your TV ]
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 19 Nov 2014 03:13:23 +0000
+
 qtox (0.0.0+git20141118.r1588-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
