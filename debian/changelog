@@ -1,3 +1,26 @@
+qtox (0.0.0+git20141120.r1609-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ apprb ]
+  * check incoming data from DB
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Move group audio playing to Audio singletong/thread
+
+  [ dubslow ]
+  * fix #811
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick c459263d27531b7856457b13e9b556b2aeb21dae
+  * Fix idleTimer use before construction
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 20 Nov 2014 02:31:51 +0000
+
 qtox (0.0.0+git20141118.r1600-1) unstable; urgency=medium
 
   [ dubslow ]
