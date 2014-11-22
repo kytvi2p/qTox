@@ -1,3 +1,16 @@
+qtox (0.0.0+git20141121.r1619-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ nachfuellbar ]
+  * Update generalform.cpp
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 22 Nov 2014 03:17:45 +0000
+
 qtox (0.0.0+git20141120.r1609-1) unstable; urgency=medium
 
   [ Ansa89 ]
