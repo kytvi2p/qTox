@@ -1,3 +1,69 @@
+qtox (0.0.0+git20141126.r1654-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ apprb ]
+  * GroupList refactoring
+  * auto-update audio devices list on tab show
+  * Group class refactoring
+  * using ToxID in groupchats
+  * GroupWidget: menu reordering
+  * groupchats: friend's aliases (updates on rejoin)
+  * commented currently unused functions in Group class
+  * rescan audio devices button
+  * minor fixes in ChatAction's creation/processing
+
+  [ Ruben Barkow ]
+  * Update de.ts "calling" will be "ruft an"
+
+  [ Carsten Brandt ]
+  * added opencv imgproc to dependencies
+
+  [ novist ]
+  * No border for message area (as in mockup)
+  * Starting client activates existing instance if such exists
+  * Added -P <profile> parameter which makes qTox start (and not activate any
+    existing instances) and load specified profile
+  * -P value name also translated
+
+  [ mannol ]
+  * Core update
+
+  [ Carsten Brandt ]
+  * Update de.ts
+  * fixed some original translation strings
+  * adjusted translation messages
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Group chat button at the bottom of contact list resized to 16x16 like
+    other buttons
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix some nullptr dereferences in Audio
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * Bump dependency on libtoxcoreav-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 26 Nov 2014 22:59:42 +0000
+
+qtox (0.0.0+git20141121.r1619-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ nachfuellbar ]
+  * Update generalform.cpp
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 22 Nov 2014 03:17:45 +0000
+
 qtox (0.0.0+git20141120.r1609-1ubuntu1) trusty; urgency=medium
 
   * Building for Trusty

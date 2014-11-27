@@ -53,6 +53,7 @@ public:
 
     int getGroupNumberPeers(int groupId) const; ///< Return the number of peers in the group chat on success, or -1 on failure
     QString getGroupPeerName(int groupId, int peerId) const; ///< Get the name of a peer of a group
+    ToxID getGroupPeerToxID(int groupId, int peerId) const; ///< Get the ToxID of a peer of a group
     QList<QString> getGroupPeerNames(int groupId) const; ///< Get the names of the peers of a group
     QString getFriendAddress(int friendNumber) const; ///< Get the full address if known, or Tox ID of a friend
     QString getFriendUsername(int friendNumber) const; ///< Get the username of a friend
@@ -160,7 +161,7 @@ signals:
 
     void emptyGroupCreated(int groupnumber);
     void groupInviteReceived(int friendnumber, uint8_t type, QByteArray publicKey);
-    void groupMessageReceived(int groupnumber, const QString& message, const QString& author, bool isAction);
+    void groupMessageReceived(int groupnumber, int peernumber, const QString& message, bool isAction);
     void groupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
     void groupTitleChanged(int groupnumber, const QString& author, const QString& title);
 
@@ -244,8 +245,6 @@ private:
     static void onAvReject(void* toxav, int32_t call_index, void* core);
     static void onAvEnd(void* toxav, int32_t call_index, void* core);
     static void onAvRinging(void* toxav, int32_t call_index, void* core);
-    static void onAvStarting(void* toxav, int32_t call_index, void* core);
-    static void onAvEnding(void* toxav, int32_t call_index, void* core);
     static void onAvRequestTimeout(void* toxav, int32_t call_index, void* core);
     static void onAvPeerTimeout(void* toxav, int32_t call_index, void* core);
     static void onAvMediaChange(void *toxav, int32_t call_index, void* core);
@@ -254,10 +253,10 @@ private:
 
     static void prepareCall(int friendId, int callId, ToxAv *toxav, bool videoEnabled);
     static void cleanupCall(int callId);
-    static void playCallAudio(ToxAv *toxav, int32_t callId, int16_t *data, int samples, void *user_data); // Callback
+    static void playCallAudio(void *toxav, int32_t callId, const int16_t *data, uint16_t samples, void *user_data); // Callback
     static void sendCallAudio(int callId, ToxAv* toxav);
     static void playAudioBuffer(ALuint alSource, const int16_t *data, int samples, unsigned channels, int sampleRate);
-    static void playCallVideo(ToxAv* toxav, int32_t callId, vpx_image_t* img, void *user_data);
+    static void playCallVideo(void *toxav, int32_t callId, const vpx_image_t* img, void *user_data);
     void sendCallVideo(int callId);
 
     bool checkConnection();

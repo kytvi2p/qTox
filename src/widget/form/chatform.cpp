@@ -216,8 +216,9 @@ void ChatForm::onFileRecvRequest(ToxFile file)
         previousId = friendId;
     }
 
-    chatWidget->insertMessage(ChatActionPtr(new FileTransferAction(fileTrans, getElidedName(name),
-                                                                   QTime::currentTime().toString("hh:mm"), false)));
+    QString dateStr = QTime::currentTime().toString(Settings::getInstance().getTimestampFormat());
+    FileTransferAction *fa = new FileTransferAction(fileTrans, getElidedName(name), dateStr, false);
+    chatWidget->insertMessage(ChatActionPtr(fa));
 
     if (!Settings::getInstance().getAutoAcceptDir(f->getToxID()).isEmpty()
      || Settings::getInstance().getAutoSaveEnabled())
@@ -250,7 +251,7 @@ void ChatForm::onAvInvite(int FriendId, int CallId, bool video)
         connect(callButton, SIGNAL(clicked()), this, SLOT(onAnswerCallTriggered()));
     }
     
-    addSystemInfoMessage(tr("%1 calling").arg(f->getDisplayedName()), "white", QDateTime::currentDateTime());    
+    addSystemInfoMessage(tr("%1 is calling").arg(f->getDisplayedName()), "white", QDateTime::currentDateTime());
 
     Widget* w = Widget::getInstance();
     if (!w->isFriendWidgetCurActiveWidget(f)|| w->isMinimized() || !w->isActiveWindow())

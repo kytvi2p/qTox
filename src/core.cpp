@@ -253,14 +253,13 @@ void Core::start()
     toxav_register_callstate_callback(toxav, onAvReject, av_OnReject, this);
     toxav_register_callstate_callback(toxav, onAvEnd, av_OnEnd, this);
     toxav_register_callstate_callback(toxav, onAvRinging, av_OnRinging, this);
-    toxav_register_callstate_callback(toxav, onAvStarting, av_OnStarting, this);
-    toxav_register_callstate_callback(toxav, onAvEnding, av_OnEnding, this);
-    toxav_register_callstate_callback(toxav, onAvMediaChange, av_OnMediaChange, this);
+    toxav_register_callstate_callback(toxav, onAvMediaChange, av_OnPeerCSChange, this);
+    toxav_register_callstate_callback(toxav, onAvMediaChange, av_OnSelfCSChange, this);
     toxav_register_callstate_callback(toxav, onAvRequestTimeout, av_OnRequestTimeout, this);
     toxav_register_callstate_callback(toxav, onAvPeerTimeout, av_OnPeerTimeout, this);
 
-    toxav_register_audio_recv_callback(toxav, playCallAudio, this);
-    toxav_register_video_recv_callback(toxav, playCallVideo, this);
+    toxav_register_audio_callback(playCallAudio, this);
+    toxav_register_video_callback(playCallVideo, this);
 
     QPixmap pic = Settings::getInstance().getSavedAvatar(getSelfId().toString());
     if (!pic.isNull() && !pic.size().isEmpty())
@@ -296,6 +295,7 @@ void Core::process()
 
     static int tolerance = CORE_DISCONNECT_TOLERANCE;
     tox_do(tox);
+    toxav_do(toxav);
 
 #ifdef DEBUG
     //we want to see the debug messages immediately
@@ -309,7 +309,7 @@ void Core::process()
         bootstrapDht();
     }
 
-    toxTimer->start(tox_do_interval(tox));
+    toxTimer->start(qMin(tox_do_interval(tox), toxav_do_interval(toxav)));
 }
 
 bool Core::checkConnection()
@@ -457,8 +457,7 @@ void Core::onAction(Tox*/* tox*/, int friendId, const uint8_t *cMessage, uint16_
 void Core::onGroupAction(Tox*, int groupnumber, int peernumber, const uint8_t *action, uint16_t length, void* _core)
 {
     Core* core = static_cast<Core*>(_core);
-    emit core->groupMessageReceived(groupnumber, CString::toString(action, length),
-                                    core->getGroupPeerName(groupnumber, peernumber), true);
+    emit core->groupMessageReceived(groupnumber, peernumber, CString::toString(action, length), true);
 }
 
 void Core::onGroupInvite(Tox*, int friendnumber, uint8_t type, const uint8_t *data, uint16_t length,void *core)
@@ -483,8 +482,8 @@ void Core::onGroupInvite(Tox*, int friendnumber, uint8_t type, const uint8_t *da
 void Core::onGroupMessage(Tox*, int groupnumber, int peernumber, const uint8_t * message, uint16_t length, void *_core)
 {
     Core* core = static_cast<Core*>(_core);
-    emit core->groupMessageReceived(groupnumber, CString::toString(message, length),
-                                    core->getGroupPeerName(groupnumber, peernumber), false);
+
+    emit core->groupMessageReceived(groupnumber, peernumber, CString::toString(message, length), false);
 }
 
 void Core::onGroupNamelistChange(Tox*, int groupnumber, int peernumber, uint8_t change, void *core)
@@ -1260,7 +1259,7 @@ bool Core::loadConfiguration(QString path)
                 if (!HistoryKeeper::checkPassword())
                 {
                     if (QMessageBox::Ok == Widget::getInstance()->showWarningMsgBox(tr("Encrypted log"),
-                                                                tr("Your history is encrypted with different password\nDo you want to try another password?"),
+                                                                tr("Your history is encrypted with different password.\nDo you want to try another password?"),
                                                                 QMessageBox::Ok | QMessageBox::Cancel))
                     {
                         error = true;
@@ -1270,7 +1269,7 @@ bool Core::loadConfiguration(QString path)
                     {
                         error = false;
                         clearPassword(ptHistory);
-                        Widget::getInstance()->showWarningMsgBox(tr("Loggin"), tr("Due to incorret password logging will be disabled"));
+                        Widget::getInstance()->showWarningMsgBox(tr("History"), tr("Due to incorret password history will be disabled."));
                         Settings::getInstance().setEncryptLogs(false);
                         Settings::getInstance().setEnableLogging(false);
                     }
@@ -1461,6 +1460,22 @@ QString Core::getGroupPeerName(int groupId, int peerId) const
     }
     name = CString::toString(nameArray, length);
     return name;
+}
+
+ToxID Core::getGroupPeerToxID(int groupId, int peerId) const
+{
+    ToxID peerToxID;
+
+    uint8_t rawID[TOX_CLIENT_ID_SIZE];
+    int res = tox_group_peer_pubkey(tox, groupId, peerId, rawID);
+    if (res == -1)
+    {
+        qWarning() << "Core::getGroupPeerToxID: Unknown error";
+        return peerToxID;
+    }
+
+    peerToxID = ToxID::fromString(CUserId::toString(rawID));
+    return peerToxID;
 }
 
 QList<QString> Core::getGroupPeerNames(int groupId) const
