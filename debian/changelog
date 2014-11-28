@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141127.r1658-1~trusty+1) trusty; urgency=medium
+
+  * Bduiling for Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 28 Nov 2014 01:50:34 +0000
+
 qtox (0.0.0+git20141127.r1658-1) unstable; urgency=medium
 
   [ Ansa89 ]
@@ -13,12 +19,6 @@ qtox (0.0.0+git20141127.r1658-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 28 Nov 2014 01:26:23 +0000
-
-qtox (0.0.0+git20141126.r1654-1~trusty+1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 27 Nov 2014 02:49:41 +0000
 
 qtox (0.0.0+git20141126.r1654-1) unstable; urgency=medium
 
