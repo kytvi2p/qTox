@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141130.r1665-1ubuntu1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 30 Nov 2014 19:46:56 +0000
+
 qtox (0.0.0+git20141130.r1665-1) unstable; urgency=medium
 
   [ accino ]
@@ -19,12 +25,6 @@ qtox (0.0.0+git20141130.r1665-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 30 Nov 2014 15:30:03 +0000
-
-qtox (0.0.0+git20141127.r1658-1ubuntu1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 28 Nov 2014 01:49:18 +0000
 
 qtox (0.0.0+git20141127.r1658-1) unstable; urgency=medium
 
