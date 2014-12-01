@@ -35,6 +35,7 @@
 #include "form/inputpassworddialog.h"
 #include "src/autoupdate.h"
 #include "src/audio.h"
+#include "src/platform/timer.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
@@ -73,11 +74,19 @@ Widget::Widget(QWidget *parent)
 void Widget::init()
 {
     ui->setupUi(this);
-    
+
+    idleTimer = new QTimer();
+    idleTimer->start(1000);
+
+    //restore window state
+    restoreGeometry(Settings::getInstance().getWindowGeometry());
+    restoreState(Settings::getInstance().getWindowState());
+    ui->mainSplitter->restoreState(Settings::getInstance().getSplitterState());
+
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
         icon = new QSystemTrayIcon(this);
-        icon->setIcon(this->windowIcon());
+        updateTrayIcon();
         trayMenu = new QMenu;
         
         statusOnline = new QAction(tr("Online"), this);
@@ -122,15 +131,6 @@ void Widget::init()
 
     ui->statusbar->hide();
     ui->menubar->hide();
-
-    idleTimer = new QTimer();
-    idleTimer->setSingleShot(true);
-    setIdleTimer(Settings::getInstance().getAutoAwayTime());
-
-    //restore window state
-    restoreGeometry(Settings::getInstance().getWindowGeometry());
-    restoreState(Settings::getInstance().getWindowState());
-    ui->mainSplitter->restoreState(Settings::getInstance().getSplitterState());
 
     layout()->setContentsMargins(0, 0, 0, 0);
     ui->friendList->setStyleSheet(Style::resolve(Style::getStylesheet(":ui/friendList/friendList.css")));
@@ -257,12 +257,13 @@ void Widget::init()
     connect(ui->settingsButton, SIGNAL(clicked()), this, SLOT(onSettingsClicked()));
     connect(ui->nameLabel, SIGNAL(textChanged(QString, QString)), this, SLOT(onUsernameChanged(QString, QString)));
     connect(ui->statusLabel, SIGNAL(textChanged(QString, QString)), this, SLOT(onStatusMessageChanged(QString, QString)));
+    connect(ui->mainSplitter, &QSplitter::splitterMoved, this, &Widget::onSplitterMoved);
     connect(profilePicture, SIGNAL(clicked()), this, SLOT(onAvatarClicked()));
     connect(setStatusOnline, SIGNAL(triggered()), this, SLOT(setStatusOnline()));
     connect(setStatusAway, SIGNAL(triggered()), this, SLOT(setStatusAway()));
     connect(setStatusBusy, SIGNAL(triggered()), this, SLOT(setStatusBusy()));
     connect(addFriendForm, SIGNAL(friendRequested(QString, QString)), this, SIGNAL(friendRequested(QString, QString)));
-    connect(idleTimer, &QTimer::timeout, this, &Widget::onUserAway);
+    connect(idleTimer, &QTimer::timeout, this, &Widget::onUserAwayCheck);
 
     coreThread->start();
 
@@ -290,6 +291,26 @@ void Widget::setTranslation()
     else
         qDebug() << "Error loading translation" << locale;
     QCoreApplication::installTranslator(translator);
+}
+
+void Widget::updateTrayIcon()
+{
+    if(Settings::getInstance().getTrayShowsUserStatus())
+    {
+        QString status = ui->statusButton->property("status").toString();
+        QString icon;
+        if(status == "online")
+            icon = ":img/status/dot_online_2x.png";
+        else if(status == "away")
+            icon = ":img/status/dot_idle_2x.png";
+        else if(status == "busy")
+            icon = ":img/status/dot_busy_2x.png";
+        else
+            icon = ":img/status/dot_away_2x.png";
+        this->icon->setIcon(QIcon(icon));
+    }
+    else
+        icon->setIcon(windowIcon());
 }
 
 Widget::~Widget()
@@ -336,9 +357,8 @@ void Widget::closeEvent(QCloseEvent *event)
     }
     else
     {
-        Settings::getInstance().setWindowGeometry(saveGeometry());
-        Settings::getInstance().setWindowState(saveState());
-        Settings::getInstance().setSplitterState(ui->mainSplitter->saveState());
+        saveWindowGeometry();
+        saveSplitterGeometry();
         QWidget::closeEvent(event);
     }
 }
@@ -352,6 +372,12 @@ void Widget::changeEvent(QEvent *event)
             this->hide();
         }
     }
+}
+
+void Widget::resizeEvent(QResizeEvent *event)
+{
+    Q_UNUSED(event);
+    saveWindowGeometry();
 }
 
 QString Widget::detectProfile()
@@ -523,7 +549,6 @@ void Widget::onStatusSet(Status status)
     {
     case Status::Online:
         ui->statusButton->setProperty("status" ,"online");
-        qDebug() << "Widget: something set the status to online";
         break;
     case Status::Away:
         ui->statusButton->setProperty("status" ,"away");
@@ -535,7 +560,7 @@ void Widget::onStatusSet(Status status)
         ui->statusButton->setProperty("status" ,"offline");
         break;
     }
-
+    updateTrayIcon();
     Style::repolish(ui->statusButton);
 }
 
@@ -1064,21 +1089,13 @@ bool Widget::event(QEvent * e)
                 activeChatroomWidget->resetEventFlags();
                 activeChatroomWidget->updateStatusLight();
             }
-        // http://qt-project.org/faq/answer/how_can_i_detect_a_period_of_no_user_interaction
-        // Detecting global inactivity, like Skype, is possible but not via Qt:
-        // http://stackoverflow.com/a/21905027/1497645
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease:
         case QEvent::Wheel:
         case QEvent::KeyPress:
         case QEvent::KeyRelease:
-            if (autoAwayActive && ui->statusButton->property("status").toString() == "away")
-            { // be sure nothing else has changed the status in the meantime
-                qDebug() << "Widget: auto away deactivated at" << QTime::currentTime().toString();
-                autoAwayActive = false;
-                emit statusSet(Status::Online);
-            }
-            setIdleTimer(Settings::getInstance().getAutoAwayTime());
+            if (autoAwayActive)
+                onUserAwayCheck();  // Just so we get back from away faster when interacting with app
         default:
             break;
     }
@@ -1086,22 +1103,30 @@ bool Widget::event(QEvent * e)
     return QWidget::event(e);
 }
 
-void Widget::setIdleTimer(int minutes)
+void Widget::onUserAwayCheck()
 {
-    if (minutes > 0)
-        idleTimer->start(minutes * 1000*60);
-}
+    uint32_t autoAwayTime = Settings::getInstance().getAutoAwayTime() * 60 * 1000;
 
-void Widget::onUserAway()
-{
-    if (Settings::getInstance().getAutoAwayTime() > 0
-        && ui->statusButton->property("status").toString() == "online") // leave user-set statuses in place
+    if (ui->statusButton->property("status").toString() == "online")
     {
-        qDebug() << "Widget: auto away activated" << QTime::currentTime().toString();
-        emit statusSet(Status::Away);
-        autoAwayActive = true;
+        if (autoAwayTime && Platform::getIdleTime() >= autoAwayTime)
+        {
+            qDebug() << "Widget: auto away activated at" << QTime::currentTime().toString();
+            emit statusSet(Status::Away);
+            autoAwayActive = true;
+        }
     }
-    idleTimer->stop();
+    else if (ui->statusButton->property("status").toString() == "away")
+    {
+        if (autoAwayActive && (!autoAwayTime || Platform::getIdleTime() < autoAwayTime))
+        {
+            qDebug() << "Widget: auto away deactivated at" << QTime::currentTime().toString();
+            emit statusSet(Status::Online);
+            autoAwayActive = false;
+        }
+    }
+    else if (autoAwayActive)
+        autoAwayActive = false;
 }
 
 void Widget::setStatusOnline()
@@ -1157,6 +1182,23 @@ void Widget::onSetShowSystemTray(bool newValue){
     icon->setVisible(newValue);
 }
 
+void Widget::saveWindowGeometry()
+{
+    Settings::getInstance().setWindowGeometry(saveGeometry());
+    Settings::getInstance().setWindowState(saveState());
+}
+
+void Widget::saveSplitterGeometry()
+{
+    Settings::getInstance().setSplitterState(ui->mainSplitter->saveState());
+}
+
+void Widget::onSplitterMoved(int pos, int index)
+{
+    Q_UNUSED(pos);
+    Q_UNUSED(index);
+    saveSplitterGeometry();
+}
 
 QMessageBox::StandardButton Widget::showWarningMsgBox(const QString& title, const QString& msg, QMessageBox::StandardButtons buttons)
 {
