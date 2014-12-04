@@ -29,6 +29,7 @@ class Settings : public QObject
     Q_OBJECT
 public:
     static Settings& getInstance();
+    static void resetInstance();
     ~Settings() = default;
 
     void executeSettingsDialog(QWidget* parent);
@@ -218,16 +219,19 @@ public:
     void setFauxOfflineMessaging(bool value);
 
 public:
-    void save();
-    void save(QString path);
+    void save(bool writeFriends = true);
+    void save(QString path, bool writeFriends = true);
     void load();
 
 private:
+    static Settings* settings;
+
     Settings();
     Settings(Settings &settings) = delete;
     Settings& operator=(const Settings&) = delete;
 
     static const QString FILENAME;
+    static const QString OLDFILENAME;
 
     bool loaded;
 
