@@ -1,3 +1,33 @@
+qtox (0.0.0+git20141203.r1697-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * add a basic platform-disabling define
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Fixed getIdleTime() on windows
+
+  [ Dubslow ]
+  * disabling platform extensions now affects linking, and can be set from cmd
+    line `qmake DISABLE_PLATFORM_EXT=YES`
+  * move settings to qtox.ini
+  * move friend information to a separate ini file; fixes #594
+  * deleting a profile now cleans out all personal data
+
+  [ apprb ]
+  * correct displaying of the targeted messages
+
+  [ Dubslow ]
+  * Fix not setting tox null after cleanup also reordered functions for super
+    extra safety
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 04 Dec 2014 02:26:06 +0000
+
 qtox (0.0.0+git20141201.r1685-1) unstable; urgency=medium
 
   [ novist ]
