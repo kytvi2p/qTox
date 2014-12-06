@@ -1,3 +1,21 @@
+qtox (0.0.0+git20141205.r1704-1) unstable; urgency=medium
+
+  [ agilob ]
+  * fixing bug #891
+
+  [ Gethyn ThomasQuail ]
+  * Fixed up Emote button and created new images for the Volume and Mic
+    buttons
+  * Update INSTALL.md
+
+  [ Dubslow ]
+  * add fancier tray icons with status, remove relevant option
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 06 Dec 2014 00:25:02 +0000
+
 qtox (0.0.0+git20141203.r1697-1) unstable; urgency=medium
 
   [ Dubslow ]
