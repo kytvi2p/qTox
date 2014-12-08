@@ -1,3 +1,26 @@
+qtox (0.0.0+git20141207.r1713-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ A. L'mao ]
+  * Destroy AL context before closing old device
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix include 'Windows.h' -> 'windows.h'
+  * Change push to talk shortcut to CTRL+P
+
+  [ Simon Vermeersch ]
+  * Focus the text input area when clicking on the text area
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Push to talk with input msgedit focused
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 08 Dec 2014 18:55:40 +0000
+
 qtox (0.0.0+git20141205.r1704-1) unstable; urgency=medium
 
   [ agilob ]
