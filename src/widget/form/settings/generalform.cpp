@@ -45,17 +45,23 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
 
     bodyUI->checkUpdates->setVisible(AUTOUPDATE_ENABLED);
     bodyUI->checkUpdates->setChecked(Settings::getInstance().getCheckUpdates());
-    bodyUI->trayLayout->addStretch();
+    bodyUI->trayBehavior->addStretch();
 
     bodyUI->cbEnableIPv6->setChecked(Settings::getInstance().getEnableIPv6());
     for (int i = 0; i < langs.size(); i++)
         bodyUI->transComboBox->insertItem(i, langs[i]);
     bodyUI->transComboBox->setCurrentIndex(locales.indexOf(Settings::getInstance().getTranslation()));
     bodyUI->cbMakeToxPortable->setChecked(Settings::getInstance().getMakeToxPortable());
-    bodyUI->showSystemTray->setChecked(Settings::getInstance().getShowSystemTray());
+
+    bool showSystemTray = Settings::getInstance().getShowSystemTray();
+   
+    bodyUI->showSystemTray->setChecked(showSystemTray);
     bodyUI->startInTray->setChecked(Settings::getInstance().getAutostartInTray());
+    bodyUI->startInTray->setEnabled(showSystemTray);
     bodyUI->closeToTray->setChecked(Settings::getInstance().getCloseToTray());
+    bodyUI->closeToTray->setEnabled(showSystemTray);
     bodyUI->minimizeToTray->setChecked(Settings::getInstance().getMinimizeToTray());
+    bodyUI->minimizeToTray->setEnabled(showSystemTray);
     bodyUI->statusChanges->setChecked(Settings::getInstance().getStatusChangeNotificationEnabled());
     bodyUI->useEmoticons->setChecked(Settings::getInstance().getUseEmoticons());
     bodyUI->autoacceptFiles->setChecked(Settings::getInstance().getAutoSaveEnabled());
@@ -135,6 +141,11 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     connect(bodyUI->proxyPort, SIGNAL(valueChanged(int)), this, SLOT(onProxyPortEdited(int)));
     connect(bodyUI->reconnectButton, &QPushButton::clicked, this, &GeneralForm::onReconnectClicked);
     connect(bodyUI->cbFauxOfflineMessaging, &QCheckBox::stateChanged, this, &GeneralForm::onFauxOfflineMessaging);
+
+#ifndef QTOX_PLATFORM_EXT
+    bodyUI->autoAwayLabel->setEnabled(false);   // these don't seem to change the appearance of the widgets,
+    bodyUI->autoAwaySpinBox->setEnabled(false); // though they are unusable
+#endif
 }
 
 GeneralForm::~GeneralForm()
@@ -204,7 +215,6 @@ void GeneralForm::onAutoAwayChanged()
 {
     int minutes = bodyUI->autoAwaySpinBox->value();
     Settings::getInstance().setAutoAwayTime(minutes);
-    Widget::getInstance()->setIdleTimer(minutes);
 }
 
 void GeneralForm::onAutoAcceptFileChange()

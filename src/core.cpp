@@ -90,9 +90,15 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
 
 Core::~Core()
 {
-    if (tox) {
+    clearPassword(Core::ptMain);
+    clearPassword(Core::ptHistory);
+
+    if (tox)
+    {
         toxav_kill(toxav);
+        toxav = nullptr;
         tox_kill(tox);
+        tox = nullptr;
     }
 
     if (videobuf)
@@ -103,9 +109,6 @@ Core::~Core()
 
     Audio::closeInput();
     Audio::closeOutput();
-
-    clearPassword(Core::ptMain);
-    clearPassword(Core::ptHistory);
 }
 
 Core* Core::getInstance()
@@ -1370,12 +1373,13 @@ void Core::switchConfiguration(const QString& profile)
         qDebug() << "Core: creating new Id";
     else
         qDebug() << "Core: switching from" << Settings::getInstance().getCurrentProfile() << "to" << profile;
-    
+
     saveConfiguration();
+
+    ready = false;
     clearPassword(ptMain);
     clearPassword(ptHistory);
 
-    ready = false;
     toxTimer->stop();
     Widget::getInstance()->setEnabledThreadsafe(false);
     if (tox) {
@@ -1384,6 +1388,7 @@ void Core::switchConfiguration(const QString& profile)
         tox_kill(tox);
         tox = nullptr;
     }
+
     emit selfAvatarChanged(QPixmap(":/img/contact_dark.png"));
     emit blockingClearContacts(); // we need this to block, but signals are required for thread safety
 
@@ -1391,7 +1396,12 @@ void Core::switchConfiguration(const QString& profile)
         loadPath = "";
     else
         loadPath = QDir(Settings::getSettingsDirPath()).filePath(profile + TOX_EXT);
-    Settings::getInstance().setCurrentProfile(profile); 
+
+    // the new profile needs to be set before resetting the settings, so that
+    // we don't load the old profile's profile.ini
+    Settings::getInstance().setCurrentProfile(profile);
+    Settings::getInstance().save(false); // save new profile, but don't write old profile info to newprofile.ini
+    Settings::resetInstance();
     HistoryKeeper::getInstance()->resetInstance();
 
     start();

@@ -15,7 +15,8 @@ Build-Depends: debhelper (>= 9),
  libtoxdns-dev,
  qt5-qmake,
  qttools5-dev-tools,
- qtbase5-dev
+ qtbase5-dev,
+ libxss-dev
 Vcs-Git: git://killyourtv.i2p/git/qTox.git
 Vcs-Browser: http://killyourtv.i2p/gitweb/?p=qTox.git;a=shortlog
 

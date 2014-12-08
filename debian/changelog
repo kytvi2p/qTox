@@ -1,3 +1,111 @@
+qtox (0.0.0+git20141207.r1713-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ A. L'mao ]
+  * Destroy AL context before closing old device
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix include 'Windows.h' -> 'windows.h'
+  * Change push to talk shortcut to CTRL+P
+
+  [ Simon Vermeersch ]
+  * Focus the text input area when clicking on the text area
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Push to talk with input msgedit focused
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 08 Dec 2014 18:55:40 +0000
+
+qtox (0.0.0+git20141205.r1704-1) unstable; urgency=medium
+
+  [ agilob ]
+  * fixing bug #891
+
+  [ Gethyn ThomasQuail ]
+  * Fixed up Emote button and created new images for the Volume and Mic
+    buttons
+  * Update INSTALL.md
+
+  [ Dubslow ]
+  * add fancier tray icons with status, remove relevant option
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 06 Dec 2014 00:25:02 +0000
+
+qtox (0.0.0+git20141203.r1697-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * add a basic platform-disabling define
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Fixed getIdleTime() on windows
+
+  [ Dubslow ]
+  * disabling platform extensions now affects linking, and can be set from cmd
+    line `qmake DISABLE_PLATFORM_EXT=YES`
+  * move settings to qtox.ini
+  * move friend information to a separate ini file; fixes #594
+  * deleting a profile now cleans out all personal data
+
+  [ apprb ]
+  * correct displaying of the targeted messages
+
+  [ Dubslow ]
+  * Fix not setting tox null after cleanup also reordered functions for super
+    extra safety
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 04 Dec 2014 02:26:06 +0000
+
+qtox (0.0.0+git20141201.r1685-1) unstable; urgency=medium
+
+  [ novist ]
+  * Option for tray icon to display user status
+
+  [ Maximilian ]
+  * Refactored system tray settings in generalform
+
+  [ novist ]
+  * Checkboxes in settings grayed out when disabled
+
+  [ Sean ]
+  * Lemmie fix those for you
+  * Link against IOKit
+  * Can't forget CoreFoundation
+
+  [ novist ]
+  * Global auto-away
+  * Added copyright notices to platform.* Changed u_int** to uint**
+  * Reorganized platform-dependent code Auto-away timer check reduced to 1s
+  * Switched places platform name and file name
+  * Window geometry saved when window is resized Splitter position saved when
+    splitter is moved Fixed restoring of window geometry when "Start in tray"
+    is unchecked
+
+  [ Dubslow ]
+  * move new functions to a more logical location
+  * re-move idle timer construction before restoreGeometry
+  * clarify systray show-status status
+  * touchup, more appropriate legal message
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * New build-dep on libxss-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 01 Dec 2014 23:22:42 +0000
+
 qtox (0.0.0+git20141130.r1665-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
