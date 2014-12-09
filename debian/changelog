@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141208.r1720-1~trusty+1) trusty; urgency=medium
+
+  * Building for Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Dec 2014 11:59:44 +0000
+
 qtox (0.0.0+git20141208.r1720-1) unstable; urgency=medium
 
   [ Lednerb ]
@@ -119,12 +125,6 @@ qtox (0.0.0+git20141201.r1685-1) unstable; urgency=medium
   * New build-dep on libxss-dev
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 01 Dec 2014 23:22:42 +0000
-
-qtox (0.0.0+git20141130.r1665-1~trusty+1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 30 Nov 2014 19:47:39 +0000
 
 qtox (0.0.0+git20141130.r1665-1) unstable; urgency=medium
 
