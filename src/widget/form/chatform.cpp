@@ -305,6 +305,8 @@ void ChatForm::onAvCancel(int FriendId, int)
     
     if (FriendId != f->getFriendID())
         return;
+    
+    stopCounter();
 
     audioInputFlag = false;
     audioOutputFlag = false;
@@ -671,7 +673,7 @@ void ChatForm::onFileSendFailed(int FriendId, const QString &fname)
     if (FriendId != f->getFriendID())
         return;
 
-    addSystemInfoMessage("File: \"" + fname + "\" failed to send.", "red", QDateTime::currentDateTime());
+    addSystemInfoMessage(tr("Failed to send file \"%1\"").arg(fname), "red", QDateTime::currentDateTime());
 }
 
 void ChatForm::onAvatarChange(int FriendId, const QPixmap &pic)

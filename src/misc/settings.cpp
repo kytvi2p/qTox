@@ -36,7 +36,9 @@
 #define SHOW_SYSTEM_TRAY_DEFAULT (bool) true
 #endif
 
-const QString Settings::FILENAME = "settings.ini";
+const QString Settings::OLDFILENAME = "settings.ini";
+const QString Settings::FILENAME = "qtox.ini";
+Settings* Settings::settings{nullptr};
 bool Settings::makeToxPortable{false};
 
 Settings::Settings() :
@@ -47,22 +49,35 @@ Settings::Settings() :
 
 Settings& Settings::getInstance()
 {
-    static Settings* settings{nullptr};
     if (!settings)
         settings = new Settings();
     return *settings;
 }
 
+void Settings::resetInstance()
+{
+    if (settings)
+    {
+        delete settings;
+        settings = nullptr;
+    }
+}
+
 void Settings::load()
 {
-    if (loaded) {
+    if (loaded)
         return;
-    }
 
-    QFile portableSettings(FILENAME);
-    if (portableSettings.exists())
+    if (QFile(FILENAME).exists())
     {
         QSettings ps(FILENAME, QSettings::IniFormat);
+        ps.beginGroup("General");
+            makeToxPortable = ps.value("makeToxPortable", false).toBool();
+        ps.endGroup();
+    }
+    else if (QFile(OLDFILENAME).exists())
+    {
+        QSettings ps(OLDFILENAME, QSettings::IniFormat);
         ps.beginGroup("General");
             makeToxPortable = ps.value("makeToxPortable", false).toBool();
         ps.endGroup();
@@ -70,13 +85,17 @@ void Settings::load()
     else
         makeToxPortable = false;
 
-    QString filePath = QDir(getSettingsDirPath()).filePath(FILENAME);
+    QDir dir(getSettingsDirPath());
+    QString filePath = dir.filePath(FILENAME);
 
     //if no settings file exist -- use the default one
-    QFile file(filePath);
-    if (!file.exists()) {
-        qDebug() << "No settings file found, using defaults";
-        filePath = ":/conf/" + FILENAME;
+    if (!QFile(filePath).exists())
+    {
+        if (!QFile(filePath = dir.filePath(OLDFILENAME)).exists())
+        {
+            qDebug() << "No settings file found, using defaults";
+            filePath = ":/conf/" + FILENAME;
+        }
     }
 
     qDebug() << "Settings: Loading from "<<filePath;
@@ -101,21 +120,6 @@ void Settings::load()
         }
         else
             useCustomDhtList=false;
-    s.endGroup();
-
-    friendLst.clear();
-    s.beginGroup("Friends");
-        int size = s.beginReadArray("Friend");
-        for (int i = 0; i < size; i ++)
-        {
-            s.setArrayIndex(i);
-            friendProp fp;
-            fp.addr = s.value("addr").toString();
-            fp.alias = s.value("alias").toString();
-            fp.autoAcceptDir = s.value("autoAcceptDir").toString();
-            friendLst[ToxID::fromString(fp.addr).publicKey] = fp;
-        }
-        s.endArray();
     s.endGroup();
 
     s.beginGroup("General");
@@ -216,15 +220,39 @@ void Settings::load()
     }
 
     loaded = true;
+
+    if (currentProfile.isEmpty()) // new profile in Core::switchConfiguration
+        return;
+
+    // load from a profile specific friend data list if possible
+    QString tmp = dir.filePath(currentProfile + ".ini");
+    if (QFile(tmp).exists())
+        filePath = tmp;
+
+    QSettings fs(filePath, QSettings::IniFormat);
+    friendLst.clear();
+    fs.beginGroup("Friends");
+        int size = fs.beginReadArray("Friend");
+        for (int i = 0; i < size; i ++)
+        {
+            fs.setArrayIndex(i);
+            friendProp fp;
+            fp.addr = fs.value("addr").toString();
+            fp.alias = fs.value("alias").toString();
+            fp.autoAcceptDir = fs.value("autoAcceptDir").toString();
+            friendLst[ToxID::fromString(fp.addr).publicKey] = fp;
+        }
+        fs.endArray();
+    fs.endGroup();
 }
 
-void Settings::save()
+void Settings::save(bool writeFriends)
 {
     QString filePath = QDir(getSettingsDirPath()).filePath(FILENAME);
-    save(filePath);
+    save(filePath, writeFriends);
 }
 
-void Settings::save(QString path)
+void Settings::save(QString path, bool writeFriends)
 {
     qDebug() << "Settings: Saving in "<<path;
 
@@ -241,20 +269,6 @@ void Settings::save(QString path)
             s.setValue("userId", dhtServerList[i].userId);
             s.setValue("address", dhtServerList[i].address);
             s.setValue("port", dhtServerList[i].port);
-        }
-        s.endArray();
-    s.endGroup();
-
-    s.beginGroup("Friends");
-        s.beginWriteArray("Friend", friendLst.size());
-        int index = 0;
-        for (auto &frnd : friendLst)
-        {
-            s.setArrayIndex(index);
-            s.setValue("addr", frnd.addr);
-            s.setValue("alias", frnd.alias);
-            s.setValue("autoAcceptDir", frnd.autoAcceptDir);
-            index++;
         }
         s.endArray();
     s.endGroup();
@@ -325,6 +339,24 @@ void Settings::save(QString path)
         s.setValue("inDev", inDev);
         s.setValue("outDev", outDev);
     s.endGroup();
+
+    if (!writeFriends || currentProfile.isEmpty()) // Core::switchConfiguration
+        return;
+
+    QSettings fs(QFileInfo(path).dir().filePath(currentProfile + ".ini"), QSettings::IniFormat);
+    fs.beginGroup("Friends");
+        fs.beginWriteArray("Friend", friendLst.size());
+        int index = 0;
+        for (auto& frnd : friendLst)
+        {
+            fs.setArrayIndex(index);
+            fs.setValue("addr", frnd.addr);
+            fs.setValue("alias", frnd.alias);
+            fs.setValue("autoAcceptDir", frnd.autoAcceptDir);
+            index++;
+        }
+        fs.endArray();
+    fs.endGroup();
 }
 
 QString Settings::getSettingsDirPath()

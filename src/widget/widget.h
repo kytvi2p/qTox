@@ -62,8 +62,8 @@ public:
     bool getIsWindowMinimized();
     static QList<QString> searchProfiles();
     void clearContactsList();
-    void setIdleTimer(int minutes);
     void setTranslation();
+    void updateTrayIcon();
     Q_INVOKABLE QMessageBox::StandardButton showWarningMsgBox(const QString& title, const QString& msg,
                                               QMessageBox::StandardButtons buttonss = QMessageBox::Ok);
     Q_INVOKABLE void setEnabledThreadsafe(bool enabled);
@@ -72,7 +72,8 @@ public:
 
     virtual void closeEvent(QCloseEvent *event);
     virtual void changeEvent(QEvent *event);
-    
+    virtual void resizeEvent(QResizeEvent *event);
+
     void clearAllReceipts();
 
     void reloadTheme();
@@ -129,9 +130,10 @@ private slots:
     void onGroupSendResult(int groupId, const QString& message, int result);
     void playRingtone();
     void onIconClick(QSystemTrayIcon::ActivationReason);
-    void onUserAway();
+    void onUserAwayCheck();
     void getPassword(QString info, int passtype, uint8_t* salt);
     void onSetShowSystemTray(bool newValue);
+    void onSplitterMoved(int pos, int index);
 
 private:
     void init();
@@ -140,6 +142,8 @@ private:
     Group* createGroup(int groupId);
     void removeFriend(Friend* f, bool fake = false);
     void removeGroup(Group* g, bool fake = false);
+    void saveWindowGeometry();
+    void saveSplitterGeometry();
     QString askProfiles();
     QString detectProfile();
     QSystemTrayIcon *icon;
