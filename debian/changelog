@@ -1,3 +1,17 @@
+qtox (0.0.0+git20141208.r1720-1) unstable; urgency=medium
+
+  [ Lednerb ]
+  * Added Translation for error message on sending a file. Also included the
+    German Version.
+
+  [ Sascha Brendel ]
+  * Update chatform.cpp
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Dec 2014 11:57:11 +0000
+
 qtox (0.0.0+git20141207.r1713-1) unstable; urgency=medium
 
   [ JoGitqTox ]
