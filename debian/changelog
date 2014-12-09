@@ -1,3 +1,9 @@
+qtox (0.0.0+git20141208.r1720-1ubuntu1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Dec 2014 11:59:01 +0000
+
 qtox (0.0.0+git20141208.r1720-1) unstable; urgency=medium
 
   [ Lednerb ]
@@ -11,12 +17,6 @@ qtox (0.0.0+git20141208.r1720-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Dec 2014 11:57:11 +0000
-
-qtox (0.0.0+git20141207.r1713-1ubuntu1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 08 Dec 2014 21:07:11 +0000
 
 qtox (0.0.0+git20141207.r1713-1) unstable; urgency=medium
 
