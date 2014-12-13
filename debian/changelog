@@ -1,3 +1,23 @@
+qtox (0.0.0+git20141212.r1729-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * check for no systray, fixes #908 cant believe it took this long to figure
+    out ;_;
+
+  [ apprb ]
+  * fix #902
+
+  [ Zetok Zalbavar ]
+  * Style corrections
+
+  [ novist ]
+  * Light tray icon option
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 13 Dec 2014 00:57:23 +0000
+
 qtox (0.0.0+git20141208.r1720-1~trusty+1) trusty; urgency=medium
 
   * Building for Trusty
