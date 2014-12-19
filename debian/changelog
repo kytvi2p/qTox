@@ -1,3 +1,44 @@
+qtox (0.0.0+git20141217.r1753-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sabri ]
+  * Huge French translation fixes
+
+  [ Dubslow ]
+  * Revert "fix #902" @apprb #932 This reverts commit
+    13306031e238258a3faf2909a01987cf093765dc.
+
+  [ Maximilian Wuttke ]
+  * Merge branch 'filter_audio' of https://github.com/mwuttke97/qTox into
+    filter_audio Added some `#ifdef QTOX_FILTER_AUDIO`s. Conflicts:
+    qtox.pro
+
+  [ agilob ]
+  * removing border from contact name linedit
+
+  [ Dubslow ]
+  * minor style tweaks
+  * update the build system
+
+  [ agilob ]
+  * removing spacing from microphone layout
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ agilob ]
+  * removing fixed size from mic/volume buttons so they align nicely
+
+  [ Zetok Zalbavar ]
+  * Make quote colour more readable
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 19 Dec 2014 01:28:48 +0000
+
 qtox (0.0.0+git20141212.r1729-1) unstable; urgency=medium
 
   [ Dubslow ]
