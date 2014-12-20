@@ -36,7 +36,7 @@ FORMS    += \
     src/widget/form/setpassworddialog.ui \
     src/widget/form/settings/advancedsettings.ui
     
-CONFIG   += c++11
+CONFIG   += c++0x
 
 # Rules for creating/updating {ts|qm}-files
 include(translations/i18n.pri)
