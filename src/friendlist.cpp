@@ -16,37 +16,75 @@
 
 #include "friend.h"
 #include "friendlist.h"
+#include "src/misc/settings.h"
 #include <QMenu>
 #include <QDebug>
+#include <QHash>
 
-QList<Friend*> FriendList::friendList;
+QHash<int, Friend*> FriendList::friendList;
+QHash<QString, int> FriendList::tox2id;
 
-Friend* FriendList::addFriend(int friendId, const QString& userId)
+Friend* FriendList::addFriend(int friendId, const ToxID& userId)
 {
-    for (Friend* f : friendList)
-        if (f->friendId == friendId)
-            qWarning() << "FriendList::addFriend: friendId already taken";
+    auto friendChecker = friendList.find(friendId);
+    if (friendChecker != friendList.end())
+        qWarning() << "FriendList::addFriend: friendId already taken";
+
     Friend* newfriend = new Friend(friendId, userId);
-    friendList.append(newfriend);
+    friendList[friendId] = newfriend;
+    tox2id[userId.publicKey] = friendId;
+
     return newfriend;
 }
 
 Friend* FriendList::findFriend(int friendId)
 {
-    for (Friend* f : friendList)
-        if (f->friendId == friendId)
-            return f;
+    auto f_it = friendList.find(friendId);
+    if (f_it != friendList.end())
+        return *f_it;
+
     return nullptr;
 }
 
-void FriendList::removeFriend(int friendId)
+void FriendList::removeFriend(int friendId, bool fake)
 {
-    for (int i=0; i<friendList.size(); i++)
+    auto f_it = friendList.find(friendId);
+    if (f_it != friendList.end())
     {
-        if (friendList[i]->friendId == friendId)
-        {
-            friendList.removeAt(i);
-            return;
-        }
+        if (!fake)
+            Settings::getInstance().removeFriendSettings(f_it.value()->getToxID());
+        friendList.erase(f_it);
     }
+}
+
+void FriendList::clear()
+{
+    for (auto friendptr : friendList)
+        delete friendptr;
+    friendList.clear();
+}
+
+Friend* FriendList::findFriend(const ToxID& userId)
+{
+    auto id = tox2id.find(userId.publicKey);
+    if (id != tox2id.end())
+    {
+        Friend *f = findFriend(*id);
+        if (!f)
+            return nullptr;
+        if (f->getToxID() == userId)
+            return f;
+    }
+
+    return nullptr;
+}
+
+QList<Friend*> FriendList::getAllFriends()
+{
+    QList<Friend*> res;
+
+    for (auto it : friendList)
+        res.append(it);
+
+    return res;
 }

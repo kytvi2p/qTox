@@ -10,11 +10,12 @@ INSTALL_DIR=libs
 # just for convenience
 BASE_DIR=${SCRIPT_DIR}/${INSTALL_DIR}
 
-SODIUM_VER=0.7.0
+SODIUM_VER=1.0.0
 
 # directory names of cloned repositories
 SODIUM_DIR=libsodium-$SODIUM_VER
 TOX_CORE_DIR=libtoxcore-latest
+FILTER_AUDIO_DIR=filter_audio
 
 # this boolean describes whether the installation of
 # libsodium should be skipped or not
@@ -42,6 +43,11 @@ if [ -z "$TOX_CORE_DIR" ]; then
     exit 1
 fi
 
+if [ -z "$FILTER_AUDIO_DIR" ]; then
+    echo "internal error detected!"
+    echo "FILTER_AUDIO_DIR should not be empty... aborting"
+    exit 1
+fi
 
 
 ########## check input parameters ##########
@@ -95,7 +101,7 @@ mkdir -p ${BASE_DIR}
 # if exists, otherwise cloning them may fail
 rm -rf ${BASE_DIR}/${SODIUM_DIR}
 rm -rf ${BASE_DIR}/${TOX_CORE_DIR}
-
+rm -rf ${BASE_DIR}/${FILTER_AUDIO_DIR}
 
 
 ############### install step ###############
@@ -103,9 +109,8 @@ rm -rf ${BASE_DIR}/${TOX_CORE_DIR}
 # afterwards install libsodium to INSTALL_DIR
 # skip the installation if TOX_ONLY is true
 if [[ $TOX_ONLY = "false" ]]; then
-    git clone git://github.com/jedisct1/libsodium.git ${BASE_DIR}/${SODIUM_DIR} --depth 1
+    git clone --branch $SODIUM_VER git://github.com/jedisct1/libsodium.git ${BASE_DIR}/${SODIUM_DIR} --depth 1
     pushd ${BASE_DIR}/${SODIUM_DIR}
-    git checkout tags/$SODIUM_VER
     ./autogen.sh
 
     if [[ $GLOBAL = "false" ]]; then
@@ -123,6 +128,12 @@ if [[ $TOX_ONLY = "false" ]]; then
     fi
     
     popd
+
+    if [[ $GLOBAL = "false" ]]; then
+        ./install_libfilteraudio.sh ${BASE_DIR}/${FILTER_AUDIO_DIR} ${BASE_DIR}
+    else
+        ./install_libfilteraudio.sh ${BASE_DIR}/${FILTER_AUDIO_DIR}
+    fi
 fi
 
 # clone current master of libtoxcore

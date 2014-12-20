@@ -34,18 +34,29 @@ private slots:
     void onEnableIPv6Updated();
     void onTranslationUpdated();
     void onMakeToxPortableUpdated();
+    void onSetShowSystemTray();
     void onSetAutostartInTray();
-    void onSetCloseToTray();    
+    void onSetCloseToTray();
+    void onSetLightTrayIcon();
     void onSmileyBrowserIndexChanged(int index);
     void onUDPUpdated();
     void onProxyAddrEdited();
     void onProxyPortEdited(int port);
     void onUseProxyUpdated();
-    void onStyleSelected(QString style);    
+    void onEmoticonSizeChanged();
+    void onStyleSelected(QString style);  
+    void onTimestampSelected(int index);
     void onSetStatusChange();
     void onAutoAwayChanged();
+    void onUseEmoticonsChange();
     void onSetMinimizeToTray();
-    
+    void onReconnectClicked();
+    void onAutoAcceptFileChange();
+    void onAutoSaveDirChange();
+    void onCheckUpdateChanged();
+    void onSetShowInFront();
+    void onFauxOfflineMessaging();
+    void onThemeColorChanged(int);
 
 private:
     Ui::GeneralSettings *bodyUI;

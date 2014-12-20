@@ -22,6 +22,7 @@
 namespace Ui {class MainWindow;}
 class Group;
 class TabCompleter;
+class FlowLayout;
 
 class GroupChatForm : public GenericChatForm
 {
@@ -31,8 +32,17 @@ public:
 
     void onUserListChanged();
 
+    void keyPressEvent(QKeyEvent* ev);
+    void keyReleaseEvent(QKeyEvent* ev);
+
+signals:
+    void groupTitleChanged(int groupnum, const QString& name);
+
 private slots:
     void onSendTriggered();
+    void onMicMuteToggle();
+    void onVolMuteToggle();
+    void onCallClicked();
 
 protected:
     // drag & drop
@@ -41,8 +51,10 @@ protected:
 
 private:
     Group* group;
-    QLabel *nusersLabel, *namesList;
+    FlowLayout* namesListLayout;
+    QLabel *nusersLabel;
     TabCompleter* tabber;
+    bool inCall;
 };
 
 #endif // GROUPCHATFORM_H

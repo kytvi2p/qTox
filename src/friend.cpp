@@ -18,14 +18,24 @@
 #include "friendlist.h"
 #include "widget/friendwidget.h"
 #include "widget/form/chatform.h"
+#include "widget/widget.h"
+#include "src/core.h"
+#include "src/misc/settings.h"
 
-Friend::Friend(int FriendId, QString UserId)
-    : friendId(FriendId), userId(UserId)
+Friend::Friend(int FriendId, const ToxID &UserId)
+    : friendId(FriendId)
 {
-    widget = new FriendWidget(friendId, userId);
-    chatForm = new ChatForm(this);
     hasNewEvents = 0;
     friendStatus = Status::Offline;
+    userID = UserId;
+    userName = Core::getInstance()->getPeerName(UserId);
+    if (userName.size() == 0)
+        userName = UserId.publicKey;
+
+    userAlias = Settings::getInstance().getFriendAlias(UserId);
+
+    widget = new FriendWidget(friendId, getDisplayedName());
+    chatForm = new ChatForm(this);
 }
 
 Friend::~Friend()
@@ -36,8 +46,27 @@ Friend::~Friend()
 
 void Friend::setName(QString name)
 {
-    widget->setName(name);
-    chatForm->setName(name);
+    userName = name;
+    if (userAlias.size() == 0)
+    {
+        widget->setName(name);
+        chatForm->setName(name);
+
+        if (widget->isActive())
+            Widget::getInstance()->setWindowTitle(name);
+    }
+}
+
+void Friend::setAlias(QString name)
+{
+    userAlias = name;
+    QString dispName = userAlias.size() == 0 ? userName : userAlias;
+
+    widget->setName(dispName);
+    chatForm->setName(dispName);
+
+    if (widget->isActive())
+            Widget::getInstance()->setWindowTitle(dispName);
 }
 
 void Friend::setStatusMessage(QString message)
@@ -46,7 +75,49 @@ void Friend::setStatusMessage(QString message)
     chatForm->setStatusMessage(message);
 }
 
-QString Friend::getName()
+QString Friend::getDisplayedName() const
 {
-    return widget->getName();
+    if (userAlias.size() == 0)
+        return userName;
+    return userAlias;
+}
+
+const ToxID &Friend::getToxID() const
+{
+    return userID;
+}
+
+int Friend::getFriendID() const
+{
+    return friendId;
+}
+
+void Friend::setEventFlag(int f)
+{
+    hasNewEvents = f;
+}
+
+int Friend::getEventFlag() const
+{
+    return hasNewEvents;
+}
+
+void Friend::setStatus(Status s)
+{
+    friendStatus = s;
+}
+
+Status Friend::getStatus() const
+{
+    return friendStatus;
+}
+
+ChatForm *Friend::getChatForm()
+{
+    return chatForm;
+}
+
+FriendWidget *Friend::getFriendWidget()
+{
+    return widget;
 }

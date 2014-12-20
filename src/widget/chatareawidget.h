@@ -19,8 +19,8 @@
 
 #include <QTextBrowser>
 #include <QList>
+#include <src/widget/tool/chatactions/chataction.h>
 
-class ChatAction;
 class QTextTable;
 
 class ChatAreaWidget : public QTextBrowser
@@ -29,14 +29,19 @@ class ChatAreaWidget : public QTextBrowser
 public:
     explicit ChatAreaWidget(QWidget *parent = 0);
     virtual ~ChatAreaWidget();
-    void insertMessage(ChatAction *msgAction);
+    void insertMessage(ChatActionPtr msgAction, QTextCursor::MoveOperation pos = QTextCursor::End);
+    void insertMessagesTop(QList<ChatActionPtr> &list);
 
     int nameColWidth() {return nameWidth;}
     void setNameColWidth(int w);
-    int getNumberOfMessages();
+    bool isEmpty();
+
+public slots:
+    void clearChatArea();
 
 signals:
     void onFileTranfertInterract(QString widgetName, QString buttonName);
+    void onClick();
 
 protected:
     void mouseReleaseEvent(QMouseEvent * event);
@@ -47,14 +52,15 @@ private slots:
 
 private:
     void checkSlider();
-    QTextTable* getMsgTable();
+    QTextTable* getMsgTable(QTextCursor::MoveOperation pos = QTextCursor::End);
 
     QTextTableFormat* tableFrmt;
-    QList<ChatAction*> messages;
+    QList<ChatActionPtr> messages;
     bool lockSliderToBottom;
     int sliderPosition;
     int nameWidth;
     QTextBlockFormat nameFormat, dateFormat;
+    bool empty;
 };
 
 #endif // CHATAREAWIDGET_H

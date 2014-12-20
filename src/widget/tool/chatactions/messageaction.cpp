@@ -16,38 +16,37 @@
 
 #include "messageaction.h"
 #include "src/misc/smileypack.h"
+#include "src/misc/settings.h"
+#include <QTextTable>
 
 MessageAction::MessageAction(const QString &author, const QString &message, const QString &date, const bool &me) :
     ChatAction(me, author, date),
     message(message)
 {
-}
-
-void MessageAction::setup(QTextCursor cursor, QTextEdit *)
-{
-    // When this function is called, we're supposed to only update ourselve when needed
-    // Nobody should ask us to do anything with our content, we're on our own
-    // Except we never udpate on our own, so we can safely free our resources
-
-    (void) cursor;
-    message.clear();
-    message.squeeze();
-    name.clear();
-    name.squeeze();
-    date.clear();
-    date.squeeze();
+    isProcessed = false;
 }
 
 QString MessageAction::getMessage(QString div)
 {
-    QString message_ = SmileyPack::getInstance().smileyfied(toHtmlChars(message));
+    QString message_;
+    if (Settings::getInstance().getUseEmoticons())
+         message_ = SmileyPack::getInstance().smileyfied(toHtmlChars(message));
+    else
+         message_ = toHtmlChars(message);
 
     // detect urls
-    QRegExp exp("(www\\.|http[s]?:\\/\\/|ftp:\\/\\/)\\S+");
+    QRegExp exp("(?:\\b)(www\\.|http[s]?:\\/\\/|ftp:\\/\\/|tox:\\/\\/|tox:)\\S+");
     int offset = 0;
     while ((offset = exp.indexIn(message_, offset)) != -1)
     {
         QString url = exp.cap();
+
+        // If there's a trailing " it's a HTML attribute, e.g. a smiley img's title=":tox:"
+        if (url == "tox:\"")
+        {
+            offset += url.length();
+            continue;
+        }
 
         // add scheme if not specified
         if (exp.cap(1) == "www.")
@@ -65,7 +64,7 @@ QString MessageAction::getMessage(QString div)
     for (QString& s : messageLines)
     {
         if (QRegExp("^[ ]*&gt;.*").exactMatch(s))
-            message_ += "<span class=quote>" + s.right(s.length()-4) + "</span><br/>";
+            message_ += "<span class=quote>" + s + "</span><br/>";
         else
             message_ += s + "<br/>";
     }
@@ -80,4 +79,25 @@ QString MessageAction::getMessage()
         return getMessage("message_me");
     else
         return getMessage("message");
+}
+
+void MessageAction::featureUpdate()
+{
+    QTextTableCell cell = textTable->cellAt(0,3);
+    QTextTableCellFormat format;
+    if (!isProcessed)
+        format.setBackground(QColor(Qt::red));
+    else
+        format.setBackground(QColor(Qt::white));
+    cell.setFormat(format);
+}
+
+void MessageAction::markAsSent()
+{
+    isProcessed = true;
+}
+
+QString MessageAction::getRawMessage()
+{
+    return message;
 }

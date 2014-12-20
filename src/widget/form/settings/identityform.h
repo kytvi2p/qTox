@@ -22,8 +22,10 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QLabel>
+#include <QTimer>
 
 class CroppingLabel;
+class Core;
 
 namespace Ui {
 class IdentitySettings;
@@ -65,9 +67,13 @@ private slots:
     void onImportClicked();
     void onNewClicked();
     bool checkContinue(const QString& title, const QString& msg);
+    void disableSwitching();
+    void enableSwitching();
 
 private:
     Ui::IdentitySettings* bodyUI;
+    Core* core;
+    QTimer timer;
 
     ClickableTE* toxId;
 };

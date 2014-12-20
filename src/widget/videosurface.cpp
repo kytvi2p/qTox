@@ -15,13 +15,11 @@
 */
 
 #include "videosurface.h"
-#include "src/camera.h"
+#include "src/video/camera.h"
 #include <QTimer>
-#include <opencv2/opencv.hpp>
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QDebug>
-#include <QElapsedTimer>
 
 VideoSurface::VideoSurface(QWidget* parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers | QGL::SingleBuffer), parent)
@@ -84,8 +82,8 @@ void VideoSurface::initializeGL()
                                      "attribute vec4 vertices;"
                                      "varying vec2 coords;"
                                      "void main() {"
-                                     "    gl_Position = vec4(vertices.xy,0.0,1.0);"
-                                     "    coords = vertices.xy*vec2(0.5,0.5)+vec2(0.5,0.5);"
+                                     "    gl_Position = vec4(vertices.xy, 0.0, 1.0);"
+                                     "    coords = vertices.xy*vec2(0.5, 0.5) + vec2(0.5, 0.5);"
                                      "}");
 
     // brg frag-shader
@@ -94,7 +92,7 @@ void VideoSurface::initializeGL()
                                      "varying vec2 coords;"
                                      "void main() {"
                                      "    vec4 color = texture2D(texture0,coords*vec2(1.0, -1.0));"
-                                     "    gl_FragColor = vec4(color.b, color.g, color.r, 1);"
+                                     "    gl_FragColor = vec4(color.bgr, 1.0);"
                                      "}");
 
     bgrProgramm->bindAttributeLocation("vertices", 0);
@@ -106,8 +104,8 @@ void VideoSurface::initializeGL()
                                      "attribute vec4 vertices;"
                                      "varying vec2 coords;"
                                      "void main() {"
-                                     "    gl_Position = vec4(vertices.xy,0.0,1.0);"
-                                     "    coords = vertices.xy*vec2(0.5,0.5)+vec2(0.5,0.5);"
+                                     "    gl_Position = vec4(vertices.xy, 0.0, 1.0);"
+                                     "    coords = vertices.xy*vec2(0.5, 0.5) + vec2(0.5, 0.5);"
                                      "}");
 
     // yuv frag-shader
@@ -115,9 +113,9 @@ void VideoSurface::initializeGL()
                                      "uniform sampler2D texture0;"
                                      "varying vec2 coords;"
                                      "void main() {"
-                                     "      vec3 yuv = texture2D(texture0,coords*vec2(1.0, -1.0)) - vec3(0,0.5,0.5);"
-                                     "      vec3 rgb = mat3(1,1,1,0,-0.21482,2.12798,1.28033,-0.38059,0) * yuv;"
-                                     "      gl_FragColor = vec4(rgb,1);"
+                                     "      vec3 yuv = texture2D(texture0,coords*vec2(1.0, -1.0)).rgb - vec3(0.0, 0.5, 0.5);"
+                                     "      vec3 rgb = mat3(1.0, 1.0, 1.0, 0.0, -0.21482, 2.12798, 1.28033, -0.38059, 0.0)*yuv;"
+                                     "      gl_FragColor = vec4(rgb, 1.0);"
                                      "}");
 
     yuvProgramm->bindAttributeLocation("vertices", 0);
@@ -128,11 +126,16 @@ void VideoSurface::paintGL()
 {
     mutex.lock();
     VideoFrame currFrame = frame;
+    frame.invalidate();
     mutex.unlock();
 
-    if (res != currFrame.resolution)
+    if (currFrame.isValid() && res != currFrame.resolution)
     {
         res = currFrame.resolution;
+
+        // delete old texture
+        if (textureId != 0)
+            glDeleteTextures(1, &textureId);
 
         // a texture used to render the pbo (has the match the pixelformat of the source)
         glGenTextures(1,&textureId);
@@ -141,14 +144,14 @@ void VideoSurface::paintGL()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
-    if (!currFrame.isNull())
+    if (currFrame.isValid())
     {
         pboIndex = (pboIndex + 1) % 2;
         int nextPboIndex = (pboIndex + 1) % 2;
 
         if (pboAllocSize != currFrame.frameData.size())
         {
-            qDebug() << "VideoSurface: Resize pbo " << currFrame.frameData.size() << "bytes (before" << pboAllocSize << ")";
+            qDebug() << "VideoSurface: Resize pbo " << currFrame.frameData.size() << "(" << currFrame.resolution << ")" << "bytes (before" << pboAllocSize << ")";
 
             pbo[0]->bind();
             pbo[0]->allocate(currFrame.frameData.size());
@@ -175,10 +178,6 @@ void VideoSurface::paintGL()
             memcpy(ptr, currFrame.frameData.data(), currFrame.frameData.size());
         pbo[nextPboIndex]->unmap();
         pbo[nextPboIndex]->release();
-
-        mutex.lock();
-        frame.setNull();
-        mutex.unlock();
     }
 
     // render pbo

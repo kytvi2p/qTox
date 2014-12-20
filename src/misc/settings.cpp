@@ -17,6 +17,7 @@
 #include "settings.h"
 #include "smileypack.h"
 #include "src/corestructs.h"
+#include "src/misc/db/plaindb.h"
 
 #include <QFont>
 #include <QApplication>
@@ -26,8 +27,18 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include <QList>
+#include <QStyleFactory>
 
-const QString Settings::FILENAME = "settings.ini";
+
+#ifdef Q_OS_LINUX
+#define SHOW_SYSTEM_TRAY_DEFAULT (bool) false
+#else   // OS is not linux
+#define SHOW_SYSTEM_TRAY_DEFAULT (bool) true
+#endif
+
+const QString Settings::OLDFILENAME = "settings.ini";
+const QString Settings::FILENAME = "qtox.ini";
+Settings* Settings::settings{nullptr};
 bool Settings::makeToxPortable{false};
 
 Settings::Settings() :
@@ -36,27 +47,37 @@ Settings::Settings() :
     load();
 }
 
-Settings::~Settings()
-{
-    save();
-}
-
 Settings& Settings::getInstance()
 {
-    static Settings settings;
-    return settings;
+    if (!settings)
+        settings = new Settings();
+    return *settings;
+}
+
+void Settings::resetInstance()
+{
+    if (settings)
+    {
+        delete settings;
+        settings = nullptr;
+    }
 }
 
 void Settings::load()
 {
-    if (loaded) {
+    if (loaded)
         return;
-    }
 
-    QFile portableSettings(FILENAME);
-    if (portableSettings.exists())
+    if (QFile(FILENAME).exists())
     {
         QSettings ps(FILENAME, QSettings::IniFormat);
+        ps.beginGroup("General");
+            makeToxPortable = ps.value("makeToxPortable", false).toBool();
+        ps.endGroup();
+    }
+    else if (QFile(OLDFILENAME).exists())
+    {
+        QSettings ps(OLDFILENAME, QSettings::IniFormat);
         ps.beginGroup("General");
             makeToxPortable = ps.value("makeToxPortable", false).toBool();
         ps.endGroup();
@@ -64,13 +85,17 @@ void Settings::load()
     else
         makeToxPortable = false;
 
-    QString filePath = QDir(getSettingsDirPath()).filePath(FILENAME);
+    QDir dir(getSettingsDirPath());
+    QString filePath = dir.filePath(FILENAME);
 
     //if no settings file exist -- use the default one
-    QFile file(filePath);
-    if (!file.exists()) {
-        qDebug() << "No settings file found, using defaults";
-        filePath = ":/conf/" + FILENAME;
+    if (!QFile(filePath).exists())
+    {
+        if (!QFile(filePath = dir.filePath(OLDFILENAME)).exists())
+        {
+            qDebug() << "No settings file found, using defaults";
+            filePath = ":/conf/" + FILENAME;
+        }
     }
 
     qDebug() << "Settings: Loading from "<<filePath;
@@ -97,19 +122,10 @@ void Settings::load()
             useCustomDhtList=false;
     s.endGroup();
 
-    friendAddresses.clear();
-    s.beginGroup("Friends");
-        int size = s.beginReadArray("fullAddresses");
-        for (int i = 0; i < size; i ++) {
-            s.setArrayIndex(i);
-            friendAddresses.append(s.value("addr").toString());
-        }
-        s.endArray();
-    s.endGroup();
-
     s.beginGroup("General");
         enableIPv6 = s.value("enableIPv6", true).toBool();
-        translation = s.value("translation", "").toString();
+        translation = s.value("translation", "en").toString();
+        showSystemTray = s.value("showSystemTray", SHOW_SYSTEM_TRAY_DEFAULT).toBool();
         makeToxPortable = s.value("makeToxPortable", false).toBool();
         autostartInTray = s.value("autostartInTray", false).toBool();
         closeToTray = s.value("closeToTray", false).toBool();        
@@ -118,7 +134,19 @@ void Settings::load()
         proxyAddr = s.value("proxyAddr", "").toString();
         proxyPort = s.value("proxyPort", 0).toInt();
         currentProfile = s.value("currentProfile", "").toString();
-    	autoAwayTime = s.value("autoAwayTime", 10).toInt();
+        autoAwayTime = s.value("autoAwayTime", 10).toInt();
+        checkUpdates = s.value("checkUpdates", false).toBool();
+        showInFront = s.value("showInFront", false).toBool();
+        fauxOfflineMessaging = s.value("fauxOfflineMessaging", true).toBool();
+        autoSaveEnabled = s.value("autoSaveEnabled", false).toBool();
+        globalAutoAcceptDir = s.value("globalAutoAcceptDir",
+                                      QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory)
+                                      ).toString();
+    s.endGroup();
+
+    s.beginGroup("Advanced");
+        int sType = s.value("dbSyncType", static_cast<int>(Db::syncType::stFull)).toInt();
+        setDbSyncType(sType);
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -130,18 +158,28 @@ void Settings::load()
 
     s.beginGroup("GUI");
         enableSmoothAnimation = s.value("smoothAnimation", true).toBool();
-        smileyPack = s.value("smileyPack", QString()).toString();
+        smileyPack = s.value("smileyPack", ":/smileys/cylgom/emoticons.xml").toString();
         customEmojiFont = s.value("customEmojiFont", true).toBool();
         emojiFontFamily = s.value("emojiFontFamily", "DejaVu Sans").toString();
-        emojiFontPointSize = s.value("emojiFontPointSize", QApplication::font().pointSize()).toInt();
+        emojiFontPointSize = s.value("emojiFontPointSize", 12).toInt();
         firstColumnHandlePos = s.value("firstColumnHandlePos", 50).toInt();
         secondColumnHandlePosFromRight = s.value("secondColumnHandlePosFromRight", 50).toInt();
         timestampFormat = s.value("timestampFormat", "hh:mm").toString();
         minimizeOnClose = s.value("minimizeOnClose", false).toBool();
         minimizeToTray = s.value("minimizeToTray", false).toBool();
+        lightTrayIcon = s.value("lightTrayIcon", false).toBool();
         useNativeStyle = s.value("nativeStyle", false).toBool();
-        style = s.value("style", "None").toString();
+        useEmoticons = s.value("useEmoticons", true).toBool();
         statusChangeNotificationEnabled = s.value("statusChangeNotificationEnabled", false).toBool();
+        themeColor = s.value("themeColor", 0).toInt();
+        style = s.value("style", "").toString();
+        if (style == "") // Default to Fusion if available, otherwise no style
+        {
+            if (QStyleFactory::keys().contains("Fusion"))
+                style = "Fusion";
+            else
+                style = "None";
+        }
     s.endGroup();
 
     s.beginGroup("State");
@@ -152,17 +190,16 @@ void Settings::load()
 
     s.beginGroup("Privacy");
         typingNotification = s.value("typingNotification", false).toBool();
+        enableLogging = s.value("enableLogging", false).toBool();
+        encryptLogs = s.value("encryptLogs", false).toBool();
+        encryptTox = s.value("encryptTox", false).toBool();
     s.endGroup();
 
-    s.beginGroup("AutoAccept");
-        globalAutoAcceptDir = s.value("globalAutoAcceptDir", "").toString();
-        for (auto& key : s.childKeys())
-            autoAccept[key] = s.value(key).toString();
+    s.beginGroup("Audio");
+        inDev = s.value("inDev", "").toString();
+        outDev = s.value("outDev", "").toString();
+        filterAudio = s.value("filterAudio", false).toBool();
     s.endGroup();
-
-    // try to set a smiley pack if none is selected
-    if (!SmileyPack::isValid(smileyPack) && !SmileyPack::listSmileyPacks().isEmpty())
-        smileyPack = SmileyPack::listSmileyPacks()[0].second;
 
     // Read the embedded DHT bootsrap nodes list if needed
     if (dhtServerList.isEmpty())
@@ -185,15 +222,39 @@ void Settings::load()
     }
 
     loaded = true;
+
+    if (currentProfile.isEmpty()) // new profile in Core::switchConfiguration
+        return;
+
+    // load from a profile specific friend data list if possible
+    QString tmp = dir.filePath(currentProfile + ".ini");
+    if (QFile(tmp).exists())
+        filePath = tmp;
+
+    QSettings fs(filePath, QSettings::IniFormat);
+    friendLst.clear();
+    fs.beginGroup("Friends");
+        int size = fs.beginReadArray("Friend");
+        for (int i = 0; i < size; i ++)
+        {
+            fs.setArrayIndex(i);
+            friendProp fp;
+            fp.addr = fs.value("addr").toString();
+            fp.alias = fs.value("alias").toString();
+            fp.autoAcceptDir = fs.value("autoAcceptDir").toString();
+            friendLst[ToxID::fromString(fp.addr).publicKey] = fp;
+        }
+        fs.endArray();
+    fs.endGroup();
 }
 
-void Settings::save()
+void Settings::save(bool writeFriends)
 {
     QString filePath = QDir(getSettingsDirPath()).filePath(FILENAME);
-    save(filePath);
+    save(filePath, writeFriends);
 }
 
-void Settings::save(QString path)
+void Settings::save(QString path, bool writeFriends)
 {
     qDebug() << "Settings: Saving in "<<path;
 
@@ -214,19 +275,11 @@ void Settings::save(QString path)
         s.endArray();
     s.endGroup();
 
-    s.beginGroup("Friends");
-        s.beginWriteArray("fullAddresses", friendAddresses.size());
-        for (int i = 0; i < friendAddresses.size(); i ++) {
-            s.setArrayIndex(i);
-            s.setValue("addr", friendAddresses[i]);
-        }
-        s.endArray();
-    s.endGroup();
-
     s.beginGroup("General");
         s.setValue("enableIPv6", enableIPv6);
         s.setValue("translation",translation);
         s.setValue("makeToxPortable",makeToxPortable);
+        s.setValue("showSystemTray", showSystemTray);
         s.setValue("autostartInTray",autostartInTray);
         s.setValue("closeToTray", closeToTray);
         s.setValue("useProxy", useProxy);
@@ -235,6 +288,15 @@ void Settings::save(QString path)
         s.setValue("proxyPort", proxyPort);
         s.setValue("currentProfile", currentProfile);
         s.setValue("autoAwayTime", autoAwayTime);
+        s.setValue("checkUpdates", checkUpdates);
+        s.setValue("showInFront", showInFront);
+        s.setValue("fauxOfflineMessaging", fauxOfflineMessaging);
+        s.setValue("autoSaveEnabled", autoSaveEnabled);
+        s.setValue("globalAutoAcceptDir", globalAutoAcceptDir);
+    s.endGroup();
+
+    s.beginGroup("Advanced");
+        s.setValue("dbSyncType", static_cast<int>(dbSyncType));
     s.endGroup();
 
     s.beginGroup("Widgets");
@@ -255,8 +317,11 @@ void Settings::save(QString path)
         s.setValue("timestampFormat", timestampFormat);
         s.setValue("minimizeOnClose", minimizeOnClose);
         s.setValue("minimizeToTray", minimizeToTray);
+        s.setValue("lightTrayIcon", lightTrayIcon);
         s.setValue("nativeStyle", useNativeStyle);
-        s.setValue("style",style);
+        s.setValue("useEmoticons", useEmoticons);
+        s.setValue("themeColor", themeColor);
+        s.setValue("style", style);
         s.setValue("statusChangeNotificationEnabled", statusChangeNotificationEnabled);
     s.endGroup();
 
@@ -268,13 +333,34 @@ void Settings::save(QString path)
 
     s.beginGroup("Privacy");
         s.setValue("typingNotification", typingNotification);
+        s.setValue("enableLogging", enableLogging);
+        s.setValue("encryptLogs", encryptLogs);
+        s.setValue("encryptTox", encryptTox);
     s.endGroup();
 
-    s.beginGroup("AutoAccept");
-        s.setValue("globalAutoAcceptDir", globalAutoAcceptDir);
-        for (auto& id : autoAccept.keys())
-            s.setValue(id, autoAccept.value(id));
+    s.beginGroup("Audio");
+        s.setValue("inDev", inDev);
+        s.setValue("outDev", outDev);
+        s.setValue("filterAudio", filterAudio);
     s.endGroup();
+
+    if (!writeFriends || currentProfile.isEmpty()) // Core::switchConfiguration
+        return;
+
+    QSettings fs(QFileInfo(path).dir().filePath(currentProfile + ".ini"), QSettings::IniFormat);
+    fs.beginGroup("Friends");
+        fs.beginWriteArray("Friend", friendLst.size());
+        int index = 0;
+        for (auto& frnd : friendLst)
+        {
+            fs.setArrayIndex(index);
+            fs.setValue("addr", frnd.addr);
+            fs.setValue("alias", frnd.alias);
+            fs.setValue("autoAcceptDir", frnd.autoAcceptDir);
+            index++;
+        }
+        fs.endArray();
+    fs.endGroup();
 }
 
 QString Settings::getSettingsDirPath()
@@ -284,7 +370,8 @@ QString Settings::getSettingsDirPath()
 
     // workaround for https://bugreports.qt-project.org/browse/QTBUG-38845
 #ifdef Q_OS_WIN
-    return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+    return QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+                           + QDir::separator() + "AppData" + QDir::separator() + "Roaming" + QDir::separator() + "tox");
 #else
     return QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "tox");
 #endif
@@ -391,6 +478,36 @@ void Settings::setStyle(const QString& newStyle)
     style = newStyle;
 }
 
+bool Settings::getShowSystemTray() const
+{
+    return showSystemTray;
+}
+
+void Settings::setShowSystemTray(const bool& newValue)
+{
+    showSystemTray = newValue;
+}
+
+void Settings::setUseEmoticons(bool newValue)
+{
+    useEmoticons = newValue;
+}
+
+bool Settings::getUseEmoticons() const
+{
+    return useEmoticons;
+}
+
+void Settings::setAutoSaveEnabled(bool newValue)
+{
+    autoSaveEnabled = newValue;
+}
+
+bool Settings::getAutoSaveEnabled() const
+{
+    return autoSaveEnabled;
+}
+
 void Settings::setAutostartInTray(bool newValue)
 {
     autostartInTray = newValue;
@@ -417,6 +534,16 @@ void Settings::setMinimizeToTray(bool newValue)
     minimizeToTray = newValue;
 }
 
+bool Settings::getLightTrayIcon() const
+{
+    return lightTrayIcon;
+}
+
+void Settings::setLightTrayIcon(bool newValue)
+{
+    lightTrayIcon = newValue;
+}
+
 bool Settings::getStatusChangeNotificationEnabled() const
 {
     return statusChangeNotificationEnabled;
@@ -425,6 +552,16 @@ bool Settings::getStatusChangeNotificationEnabled() const
 void Settings::setStatusChangeNotificationEnabled(bool newValue)
 {
     statusChangeNotificationEnabled = newValue;
+}
+
+bool Settings::getShowInFront() const
+{
+   return showInFront;
+}
+
+void Settings::setShowInFront(bool newValue)
+{
+   showInFront = newValue;
 }
 
 QString Settings::getTranslation() const
@@ -506,6 +643,29 @@ void Settings::setEncryptLogs(bool newValue)
     encryptLogs = newValue;
 }
 
+bool Settings::getEncryptTox() const
+{
+    return encryptTox;
+}
+
+void Settings::setEncryptTox(bool newValue)
+{
+    encryptTox = newValue;
+}
+
+Db::syncType Settings::getDbSyncType() const
+{
+    return dbSyncType;
+}
+
+void Settings::setDbSyncType(int newValue)
+{
+    if (newValue >= 0 && newValue <= 2)
+        dbSyncType = static_cast<Db::syncType>(newValue);
+    else
+        dbSyncType = Db::syncType::stFull;
+}
+
 int Settings::getAutoAwayTime() const
 {
     return autoAwayTime;
@@ -518,17 +678,31 @@ void Settings::setAutoAwayTime(int newValue)
     autoAwayTime = newValue;
 }
 
-QString Settings::getAutoAcceptDir(const QString& id) const
+QString Settings::getAutoAcceptDir(const ToxID& id) const
 {
-    return autoAccept.value(id.left(TOX_ID_PUBLIC_KEY_LENGTH));
+    QString key = id.publicKey;
+
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        return it->autoAcceptDir;
+    }
+
+    return QString();
 }
 
-void Settings::setAutoAcceptDir(const QString& id, const QString& dir)
+void Settings::setAutoAcceptDir(const ToxID &id, const QString& dir)
 {
-    if (dir.isEmpty())
-        autoAccept.remove(id.left(TOX_ID_PUBLIC_KEY_LENGTH));
-    else
-        autoAccept[id.left(TOX_ID_PUBLIC_KEY_LENGTH)] = dir;
+    QString key = id.publicKey;
+
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        it->autoAcceptDir = dir;
+    } else {
+        updateFriendAdress(id.toString());
+        setAutoAcceptDir(id, dir);
+    }
 }
 
 QString Settings::getGlobalAutoAcceptDir() const
@@ -666,6 +840,16 @@ void Settings::setWindowState(const QByteArray &value)
     windowState = value;
 }
 
+bool Settings::getCheckUpdates() const
+{
+    return checkUpdates;
+}
+
+void Settings::setCheckUpdates(bool newValue)
+{
+    checkUpdates = newValue;
+}
+
 QByteArray Settings::getSplitterState() const
 {
     return splitterState;
@@ -694,4 +878,116 @@ bool Settings::isTypingNotificationEnabled() const
 void Settings::setTypingNotification(bool enabled)
 {
     typingNotification = enabled;
+}
+
+QString Settings::getInDev() const
+{
+    return inDev;
+}
+
+void Settings::setInDev(const QString& deviceSpecifier)
+{
+    inDev = deviceSpecifier;
+}
+
+QString Settings::getOutDev() const
+{
+    return outDev;
+}
+
+void Settings::setOutDev(const QString& deviceSpecifier)
+{
+    outDev = deviceSpecifier;
+}
+
+bool Settings::getFilterAudio() const
+{
+    return filterAudio;
+}
+
+void Settings::setFilterAudio(bool newValue)
+{
+    filterAudio = newValue;
+}
+
+QString Settings::getFriendAdress(const QString &publicKey) const
+{
+    QString key = ToxID::fromString(publicKey).publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        return it->addr;
+    }
+
+    return QString();
+}
+
+void Settings::updateFriendAdress(const QString &newAddr)
+{
+    QString key = ToxID::fromString(newAddr).publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        it->addr = newAddr;
+    } else {
+        friendProp fp;
+        fp.addr = newAddr;
+        fp.alias = "";
+        fp.autoAcceptDir = "";
+        friendLst[newAddr] = fp;
+    }
+}
+
+QString Settings::getFriendAlias(const ToxID &id) const
+{
+    QString key = id.publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        return it->alias;
+    }
+
+    return QString();
+}
+
+void Settings::setFriendAlias(const ToxID &id, const QString &alias)
+{
+    QString key = id.publicKey;
+    auto it = friendLst.find(key);
+    if (it != friendLst.end())
+    {
+        it->alias = alias;
+    } else {
+        friendProp fp;
+        fp.addr = key;
+        fp.alias = alias;
+        fp.autoAcceptDir = "";
+        friendLst[key] = fp;
+    }
+}
+
+void Settings::removeFriendSettings(const ToxID &id)
+{
+    QString key = id.publicKey;
+    friendLst.remove(key);
+}
+
+bool Settings::getFauxOfflineMessaging() const
+{
+    return fauxOfflineMessaging;
+}
+
+void Settings::setFauxOfflineMessaging(bool value)
+{
+    fauxOfflineMessaging = value;
+}
+
+int Settings::getThemeColor() const
+{
+    return themeColor;
+}
+
+void Settings::setThemeColor(const int &value)
+{
+    themeColor = value;
 }

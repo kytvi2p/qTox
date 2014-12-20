@@ -1,3 +1,1270 @@
+qtox (0.0.0+git20141217.r1753-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sabri ]
+  * Huge French translation fixes
+
+  [ Dubslow ]
+  * Revert "fix #902" @apprb #932 This reverts commit
+    13306031e238258a3faf2909a01987cf093765dc.
+
+  [ Maximilian Wuttke ]
+  * Merge branch 'filter_audio' of https://github.com/mwuttke97/qTox into
+    filter_audio Added some `#ifdef QTOX_FILTER_AUDIO`s. Conflicts:
+    qtox.pro
+
+  [ agilob ]
+  * removing border from contact name linedit
+
+  [ Dubslow ]
+  * minor style tweaks
+  * update the build system
+
+  [ agilob ]
+  * removing spacing from microphone layout
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ agilob ]
+  * removing fixed size from mic/volume buttons so they align nicely
+
+  [ Zetok Zalbavar ]
+  * Make quote colour more readable
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 19 Dec 2014 01:28:48 +0000
+
+qtox (0.0.0+git20141212.r1729-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * check for no systray, fixes #908 cant believe it took this long to figure
+    out ;_;
+
+  [ apprb ]
+  * fix #902
+
+  [ Zetok Zalbavar ]
+  * Style corrections
+
+  [ novist ]
+  * Light tray icon option
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 13 Dec 2014 00:57:23 +0000
+
+qtox (0.0.0+git20141208.r1720-1) unstable; urgency=medium
+
+  [ Lednerb ]
+  * Added Translation for error message on sending a file. Also included the
+    German Version.
+
+  [ Sascha Brendel ]
+  * Update chatform.cpp
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Dec 2014 11:57:11 +0000
+
+qtox (0.0.0+git20141207.r1713-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ A. L'mao ]
+  * Destroy AL context before closing old device
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix include 'Windows.h' -> 'windows.h'
+  * Change push to talk shortcut to CTRL+P
+
+  [ Simon Vermeersch ]
+  * Focus the text input area when clicking on the text area
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Push to talk with input msgedit focused
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 08 Dec 2014 18:55:40 +0000
+
+qtox (0.0.0+git20141205.r1704-1) unstable; urgency=medium
+
+  [ agilob ]
+  * fixing bug #891
+
+  [ Gethyn ThomasQuail ]
+  * Fixed up Emote button and created new images for the Volume and Mic
+    buttons
+  * Update INSTALL.md
+
+  [ Dubslow ]
+  * add fancier tray icons with status, remove relevant option
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 06 Dec 2014 00:25:02 +0000
+
+qtox (0.0.0+git20141203.r1697-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * add a basic platform-disabling define
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Fixed getIdleTime() on windows
+
+  [ Dubslow ]
+  * disabling platform extensions now affects linking, and can be set from cmd
+    line `qmake DISABLE_PLATFORM_EXT=YES`
+  * move settings to qtox.ini
+  * move friend information to a separate ini file; fixes #594
+  * deleting a profile now cleans out all personal data
+
+  [ apprb ]
+  * correct displaying of the targeted messages
+
+  [ Dubslow ]
+  * Fix not setting tox null after cleanup also reordered functions for super
+    extra safety
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 04 Dec 2014 02:26:06 +0000
+
+qtox (0.0.0+git20141201.r1685-1) unstable; urgency=medium
+
+  [ novist ]
+  * Option for tray icon to display user status
+
+  [ Maximilian ]
+  * Refactored system tray settings in generalform
+
+  [ novist ]
+  * Checkboxes in settings grayed out when disabled
+
+  [ Sean ]
+  * Lemmie fix those for you
+  * Link against IOKit
+  * Can't forget CoreFoundation
+
+  [ novist ]
+  * Global auto-away
+  * Added copyright notices to platform.* Changed u_int** to uint**
+  * Reorganized platform-dependent code Auto-away timer check reduced to 1s
+  * Switched places platform name and file name
+  * Window geometry saved when window is resized Splitter position saved when
+    splitter is moved Fixed restoring of window geometry when "Start in tray"
+    is unchecked
+
+  [ Dubslow ]
+  * move new functions to a more logical location
+  * re-move idle timer construction before restoreGeometry
+  * clarify systray show-status status
+  * touchup, more appropriate legal message
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * New build-dep on libxss-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 01 Dec 2014 23:22:42 +0000
+
+qtox (0.0.0+git20141130.r1665-1) unstable; urgency=medium
+
+  [ accino ]
+  * Added Spanish translation
+
+  [ Zetok Zalbavar ]
+  * Sort res.qrc and remove some unnecessary spaces
+
+  [ Dubslow ]
+  * put tr list in "alphabetical" order
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ Dubslow ]
+  * update core api fixes #882
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 30 Nov 2014 15:30:03 +0000
+
+qtox (0.0.0+git20141127.r1658-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ dubslow ]
+  * warn on can't read file, fixes #860
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Attempt to fix #859
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 28 Nov 2014 01:26:23 +0000
+
+qtox (0.0.0+git20141126.r1654-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ apprb ]
+  * GroupList refactoring
+  * auto-update audio devices list on tab show
+  * Group class refactoring
+  * using ToxID in groupchats
+  * GroupWidget: menu reordering
+  * groupchats: friend's aliases (updates on rejoin)
+  * commented currently unused functions in Group class
+  * rescan audio devices button
+  * minor fixes in ChatAction's creation/processing
+
+  [ Ruben Barkow ]
+  * Update de.ts "calling" will be "ruft an"
+
+  [ Carsten Brandt ]
+  * added opencv imgproc to dependencies
+
+  [ novist ]
+  * No border for message area (as in mockup)
+  * Starting client activates existing instance if such exists
+  * Added -P <profile> parameter which makes qTox start (and not activate any
+    existing instances) and load specified profile
+  * -P value name also translated
+
+  [ mannol ]
+  * Core update
+
+  [ Carsten Brandt ]
+  * Update de.ts
+  * fixed some original translation strings
+  * adjusted translation messages
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Group chat button at the bottom of contact list resized to 16x16 like
+    other buttons
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix some nullptr dereferences in Audio
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * Bump dependency on libtoxcoreav-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 26 Nov 2014 22:59:42 +0000
+
+qtox (0.0.0+git20141121.r1619-1) unstable; urgency=medium
+
+  [ JoGitqTox ]
+  * Update de.ts
+
+  [ nachfuellbar ]
+  * Update generalform.cpp
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 22 Nov 2014 03:17:45 +0000
+
+qtox (0.0.0+git20141120.r1609-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ apprb ]
+  * check incoming data from DB
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Move group audio playing to Audio singletong/thread
+
+  [ dubslow ]
+  * fix #811
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick c459263d27531b7856457b13e9b556b2aeb21dae
+  * Fix idleTimer use before construction
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 20 Nov 2014 02:31:51 +0000
+
+qtox (0.0.0+git20141118.r1600-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * remember status when disconnected (should help with #715)
+  * fix crash if no boostrap nodes (fix #791 where "fix" means "mask the
+    underlying problem")
+  * set aliases from chat form (half of #780)
+  * fix bug (which is actually why aliasing was menu'd in the first place)
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ dubslow ]
+  * add group title menu option, other half of closes #780 also truncate all
+    group titles to max len
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix zlib link order on windows x64
+  * Update windows installer for x64
+  * Remove unnecessary OSX lib search paths
+  * README: Add qTox windows 64 bit download link
+
+  [ Kill Your TV ]
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 19 Nov 2014 03:13:23 +0000
+
+qtox (0.0.0+git20141118.r1588-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Vol button: Less blury, use Tox Red when pressed
+
+  [ Olexandr Nesterenko ]
+  * Update Ukrainian translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Mic button: Less blury, use Tox Red when pressed
+  * Call buttons: Use tox red
+  * Widget: Don't delete icon, it's a child
+  * Put group chats audio playing in its own thread
+  * Fix incorrect HINSTANCE -> int cast
+  * Fix more incorrect HINSTANCE casts
+  * Silence potentially uninitialized warning
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 18 Nov 2014 02:12:32 +0000
+
+qtox (0.0.0+git20141117.r1578-1) unstable; urgency=medium
+
+  [ Nokta-strigo ]
+  * There was wrong english string
+  * Translation of synchronous writing to DB settings
+  * Translated call control buttons
+  * Slightly improoved translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sean ]
+  * Update makedist.sh
+  * Create postinstall
+  * Create preinstall
+
+  [ apprb ]
+  * fix #775
+  * use GlobalAutoAcceptDir only if autosaving enabled
+
+  [ Maximilian ]
+  * The showSystemTrayIcon's default value is false for linux else it is
+    false.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick pull request #793
+
+  [ ovalseven8 ]
+  * Update de.ts
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 17 Nov 2014 17:28:09 +0000
+
+qtox (0.0.0+git20141116.r1559-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * Extra tooltip and word from the un-picked commit
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick f3019a8111f25ef0400c287d851b992d4ca3d839
+  * Add missing license headers
+  * Fix logic error in audio subscription code
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 16 Nov 2014 20:43:50 +0000
+
+qtox (0.0.0+git20141116.r1555-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows updater: Create backup and restore it on failure
+  * Search libs in ../../PlugIns on OS X
+  * Fix tox: url highlighting breaking the :tox: smiley
+  * Add more plugin search paths for OS X
+
+  [ dubslow ]
+  * auto away done right (fixes #751)
+  * "overhaul" window title, fix #753
+  * fix title editing issue, reported by "whoever"
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick most of #756
+
+  [ Maximilian ]
+  * Minor bug fix: The main window, will never be visible, when the user
+    unchecked 'Show system try' and checked 'Start in tray'.
+  * similar bug, when closing the window...
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cherry pick the first part of #762
+
+  [ apprb ]
+  * using ToxID instead of bare QString + proper alias using during widget
+    creation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Allow to change i/o audio devices without restart
+  * Allow to change audio i/o device mid-call
+  * Leave group calls when leaving a group
+  * Refactor audio out of code, better resource management
+  * Fix #778
+  * Fix #635
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 16 Nov 2014 19:26:36 +0000
+
+qtox (0.0.0+git20141115.r1536-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix friendlist having a bad gray background
+  * Fix #767
+  * Rewrite horrible type casting pointer magic with shifts
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 15 Nov 2014 23:52:45 +0000
+
+qtox (0.0.0+git20141115.r1533-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Make sql tuning strings translatable
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add debug output
+  * Remove debug output
+  * Fix buffer overflow with >1 audio input channel
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+  [ Сухарик ]
+  * update russian translation
+  * fix something
+  * update
+
+  [ apprb ]
+  * Nospam id part edit
+  * improved usability
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Prepare for theme colors support
+
+  [ Yavor Stefanov ]
+  * mic tooltip clarification
+  * VA buttons tooltip clarifications
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add GUI to change theme color
+  * Audio buffer limit: 128 -> 32
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 15 Nov 2014 21:40:00 +0000
+
+qtox (0.0.0+git20141114.r1504-1) unstable; urgency=medium
+
+  [ Sean Qureshi ]
+  * Add files used to generate OS X pkgs
+
+  [ Sean ]
+  * Forgot the first rule of fight club
+  * The 2nd rule of fight club is actually the first rule
+  * The 3rd rule sucks
+  * Enable local user installs
+  * Update welcome.txt
+  * Update welcome.txt
+  * Add tox: integration for OS X
+  * Make everything magically work
+
+  [ apprb ]
+  * mysql synchronous set
+  * batch processing
+
+  [ Sean ]
+  * Fix mimetype, fix displayed name in titlebar, add a version string for
+    internal tracking, declare language support for localization
+  * Refactor info.plist
+
+  [ apprb ]
+  * AdvancedSettings tab introduced
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Horrible hack to get timestamps not to hang on windows
+  * Apply valgrind fix to 1on1 audio too
+
+  [ dubslow ]
+  * group title support
+  * show self title changes
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix CroppingLabel emitting textChanged twice
+  * Fix timers called from the wrong threads
+  * Add some debug messages
+  * Remove debug statements
+  * Update OSX auto-updates public key
+  * Fix #752
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 14 Nov 2014 21:58:47 +0000
+
+qtox (0.0.0+git20141114.r1476-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows: Uninstall start menu entries
+  * Don't 'style' QGroupbot borders in settings
+  * Add simple push to talk with P
+  * Listen for push-to-talk shortcut on more widgets
+  * Silence IPC:processEvents failed to lock
+  * Fix possible crash on ~IPC
+  * Better debug output for groupchat not found
+  * Fix vol must be muted to actually hear things
+  * Use a source per call peer
+  * Augment audio queue size, fixes quality issues
+  * Fix push to talk even when text edit focused
+  * Fix memory disclosure in audio send code (valgrind)
+
+  [ Maximilian ]
+  * I implemented a new setting, which toggles the visibility of the system
+    tray icon. Background: On Ubuntu 14.04, system trays in Qt5 don't
+    integrate into Unity.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+  * Updater: Update OS X update server public key
+  * Fix conflicting declaration struct/class ToxID
+  * Fix conflicting declarations struct/class vpx_image
+  * Remove unused variable
+
+  [ dubslow ]
+  * minor autoaway tweak
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Enable auto-updates for OS X
+  * Update README.md
+
+  [ Sean ]
+  * Force install to local user
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * README: Mention package managers on Linux
+  * Add some debug info when toxav_prepare_transmission fails
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 14 Nov 2014 00:14:55 +0000
+
+qtox (0.0.0+git20141113.r1450-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Start preparing for OS X auto-update
+
+  [ dubslow ]
+  * more robust exporting, fixes #716
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Build our Settings after our QApplication, fixes crash on startup
+  * Fix #719
+
+  [ dubslow ]
+  * fix minor switching bug introduced by 07ea2e
+
+  [ zero-one ]
+  * fixes #207
+
+  [ agilob ]
+  * fixes unreported bug in styles
+
+  [ apprb ]
+  * split message fix
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix use after free of groupchat invites
+  * Remove forgotten debug statement
+
+  [ dubslow ]
+  * minor tweaks to autoaway, one new debug message
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update update-server tools
+  * Fix #735
+  * simple_make: Install lupdate/lrelease with APT
+  * Prepare Core for av groupchats
+  * Add GUI for audio groupchats
+  * Fix typo
+  * Remember compile time timestamp
+  * Auto-updater: Check timestamps before updating
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 13 Nov 2014 14:38:58 +0000
+
+qtox (0.0.0+git20141111.r1425-1) unstable; urgency=medium
+
+  [ apprb ]
+  * fix #697 (Setting alias isn't persistent for some contacts)
+  * fix ToxID from QString convertation
+  * cleanup setting.ini file after a fiend removing
+
+  [ saneki ]
+  * Additional error info for failedToAddFriend, checks if friend is added
+    already
+  * Formatting, tr() for UI strings
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kristian Buchman ]
+  * Add the option to open qTox when a message is recived
+
+  [ dubslow ]
+  * switch to relevant chat room when minimized fixes #688, except that for me
+    it doesn't actually unminimize
+  * UI things
+  * properly unminimize
+
+  [ apprb ]
+  * read receipt infrastructure
+  * store delivering status in the DB
+  * ChatAction refactoring
+  * displaying undelivered messages in chat area
+  * group messages
+  * faux offline messaging
+
+  [ apprb ]
+  * Faux offline messaging: enable/disable
+  * DB: autoupdate
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #694
+  * Update genflist tool to search recursively
+
+  [ dubslow ]
+  * default faux offline on, fix #696
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Disable silently falling back to tox1 when tox3 fails
+
+  [ dubslow ]
+  * respond to copying id, fixes #537
+
+  [ apprb ]
+  * fix DB updating speed
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Marcel ]
+  * fixes #707
+
+  [ apprb ]
+  * HistoryKeeper::getChatHistory(..): fix in sql statement
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Compat with toxcore: New groupchats
+  * Fix crash when re-adding friend
+  * Accept and default to AV groupchats
+  * Play av groupchat call audio
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 11 Nov 2014 13:54:04 +0000
+
+qtox (0.0.0+git20141109.r1371-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Warn user if we try to use DNS with a SOCKS5 proxy
+
+  [ dubslow ]
+  * threadify file logger
+
+  [ Zetok Zalbavar ]
+  * Make emoticons more compatible with other clients
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Olexandr Nesterenko ]
+  * remove *.qm files
+
+  [ apprb ]
+  * struct Friend refactoring
+  * only public key is necessary
+  * possiblity to setup alias
+  * load/save aliases from the settings file
+  * Alias: remove unnecessary symbols + size limit
+  * main window title proper updating
+  * default friend name
+
+  [ dubslow ]
+  * handle tox save files, also fix IdentForm bug
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: System-wide Tox URI protocol support
+
+  [ dubslow ]
+  * Same mistake every time...
+  * remove incorrect line
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: .tox file format, app registration
+
+  [ Zetok Zalbavar ]
+  * Correct qTox.desktop
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: Fix Tox URI handling
+  * Build .qm files in qmake, before RCC runs
+  * Fix #670
+  * Fix #671
+  * Remove dead assignement, useless include
+  * Fix #674
+  * Fix #673
+  * Autoload last week of history on startup
+  * Don't free actions owned by the system tray menu
+  * Update french translation
+  * Add boolean 'sent_ok' to new history DBs
+  * Show the date for each new day when loading history
+  * Use Fusion by default if available
+  * Highlight on main buttons hover, fixes #295
+  * Don't notify the same status change twice
+
+  [ apprb ]
+  * 93a4d30 (Add boolean 'sent_ok' to new history DBs) fix: default value
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Remove backup qtox.pro.orig
+  * ToxDNS lacked the Q_OBJECT macro
+
+  [ Zetok Zalbavar ]
+  * Minor touch-up
+  * Update Polish translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * New build-dep on qttools5-dev-tools
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 09 Nov 2014 21:09:26 +0000
+
+qtox (0.0.0+git20141106.r1320-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Check Tox DNS protocol version, reject if not tox1
+  * Fix compilation warning
+
+  [ agilob ]
+  * global autoaccept files
+
+  [ willeponken ]
+  * Swedish translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Implement tox3 support, keep tox1 as silent fallback
+
+  [ agilob ]
+  * cleaning in settings.cpp filetransferinstance.cpp and friendwidget.cpp,
+    global autoaccept, per friend and qmenunu simplificated
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Enable swedish translation
+
+  [ agilob ]
+  * window titles
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add .gitattribute, fix github linguist mistakes
+  * Fix typo
+
+  [ Sean ]
+  * Add identifier, prepare for code signing on OS X
+  * Add info.plist for OS X install
+  * Add info.plist install, fix @dubslow
+
+  [ Сухарик ]
+  * update russian translation
+  * merge some of https://github.com/tux3/qTox/pull/642
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Сухарик ]
+  * small change
+
+  [ agilob ]
+  * disabling emoitcons
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Implement IPC, Tox URI, refactor Tox DNS
+  * IPC: Yield ownership on exit
+  * Tox URI: Handle nonstandard tox:// URI scheme as well
+
+  [ agilob ]
+  * highight tox:// in chat
+  * tox:id
+
+  [ dubslow ]
+  * fix #650
+  * fix dep issue from groupchat
+
+  [ Kill Your TV ]
+  * Add dependency on libtoxdns-dev
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 06 Nov 2014 22:04:11 +0000
+
+qtox (0.0.0+git20141105.r1281-1) unstable; urgency=medium
+
+  [ Сухарик ]
+  * smileys/cylgom: add some unicode
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows: Save data in %APPDATA%/tox/ as per the STS
+
+  [ Сухарик ]
+  * update russian translation
+
+  [ X-NicON ]
+  * Removed untranslatable strings
+
+  [ Сухарик ]
+  * translations/ru: release
+
+  [ dubslow ]
+  * fix jenkins git issue
+  * add logging to file; should make bug reports easier to handle (it's a bit
+    of a hack, but it works)
+  * remove a couple of debug statements
+  * fix git_version issue without git
+  * fix sodium cloning
+
+  [ apprb ]
+  * proper sending/receiving group actions
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #591
+
+  [ saneki ]
+  * Sql typo
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix crash on exit
+  * Don't triple save on exit
+  * Fix #557
+  * Fix #459
+  * Fix #96 with a flow layout for groupchat user list
+  * Fix spacing of chat form head, fixes #598
+  * Fix #599
+  * Fix #600
+  * Add tooltip for emoticons, fix #597
+  * Fix #592
+  * Fix #602
+  * Try to improve file transfer speed
+  * Silence buggy QTextBrowser qWarning spam
+  * Don't log null/same avatar infos
+  * Don't try to load the 'en' translation
+  * Use Tox IDs internally as message author ID
+
+  [ agilob ]
+  * Call notifications
+  * default smiley pack is cylgom
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix Core::getPeerName for long names
+  * Fix possible heap corruption in CUserId()
+
+  [ agilob ]
+  * style for qlineedit in status panel
+  * call duration
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ agilob ]
+  * status panel, indicate editing
+
+  [ Zetok Zalbavar ]
+  * Update INSTALL.md dependencies list
+
+  [ agilob ]
+  * lineedit consistent corners
+  * nulling timer
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+
+  [ dubslow ]
+  * workaround #618
+
+  [ Ansa89 ]
+  * Italian trtanslation: update
+
+  [ D3cryptor ]
+  * Bulgarian translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Release, enable bulgarian translation
+  * Bulgarian translation: 'българин' -> 'Български'
+  * Put translations in alphabetical order
+
+  [ dubslow ]
+  * fix #624
+
+  [ agilob ]
+  * updated polish translation
+  * more pl translations
+  * another unused opration
+  * autosaveDir, useEmoicons, selectTimestamp added to GUI and settings
+  * autosavedir: keep previous directory in case of cancelling
+  * autoaccept: unused code
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 05 Nov 2014 19:25:19 +0000
+
+qtox (0.0.0+git20141030.r1208-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Olexandr Nesterenko ]
+  * add localized strings
+  * Update Ukrainian translation
+
+  [ apprb ]
+  * Setting forms: similar outlook and inner structure
+  * multiple file sending race condition fix
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update french translation
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Index cylgom and krepa smiley packs in repo
+  * Embed cylgom and krepa emoticon packs
+
+  [ X-NicON ]
+  * more strings for translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Better preview of cylgom emoticons
+
+  [ agilob ]
+  * prevent duplicating emoticons on the list
+  * network setting unification s/disable/enable/ UDP
+  * style selector is translatable now - made right
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Rename variable to match displayed text
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Handle received group actions
+  * Jump to Add Friend form when quitting groupchat
+  * Fix minimumSize being too small
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 30 Oct 2014 14:17:35 +0000
+
+qtox (0.0.0+git20141028.r1177-1) unstable; urgency=medium
+
+  [ Wouters Dorian ]
+  * Made Mute speakers button work
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add audio in/out device list (stubs)
+  * Add audio in/out device to settings
+  * Open the audio in/out devices of the settings
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 29 Oct 2014 16:41:55 +0000
+
+qtox (0.0.0+git20141027.r1172-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add some core doc comments, remove dead code
+  * Fix small memory leaks
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 28 Oct 2014 02:01:02 +0000
+
+qtox (0.0.0+git20141026.r1170-1) unstable; urgency=medium
+
+  [ apprb ]
+  * Reducing memory consumption: no reason to store all displayed ChatActions
+    in memory
+
+  [ Ansa89 ]
+  * Italian translation: update
+  * Italian translation: fix typo
+
+  [ krepa098 ]
+  * fix error: vector size mismatch for arithmetic operator
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Upload windows build script
+  * Upload windows NSIS installer script
+
+  [ apprb ]
+  * QSharedPointer<ChatAction> instead ChatAction*
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * qtox.nsis: Option for desktop shortcut
+  * Add icon on windows
+
+  [ krepa098 ]
+  * format shader code
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Rescale smileys smoothly, fix #501
+  * Fix leak, enable NRVO in Core::getUsername
+  * Fix uninitialized return value in createVpxImage
+  * Handle toxcore failures in Core::onAvMediaChange
+  * Fix leak, enable NRVO in Core::getStatusMessage
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 26 Oct 2014 21:43:34 +0000
+
+qtox (0.0.0+git20141025.r1151-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix crash if call failed to start
+  * Never call GUI methods from core directly, fix #436
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 25 Oct 2014 11:05:51 +0000
+
+qtox (0.0.0+git20141024.r1149-1) unstable; urgency=medium
+
+  [ dubslow ]
+  * fixed encryption, major testing required
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Delay webcam res probing until first use
+
+  [ dubslow ]
+  * fix encrypted tox loading
+
+  [ krepa098 ]
+  * non-blocking cam communication, fixed CameraWorker::probeResolutions ...
+    called from wrong thread, try fix #408 and #495
+  * moved video stuff to src/video
+  * cleanup
+  * refactoring
+  * cleanup, use chroma_shift
+  * fixup rebase
+
+  [ dubslow ]
+  * remove dead comments
+  * disable switching buttons during calls fixes #436, fixes #500 (well,
+    "fixes" by preventing users from doing dumb things)
+  * add reconnect button for connection settings some ui guru should make it
+    not stretch to width
+  * revert coreav.cpp changes
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Log when core fails to load config
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 24 Oct 2014 20:01:07 +0000
+
+qtox (0.0.0+git20141024.r1132-1) unstable; urgency=medium
+
+  [ apprb ]
+  * history: base working implementation
+  * privacy setting form added
+  * History: keep unencrypted history
+  * class expantion
+  * add insert chatlog capability (not finished)
+  * clear chat area
+  * History: retrieve history from save
+  * cleanup
+
+  [ dubslow ]
+  * partial work towards core encryption functionality
+  * more
+  * add save encryption
+  * finished core functionality, still needs UI from #423 this also depends on
+    irungentoo/toxcore#1114 being merged
+
+  [ apprb ]
+  * typos
+
+  [ dubslow ]
+  * add decryption
+
+  [ apprb ]
+  * precise timestamps keeping
+  * correct action saving into the logfile
+  * Fetch history only from asked profile ID
+  * no reason to keep action flag in the logfile
+  * Encrypted Logs: part 1
+  * Encrypted Logs: part 2: all encryption to be implemented in EncryptedDb
+    class
+
+  [ dubslow ]
+  * more details
+
+  [ apprb ]
+  * Encryption: it works! Code cleanup is still required
+
+  [ dubslow ]
+  * encrypted db uses core encryption
+
+  [ apprb ]
+  * clenup
+  * switch to tox_pass_encrypt/tox_pass_decrypt functions
+  * History: almost correct handling encrypted history load/save
+  * fixes in profile change and log password check
+
+  [ agilob ]
+  * fix #457, styles in mainContent for qtextedit, qspinbox and more
+
+  [ apprb ]
+  * Load encrypted history log/tox datafile
+  * various fixes
+  * warn user about old encrypted history
+  * Tox datafile encryption: check
+
+  [ agilob ]
+  * more styles
+
+  [ apprb ]
+  * Tox datafile/encrypted history: different passwords
+  * cleanup
+
+  [ agilob ]
+  * implemented krepas suggestions about style
+  * scrollbar in generalsettings
+  * profile settings in scrollarea
+  * minimum size for camera preview 160x120
+
+  [ apprb ]
+  * FileTransferInstance improvements
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Change call ringing time to 45s, fix #507
+  * Don't show msgboxes outside of the GUI thread
+  * Fix chat head style for high DPI
+  * Disable encryption options for the moment
+  * Force smiley size to match text size
+  * Disable history encryption again
+  * Add tooltips to chat buttons
+  * Force font size in groupchat header for all DPIs
+  * Update french translation
+  * Fix typo in message box
+  * README: Update download links
+
+  [ Zetok Zalbavar ]
+  * Update refined mannol translation
+  * Change file sending button tooltip to indicate ability to select and send
+    multiple files
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Probe more camera resolutions
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 24 Oct 2014 01:50:31 +0000
+
+qtox (0.0.0+git20141022.r1059-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #503
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 23 Oct 2014 02:31:21 +0000
+
+qtox (0.0.0+git20141021.r1058-1) unstable; urgency=medium
+
+  [ Сухарик ]
+  * translations/ru: update
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Attempted temp workaround for #408
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 21 Oct 2014 21:28:43 +0000
+
 qtox (0.0.0+git20141020.r1051-1~deb7u+1) stable; urgency=medium
 
   * Backport to Wheezy

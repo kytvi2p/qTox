@@ -6,21 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>710</width>
+    <width>775</width>
     <height>537</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>640</width>
+    <width>775</width>
     <height>420</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>qTox</string>
+   <string notr="true">qTox</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res.qrc">
+   <iconset resource="../res.qrc">
     <normaloff>:/img/icon.png</normaloff>:/img/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -397,7 +397,7 @@ QSplitter:handle{
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <layout class="QHBoxLayout" name="myProfile">
              <property name="spacing">
               <number>0</number>
              </property>
@@ -1033,8 +1033,8 @@ QSplitter:handle{
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>288</width>
-             <height>400</height>
+             <width>284</width>
+             <height>399</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5"/>
@@ -1051,6 +1051,9 @@ QSplitter:handle{
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="spacing">
@@ -1088,15 +1091,27 @@ QSplitter:handle{
              <property name="toolTip">
               <string>Add friends</string>
              </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
              <property name="text">
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="res.qrc">
+              <iconset resource="../res.qrc">
                <normaloff>:/img/add.png</normaloff>:/img/add.png</iconset>
              </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+             <property name="autoDefault">
+              <bool>false</bool>
+             </property>
              <property name="flat">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -1114,12 +1129,15 @@ QSplitter:handle{
              <property name="toolTip">
               <string>Create a group chat</string>
              </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="res.qrc">
-               <normaloff>:/img/group_2x.png</normaloff>:/img/group_2x.png</iconset>
+              <iconset resource="../res.qrc">
+               <normaloff>:/img/group_button.png</normaloff>:/img/group_button.png</iconset>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -1150,7 +1168,7 @@ QSplitter:handle{
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="res.qrc">
+              <iconset resource="../res.qrc">
                <normaloff>:/img/transfer.png</normaloff>:/img/transfer.png</iconset>
              </property>
              <property name="flat">
@@ -1182,7 +1200,7 @@ QSplitter:handle{
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="res.qrc">
+              <iconset resource="../res.qrc">
                <normaloff>:/img/settings.png</normaloff>:/img/settings.png</iconset>
              </property>
              <property name="flat">
@@ -1639,7 +1657,7 @@ QSplitter:handle{
         <item>
          <widget class="QWidget" name="mainHead" native="true">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1647,12 +1665,18 @@ QSplitter:handle{
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>57</height>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>0</width>
             <height>57</height>
            </size>
           </property>
@@ -1750,8 +1774,8 @@ QSplitter:handle{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>710</width>
-     <height>25</height>
+     <width>775</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -1761,7 +1785,7 @@ QSplitter:handle{
     <string>Close</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Q</string>
+    <string notr="true">Ctrl+Q</string>
    </property>
   </action>
  </widget>
@@ -1779,7 +1803,7 @@ QSplitter:handle{
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="res.qrc"/>
+  <include location="../res.qrc"/>
  </resources>
  <connections/>
 </ui>

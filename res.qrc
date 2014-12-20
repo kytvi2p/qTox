@@ -6,13 +6,28 @@
         <file alias="DejaVuSans.ttf">res/DejaVuSans.ttf</file>
     </qresource>
     <qresource prefix="/">
-        <file>img/icon.png</file>
+        <file>audio/notification.pcm</file>
+        <file>audio/ToxicIncomingCall.pcm</file>
+        <file>img/add.png</file>
+        <file>img/avatar_mask.png</file>
         <file>img/contact.png</file>
         <file>img/contact_dark.png</file>
         <file>img/group.png</file>
+        <file>img/group_2x.png</file>
+        <file>img/group_button.png</file>
+        <file>img/group_dark.png</file>
+        <file>img/icon.png</file>
+        <file>img/settings.png</file>
+        <file>img/settings/av.png</file>
+        <file>img/settings/general.png</file>
+        <file>img/settings/identity.png</file>
+        <file>img/settings/privacy.png</file>
         <file>img/status/dot_away.png</file>
         <file>img/status/dot_away_2x.png</file>
         <file>img/status/dot_away_notification.png</file>
+        <file>img/status/dot_busy.png</file>
+        <file>img/status/dot_busy_2x.png</file>
+        <file>img/status/dot_busy_notification.png</file>
         <file>img/status/dot_groupchat.png</file>
         <file>img/status/dot_groupchat_newmessages.png</file>
         <file>img/status/dot_groupchat_notification.png</file>
@@ -22,9 +37,99 @@
         <file>img/status/dot_online.png</file>
         <file>img/status/dot_online_2x.png</file>
         <file>img/status/dot_online_notification.png</file>
-        <file>img/add.png</file>
-        <file>img/settings.png</file>
+        <file>img/taskbar/dark/taskbar_online_2x.png</file>
+        <file>img/taskbar/dark/taskbar_idle_2x.png</file>
+        <file>img/taskbar/dark/taskbar_busy_2x.png</file>
+        <file>img/taskbar/dark/taskbar_offline_2x.png</file>
+        <file>img/taskbar/light/taskbar_online_2x.png</file>
+        <file>img/taskbar/light/taskbar_idle_2x.png</file>
+        <file>img/taskbar/light/taskbar_busy_2x.png</file>
+        <file>img/taskbar/light/taskbar_offline_2x.png</file>
         <file>img/transfer.png</file>
+        <file>smileys/cylgom/angel.png</file>
+        <file>smileys/cylgom/angry.png</file>
+        <file>smileys/cylgom/beer.png</file>
+        <file>smileys/cylgom/bomb.png</file>
+        <file>smileys/cylgom/bored.png</file>
+        <file>smileys/cylgom/cookie.png</file>
+        <file>smileys/cylgom/cool.png</file>
+        <file>smileys/cylgom/crossing.png</file>
+        <file>smileys/cylgom/crying.png</file>
+        <file>smileys/cylgom/devil.png</file>
+        <file>smileys/cylgom/diamond.png</file>
+        <file>smileys/cylgom/doh.png</file>
+        <file>smileys/cylgom/emoticons.xml</file>
+        <file>smileys/cylgom/evil.png</file>
+        <file>smileys/cylgom/eye.png</file>
+        <file>smileys/cylgom/facepalm.png</file>
+        <file>smileys/cylgom/finger.png</file>
+        <file>smileys/cylgom/hacker_terminal.png</file>
+        <file>smileys/cylgom/happysmile.png</file>
+        <file>smileys/cylgom/heart.png</file>
+        <file>smileys/cylgom/hi.png</file>
+        <file>smileys/cylgom/highfive.png</file>
+        <file>smileys/cylgom/hot.png</file>
+        <file>smileys/cylgom/impressed.png</file>
+        <file>smileys/cylgom/inlove.png</file>
+        <file>smileys/cylgom/jealous.png</file>
+        <file>smileys/cylgom/kiss.png</file>
+        <file>smileys/cylgom/lol.png</file>
+        <file>smileys/cylgom/moustache.png</file>
+        <file>smileys/cylgom/MrSmith.png</file>
+        <file>smileys/cylgom/nerd.png</file>
+        <file>smileys/cylgom/nospeak.png</file>
+        <file>smileys/cylgom/oops.png</file>
+        <file>smileys/cylgom/party.png</file>
+        <file>smileys/cylgom/pressed.png</file>
+        <file>smileys/cylgom/rain.png</file>
+        <file>smileys/cylgom/rocknroll.png</file>
+        <file>smileys/cylgom/sad.png</file>
+        <file>smileys/cylgom/shy.png</file>
+        <file>smileys/cylgom/sleeping.png</file>
+        <file>smileys/cylgom/smile.png</file>
+        <file>smileys/cylgom/sniggering.png</file>
+        <file>smileys/cylgom/suspicious.png</file>
+        <file>smileys/cylgom/syringe.png</file>
+        <file>smileys/cylgom/tongue.png</file>
+        <file>smileys/cylgom/toxlocker.png</file>
+        <file>smileys/cylgom/vomit.png</file>
+        <file>smileys/cylgom/wasntme.png</file>
+        <file>smileys/cylgom/whew.png</file>
+        <file>smileys/cylgom/wink.png</file>
+        <file>smileys/cylgom/wondering.png</file>
+        <file>smileys/cylgom/X(.png</file>
+        <file>smileys/cylgom/XD.png</file>
+        <file>smileys/cylgom/XP.png</file>
+        <file>smileys/cylgom/yawn.png</file>
+        <file>smileys/krepa098/angry.png</file>
+        <file>smileys/krepa098/cool.png</file>
+        <file>smileys/krepa098/crying.png</file>
+        <file>smileys/krepa098/emoticons.xml</file>
+        <file>smileys/krepa098/happy.png</file>
+        <file>smileys/krepa098/Kappa.png</file>
+        <file>smileys/krepa098/laugh_closed_eyes.png</file>
+        <file>smileys/krepa098/laugh.png</file>
+        <file>smileys/krepa098/plain.png</file>
+        <file>smileys/krepa098/raw.svg</file>
+        <file>smileys/krepa098/sad.png</file>
+        <file>smileys/krepa098/scared.png</file>
+        <file>smileys/krepa098/smile.png</file>
+        <file>smileys/krepa098/stunned.png</file>
+        <file>smileys/krepa098/tongue.png</file>
+        <file>smileys/krepa098/uncertain.png</file>
+        <file>smileys/krepa098/wink.png</file>
+        <file>translations/bg.qm</file>
+        <file>translations/de.qm</file>
+        <file>translations/es.qm</file>
+        <file>translations/fi.qm</file>
+        <file>translations/fr.qm</file>
+        <file>translations/it.qm</file>
+        <file>translations/mannol.qm</file>
+        <file>translations/pirate.qm</file>
+        <file>translations/pl.qm</file>
+        <file>translations/ru.qm</file>
+        <file>translations/sv.qm</file>
+        <file>translations/uk.qm</file>
         <file>ui/acceptFileButton/default.png</file>
         <file>ui/acceptFileButton/hover.png</file>
         <file>ui/acceptFileButton/pressed.png</file>
@@ -41,6 +146,7 @@
         <file>ui/callButton/callButtonYellowHover.png</file>
         <file>ui/callButton/callButtonYellowPressed.png</file>
         <file>ui/chatArea/chatArea.css</file>
+        <file>ui/chatArea/chatHead.css</file>
         <file>ui/chatArea/innerStyle.css</file>
         <file>ui/chatArea/scrollBarDownArrow.png</file>
         <file>ui/chatArea/scrollBarDownArrowHover.png</file>
@@ -49,15 +155,37 @@
         <file>ui/chatArea/scrollBarUpArrow.png</file>
         <file>ui/chatArea/scrollBarUpArrowHover.png</file>
         <file>ui/chatArea/scrollBarUpArrowPressed.png</file>
+        <file>ui/chatroomWidgets/genericChatroomWidget.css</file>
         <file>ui/emoteButton/emoteButton.css</file>
         <file>ui/emoteButton/emoteButton.png</file>
         <file>ui/emoteButton/emoteButtonHover.png</file>
         <file>ui/emoteButton/emoteButtonPressed.png</file>
+        <file>ui/emoticonWidget/dot_page.png</file>
+        <file>ui/emoticonWidget/dot_page_current.png</file>
+        <file>ui/emoticonWidget/dot_page_hover.png</file>
+        <file>ui/emoticonWidget/emoticonWidget.css</file>
         <file>ui/fileButton/fileButton.css</file>
         <file>ui/fileButton/fileButton.png</file>
         <file>ui/fileButton/fileButtonHover.png</file>
         <file>ui/fileButton/fileButtonPressed.png</file>
         <file>ui/fileButton/fileButtonDisabled.png</file>
+        <file>ui/fileTransferInstance/acceptFileButton.png</file>
+        <file>ui/fileTransferInstance/emptyLGreenFileButton.png</file>
+        <file>ui/fileTransferInstance/emptyLRedFileButton.png</file>
+        <file>ui/fileTransferInstance/emptyRGreenFileButton.png</file>
+        <file>ui/fileTransferInstance/emptyRRedFileButton.png</file>
+        <file>ui/fileTransferInstance/pauseFileButton.png</file>
+        <file>ui/fileTransferInstance/pauseGreyFileButton.png</file>
+        <file>ui/fileTransferInstance/resumeFileButton.png</file>
+        <file>ui/fileTransferInstance/stopFileButton.png</file>
+        <file>ui/fileTransferInstance/sliverRTEdge.png</file>
+        <file>ui/fileTransferWidget/fileTransferWidget.css</file>
+        <file>ui/friendList/friendList.css</file>
+        <file>ui/micButton/micButton.css</file>
+        <file>ui/micButton/micButton.png</file>
+        <file>ui/micButton/micButtonDisabled.png</file>
+        <file>ui/micButton/micButtonHover.png</file>
+        <file>ui/micButton/micButtonPressed.png</file>
         <file>ui/msgEdit/msgEdit.css</file>
         <file>ui/pauseFileButton/default.png</file>
         <file>ui/pauseFileButton/hover.png</file>
@@ -67,6 +195,14 @@
         <file>ui/sendButton/sendButton.png</file>
         <file>ui/sendButton/sendButtonHover.png</file>
         <file>ui/sendButton/sendButtonPressed.png</file>
+        <file>ui/settings/mainContent.css</file>
+        <file>ui/settings/mainHead.css</file>
+        <file>ui/statusButton/dot_away.png</file>
+        <file>ui/statusButton/dot_busy.png</file>
+        <file>ui/statusButton/dot_idle.png</file>
+        <file>ui/statusButton/dot_online.png</file>
+        <file>ui/statusButton/menu_indicator.png</file>
+        <file>ui/statusButton/statusButton.css</file>
         <file>ui/stopFileButton/default.png</file>
         <file>ui/stopFileButton/hover.png</file>
         <file>ui/stopFileButton/pressed.png</file>
@@ -82,64 +218,12 @@
         <file>ui/videoButton/videoButtonYellow.png</file>
         <file>ui/videoButton/videoButtonYellowHover.png</file>
         <file>ui/videoButton/videoButtonYellowPressed.png</file>
-        <file>img/group_dark.png</file>
-        <file>ui/window/applicationIcon.png</file>
-        <file>ui/friendList/friendList.css</file>
-        <file>ui/window/window.css</file>
-        <file>img/status/dot_busy.png</file>
-        <file>img/status/dot_busy_2x.png</file>
-        <file>img/status/dot_busy_notification.png</file>
-        <file>translations/fr.qm</file>
-        <file>translations/ru.qm</file>
-        <file>ui/fileTransferWidget/fileTransferWidget.css</file>
-        <file>ui/statusButton/dot_away.png</file>
-        <file>ui/statusButton/dot_busy.png</file>
-        <file>ui/statusButton/dot_idle.png</file>
-        <file>ui/statusButton/dot_online.png</file>
-        <file>ui/statusButton/statusButton.css</file>
-        <file>ui/statusButton/menu_indicator.png</file>
-        <file>translations/de.qm</file>
-        <file>translations/it.qm</file>
-        <file>ui/emoticonWidget/dot_page.png</file>
-        <file>ui/emoticonWidget/dot_page_current.png</file>
-        <file>ui/emoticonWidget/emoticonWidget.css</file>
-        <file>ui/emoticonWidget/dot_page_hover.png</file>
         <file>ui/volButton/volButton.png</file>
         <file>ui/volButton/volButtonHover.png</file>
         <file>ui/volButton/volButtonPressed.png</file>
-        <file>ui/micButton/micButton.png</file>
-        <file>ui/micButton/micButtonDisabled.png</file>
-        <file>ui/micButton/micButtonHover.png</file>
-        <file>ui/micButton/micButtonPressed.png</file>
-        <file>ui/micButton/micButton.css</file>
         <file>ui/volButton/volButton.css</file>
-        <file>ui/fileTransferInstance/acceptFileButton.png</file>
-        <file>ui/fileTransferInstance/pauseFileButton.png</file>
-        <file>ui/fileTransferInstance/pauseGreyFileButton.png</file>
-        <file>ui/fileTransferInstance/resumeFileButton.png</file>
-        <file>ui/fileTransferInstance/stopFileButton.png</file>
-        <file>ui/fileTransferInstance/emptyLGreenFileButton.png</file>
-        <file>ui/fileTransferInstance/emptyLRedFileButton.png</file>
-        <file>ui/fileTransferInstance/emptyRGreenFileButton.png</file>
-        <file>ui/fileTransferInstance/emptyRRedFileButton.png</file>
-        <file>audio/notification.pcm</file>
-        <file>audio/ToxicIncomingCall.pcm</file>
-        <file>img/settings/general.png</file>
-        <file>img/settings/identity.png</file>
-        <file>img/settings/privacy.png</file>
-        <file>img/settings/av.png</file>
-        <file>translations/pl.qm</file>
-        <file>translations/fi.qm</file>
-        <file>translations/mannol.qm</file>
-        <file>translations/uk.qm</file>
-        <file>img/avatar_mask.png</file>
-        <file>img/group_2x.png</file>
-        <file>ui/chatroomWidgets/genericChatroomWidget.css</file>
-        <file>ui/fileTransferInstance/sliverRTEdge.png</file>
+        <file>ui/window/applicationIcon.png</file>
         <file>ui/window/statusPanel.css</file>
-        <file>ui/settings/mainContent.css</file>
-        <file>ui/settings/mainHead.css</file>
-        <file>translations/pirate.qm</file>
-        <file>ui/chatArea/chatHead.css</file>
+        <file>ui/window/window.css</file>
     </qresource>
 </RCC>

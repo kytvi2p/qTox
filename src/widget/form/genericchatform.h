@@ -20,6 +20,9 @@
 #include <QWidget>
 #include <QPoint>
 #include <QDateTime>
+#include <QMenu>
+#include "src/widget/tool/chatactions/messageaction.h"
+#include "src/corestructs.h"
 
 // Spacing in px inserted when the author of the last message changes
 #define AUTHOR_CHANGE_SPACING 5 // why the hell is this a thing? surely the different font is enough?
@@ -31,6 +34,7 @@ class CroppingLabel;
 class ChatTextEdit;
 class ChatAreaWidget;
 class MaskablePixmapWidget;
+struct ToxID;
 
 namespace Ui {
     class MainWindow;
@@ -44,14 +48,17 @@ public:
 
     virtual void setName(const QString &newName);
     virtual void show(Ui::MainWindow &ui);
-    void addMessage(QString author, QString message, bool isAction = false, QDateTime datetime=QDateTime::currentDateTime());
-    void addAlertMessage(QString author, QString message, QDateTime datetime=QDateTime::currentDateTime());
-    void addSystemInfoMessage(const QString &message, const QString &type, const QDateTime &datetime=QDateTime::currentDateTime());
-    int getNumberOfMessages();
-    
+
+    MessageActionPtr addMessage(const ToxID& author, const QString &message, bool isAction, const QDateTime &datetime, bool isSent);
+    MessageActionPtr addSelfMessage(const QString &message, bool isAction, const QDateTime &datetime, bool isSent);
+    void addSystemInfoMessage(const QString &message, const QString &type, const QDateTime &datetime);
+    void addAlertMessage(const ToxID& author, QString message, QDateTime datetime);
+    bool isEmpty();
+
 signals:
     void sendMessage(int, QString);
     void sendAction(int, QString);
+    void chatAreaCleared();
 
 public slots:
     void focusInput();
@@ -61,10 +68,20 @@ protected slots:
     void onSaveLogClicked();
     void onEmoteButtonClicked();
     void onEmoteInsertRequested(QString str);
+    void clearChatArea(bool);
+    void onChatWidgetClicked();
 
 protected:
     QString getElidedName(const QString& name);
+    MessageActionPtr genMessageActionAction(const ToxID& author, QString message, bool isAction, const QDateTime &datetime);
+    MessageActionPtr genSelfActionAction(QString message, bool isAction, const QDateTime &datetime);
+    ChatActionPtr genSystemInfoAction(const QString &message, const QString &type, const QDateTime &datetime);
 
+    QString resolveToxID(const ToxID &id);
+
+    ToxID previousId;
+    QMenu menu;
+    int curRow;
     CroppingLabel *nameLabel;
     MaskablePixmapWidget *avatar;
     QWidget *headWidget;
@@ -72,9 +89,10 @@ protected:
     QVBoxLayout *headTextLayout;
     ChatTextEdit *msgEdit;
     QPushButton *sendButton;
-    QString previousName;
     ChatAreaWidget *chatWidget;
-    int curRow;
+    QDateTime *earliestMessage;
+    bool audioInputFlag;
+    bool audioOutputFlag;
 };
 
 #endif // GENERICCHATFORM_H

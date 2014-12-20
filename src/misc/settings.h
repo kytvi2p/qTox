@@ -21,12 +21,16 @@
 #include <QObject>
 #include <QPixmap>
 
+struct ToxID;
+namespace Db { enum class syncType; }
+
 class Settings : public QObject
 {
     Q_OBJECT
 public:
     static Settings& getInstance();
-    ~Settings();
+    static void resetInstance();
+    ~Settings() = default;
 
     void executeSettingsDialog(QWidget* parent);
 
@@ -57,15 +61,27 @@ public:
     
     bool getMinimizeToTray() const;
     void setMinimizeToTray(bool newValue);
+
+    bool getLightTrayIcon() const;
+    void setLightTrayIcon(bool newValue);
     
     QString getStyle() const;
     void setStyle(const QString& newValue);
+
+    bool getShowSystemTray() const;
+    void setShowSystemTray(const bool& newValue);
+    
+    bool getUseEmoticons() const;
+    void setUseEmoticons(bool newValue);
 
     QString getCurrentProfile() const;
     void setCurrentProfile(QString profile);
 
     QString getTranslation() const;
     void setTranslation(QString newValue);
+    
+    void setAutoSaveEnabled(bool newValue);
+    bool getAutoSaveEnabled() const;
 
     bool getForceTCP() const;
     void setForceTCP(bool newValue);
@@ -85,14 +101,35 @@ public:
     bool getEncryptLogs() const;
     void setEncryptLogs(bool newValue);
 
+    bool getEncryptTox() const;
+    void setEncryptTox(bool newValue);
+
+    Db::syncType getDbSyncType() const;
+    void setDbSyncType(int newValue);
+
     int getAutoAwayTime() const;
     void setAutoAwayTime(int newValue);
+
+    bool getCheckUpdates() const;
+    void setCheckUpdates(bool newValue);
+
+    bool getShowInFront() const;
+    void setShowInFront(bool newValue);
 
     QPixmap getSavedAvatar(const QString& ownerId);
     void saveAvatar(QPixmap& pic, const QString& ownerId);
 
     QByteArray getAvatarHash(const QString& ownerId);
     void saveAvatarHash(const QByteArray& hash, const QString& ownerId);
+
+    QString getInDev() const;
+    void setInDev(const QString& deviceSpecifier);
+
+    QString getOutDev() const;
+    void setOutDev(const QString& deviceSpecifier);
+
+    bool getFilterAudio() const;
+    void setFilterAudio(bool newValue);
 
     // Assume all widgets have unique names
     // Don't use it to save every single thing you want to save, use it
@@ -122,6 +159,9 @@ public:
     QString getSmileyPack() const;
     void setSmileyPack(const QString &value);
 
+    int getThemeColor() const;
+    void setThemeColor(const int& value);
+
     bool isCurstomEmojiFont() const;
     void setCurstomEmojiFont(bool value);
 
@@ -131,8 +171,8 @@ public:
     int getEmojiFontPointSize() const;
     void setEmojiFontPointSize(int value);
 
-    QString getAutoAcceptDir(const QString& id) const;
-    void setAutoAcceptDir(const QString&id, const QString& dir);
+    QString getAutoAcceptDir(const ToxID& id) const;
+    void setAutoAcceptDir(const ToxID&id, const QString& dir);
 
     QString getGlobalAutoAcceptDir() const;
     void setGlobalAutoAcceptDir(const QString& dir);
@@ -170,18 +210,31 @@ public:
     QByteArray getSplitterState() const;
     void setSplitterState(const QByteArray &value);
 
+    QString getFriendAdress(const QString &publicKey) const;
+    void updateFriendAdress(const QString &newAddr);
+
+    QString getFriendAlias(const ToxID &id) const;
+    void setFriendAlias(const ToxID &id, const QString &alias);
+
+    void removeFriendSettings(const ToxID &id);
+
+    bool getFauxOfflineMessaging() const;
+    void setFauxOfflineMessaging(bool value);
+
 public:
-    QList<QString> friendAddresses;
-    void save();
-    void save(QString path);
+    void save(bool writeFriends = true);
+    void save(QString path, bool writeFriends = true);
     void load();
 
 private:
+    static Settings* settings;
+
     Settings();
     Settings(Settings &settings) = delete;
     Settings& operator=(const Settings&) = delete;
 
     static const QString FILENAME;
+    static const QString OLDFILENAME;
 
     bool loaded;
 
@@ -190,12 +243,17 @@ private:
     int dhtServerId;
     bool dontShowDhtDialog;
 
+    bool fauxOfflineMessaging;
     bool enableIPv6;
     QString translation;
     static bool makeToxPortable;
     bool autostartInTray;
     bool closeToTray;
     bool minimizeToTray;
+    bool lightTrayIcon;
+    bool useEmoticons;
+    bool checkUpdates;
+    bool showInFront;
 
     bool forceTCP;
 
@@ -207,11 +265,13 @@ private:
 
     bool enableLogging;
     bool encryptLogs;
+    bool encryptTox;
 
     int autoAwayTime;
 
     QHash<QString, QByteArray> widgetSettings;
     QHash<QString, QString> autoAccept;
+    bool autoSaveEnabled;    
     QString globalAutoAcceptDir;
 
     // GUI
@@ -226,7 +286,8 @@ private:
     QByteArray windowState;
     QByteArray splitterState;
     QString style;
-    
+    bool showSystemTray;
+
     // ChatView
     int firstColumnHandlePos;
     int secondColumnHandlePosFromRight;
@@ -235,6 +296,23 @@ private:
 
     // Privacy
     bool typingNotification;
+    Db::syncType dbSyncType;
+
+    // Audio
+    QString inDev;
+    QString outDev;
+    bool filterAudio;
+
+    struct friendProp
+    {
+        QString alias;
+        QString addr;
+        QString autoAcceptDir;
+    };
+
+    QHash<QString, friendProp> friendLst;
+
+    int themeColor;
 
 signals:
     //void dataChanged();

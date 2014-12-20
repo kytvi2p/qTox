@@ -16,9 +16,12 @@
 
 #include "smileypack.h"
 #include "settings.h"
+#include "style.h"
 
 #include <QFileInfo>
 #include <QFile>
+#include <QFont>
+#include <QFontInfo>
 #include <QIcon>
 #include <QPixmap>
 #include <QDir>
@@ -65,11 +68,13 @@ QList<QPair<QString, QString> > SmileyPack::listSmileyPacks(const QStringList &p
                 QString relPath = QDir(QCoreApplication::applicationDirPath()).relativeFilePath(absPath);
 
                 if (relPath.leftRef(2) == "..")
-                    smileyPacks << QPair<QString, QString>(packageName, absPath);
-                else
-                    smileyPacks << QPair<QString, QString>(packageName, relPath); // use relative path for subdirectories
+                {
+                    if (!smileyPacks.contains(QPair<QString, QString>(packageName, absPath)))
+                        smileyPacks << QPair<QString, QString>(packageName, absPath);
+                    else if (!smileyPacks.contains(QPair<QString, QString>(packageName, relPath)))
+                        smileyPacks << QPair<QString, QString>(packageName, relPath); // use relative path for subdirectories                            
+                }
             }
-
             dir.cdUp();
         }
     }
@@ -92,7 +97,7 @@ bool SmileyPack::load(const QString& filename)
 
     // open emoticons.xml
     QFile xmlFile(filename);
-    if(!xmlFile.open(QIODevice::ReadOnly))
+    if (!xmlFile.open(QIODevice::ReadOnly))
         return false; // cannot open file
 
     /* parse the cfg file
@@ -133,14 +138,14 @@ bool SmileyPack::load(const QString& filename)
             QPixmap pm;
             pm.loadFromData(getCachedSmiley(emoticon), "PNG");
             
-            if(pm.size().width() > 0) 
+            if (pm.size().width() > 0) 
                 emoticonSet.push_back(emoticon);
             
             stringElement = stringElement.nextSibling().toElement();
             
         }
         
-        if(emoticonSet.size() > 0)
+        if (emoticonSet.size() > 0)
             emoticons.push_back(emoticonSet);
     }
 
@@ -178,7 +183,7 @@ QList<QStringList> SmileyPack::getEmoticons() const
 
 QString SmileyPack::getAsRichText(const QString &key)
 {
-    return "<img src=\"data:image/png;base64," % QString(getCachedSmiley(key).toBase64()) % "\">";
+    return "<img title=\""%key%"\" src=\"data:image/png;base64," % QString(getCachedSmiley(key).toBase64()) % "\">";
 }
 
 QIcon SmileyPack::getAsIcon(const QString &key)
@@ -190,13 +195,16 @@ QIcon SmileyPack::getAsIcon(const QString &key)
 
 void SmileyPack::cacheSmiley(const QString &name)
 {
-    QSize size(16, 16); // TODO: adapt to text size
+    // The -1 is to avoid having the space for descenders under images move the text down
+    // We can't remove it because Qt doesn't support CSS display or vertical-align
+    int fontHeight = QFontInfo(Style::getFont(Style::Big)).pixelSize() - 1;
+    QSize size(fontHeight, fontHeight);
     QString filename = QDir(path).filePath(name);
     QImage img(filename);
 
     if (!img.isNull())
     {
-        QImage scaledImg = img.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QImage scaledImg = img.scaled(size, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
 
         QByteArray scaledImgData;
         QBuffer buffer(&scaledImgData);

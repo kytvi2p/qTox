@@ -11,11 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -27,42 +30,76 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>824</width>
-        <height>489</height>
+        <width>808</width>
+        <height>618</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QGroupBox" name="audioGroup">
          <property name="title">
-          <string>Volume Settings (Stubs)</string>
+          <string>Audio Settings</string>
          </property>
          <layout class="QFormLayout" name="formLayout_2">
-          <item row="4" column="0">
+          <item row="7" column="0">
            <widget class="QLabel" name="microphoneLabel">
             <property name="text">
              <string>Microphone</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="playbackLabel">
             <property name="text">
              <string>Playback</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="2" column="1">
            <widget class="QSlider" name="playbackSlider">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="7" column="1">
            <widget class="QSlider" name="microphoneSlider">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="outDevLabel">
+            <property name="text">
+             <string>Playback device</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="inDevLabel">
+            <property name="text">
+             <string>Capture device</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QComboBox" name="inDevCombobox"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="outDevCombobox"/>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="rescanButton">
+            <property name="text">
+             <string>Rescan audio devices</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QCheckBox" name="filterAudio">
+            <property name="text">
+             <string>Filter audio</string>
             </property>
            </widget>
           </item>
@@ -171,7 +208,14 @@
             </property>
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
-              <widget class="VideoSurface" name="CamVideoSurface" native="true"/>
+              <widget class="VideoSurface" name="CamVideoSurface" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>160</width>
+                 <height>120</height>
+                </size>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>

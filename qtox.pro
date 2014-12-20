@@ -20,7 +20,7 @@
 #    See the COPYING file for more details.
 
 
-QT       += core gui network xml opengl
+QT       += core gui network xml opengl sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET    = qtox
@@ -29,23 +29,41 @@ FORMS    += \
     src/mainwindow.ui \
     src/widget/form/settings/generalsettings.ui \
     src/widget/form/settings/avsettings.ui \
-    src/widget/form/settings/identitysettings.ui
+    src/widget/form/settings/identitysettings.ui \
+    src/widget/form/settings/privacysettings.ui \
+    src/widget/form/loadhistorydialog.ui \
+    src/widget/form/inputpassworddialog.ui \
+    src/widget/form/setpassworddialog.ui \
+    src/widget/form/settings/advancedsettings.ui
+    
 CONFIG   += c++11
 
-TRANSLATIONS = translations/de.ts \
-               translations/fr.ts \
-               translations/it.ts \
-               translations/ru.ts \
-               translations/pirate.ts \
-               translations/pl.ts \
-               translations/fi.ts \
-               translations/mannol.ts \
-               translations/uk.ts
+# Rules for creating/updating {ts|qm}-files
+include(translations/i18n.pri)
+# Build all the qm files now, to make RCC happy
+system($$fromfile(translations/i18n.pri, updateallqm))
 
 RESOURCES += res.qrc
 
-GIT_VERSION = $$system(git rev-parse HEAD)
-DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+GIT_VERSION = $$system(git rev-parse HEAD 2> /dev/null || echo "built without git")
+DEFINES += GIT_VERSION=\"\\\"$$quote($$GIT_VERSION)\\\"\"
+# date works on linux/mac, but it would hangs qmake on windows
+# This hack returns 0 on batch (windows), but executes "date +%s" or return 0 if it fails on bash (linux/mac)
+TIMESTAMP = $$system($1 2>null||echo 0||a;rm null;date +%s||echo 0) # I'm so sorry
+DEFINES += TIMESTAMP=$$TIMESTAMP
+DEFINES += LOG_TO_FILE
+
+contains(DISABLE_PLATFORM_EXT, YES) {
+
+} else {
+    DEFINES += QTOX_PLATFORM_EXT
+}
+
+contains(DISABLE_FILTER_AUDIO, YES) {
+
+} else {
+     DEFINES += QTOX_FILTER_AUDIO
+}
 
 contains(JENKINS,YES) {
 	INCLUDEPATH += ./libs/include/
@@ -55,42 +73,47 @@ contains(JENKINS,YES) {
 
 # Rules for Windows, Mac OSX, and Linux
 win32 {
-    LIBS += -liphlpapi -L$$PWD/libs/lib -ltoxav -ltoxcore -lvpx -lpthread
+    RC_FILE = windows/qtox.rc
+    LIBS += -liphlpapi -L$$PWD/libs/lib -lsodium -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lvpx -lpthread
     LIBS += -L$$PWD/libs/lib -lopencv_core248 -lopencv_highgui248 -lopencv_imgproc248 -lOpenAL32 -lopus
-    LIBS += -lz -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -ljpeg -ltiff -lpng -ljasper -lIlmImf -lHalf -lws2_32
+    LIBS += -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -ljpeg -ltiff -lpng -ljasper -lIlmImf -lHalf -lws2_32 -lz
 } else {
     macx {
-	 ICON = img/icons/qtox.icns
-        LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -lsodium -lvpx -framework OpenAL -lopencv_core -lopencv_highgui
+        BUNDLEID = im.tox.qtox
+        ICON = img/icons/qtox.icns
+        QMAKE_INFO_PLIST = osx/info.plist
+        LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lsodium -lvpx -framework OpenAL -lopencv_core -lopencv_highgui
+        contains(DEFINES, QTOX_PLATFORM_EXT) { LIBS += -framework IOKit -framework CoreFoundation }
+        contains(DEFINES, QTOX_FILTER_AUDIO) { LIBS += -lfilteraudio }
     } else {
         # If we're building a package, static link libtox[core,av] and libsodium, since they are not provided by any package
         contains(STATICPKG, YES) {
             target.path = /usr/bin
             INSTALLS += target
-            LIBS += -L$$PWD/libs/lib/ -lopus -lvpx -lopenal -Wl,-Bstatic -ltoxcore -ltoxav -lsodium -lopencv_highgui -lopencv_imgproc -lopencv_core -lz -Wl,-Bdynamic
+            LIBS += -L$$PWD/libs/lib/ -lopus -lvpx -lopenal -Wl,-Bstatic -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lsodium -lopencv_highgui -lopencv_imgproc -lopencv_core -lz -Wl,-Bdynamic
 	    LIBS += -Wl,-Bstatic -ljpeg -ltiff -lpng -ljasper -lIlmImf -lIlmThread -lIex -ldc1394 -lraw1394 -lHalf -lz -llzma -ljbig
-	    LIBS += -Wl,-Bdynamic -lv4l1 -lv4l2 -lavformat -lavcodec -lavutil -lswscale -lusb-1.0
-
+            LIBS += -Wl,-Bdynamic -lv4l1 -lv4l2 -lavformat -lavcodec -lavutil -lswscale -lusb-1.0
         } else {
-            LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -lvpx -lopenal -lopencv_core -lopencv_highgui -lopencv_imgproc
+            LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lvpx -lsodium -lopenal -lopencv_core -lopencv_highgui -lopencv_imgproc
+        }
+
+        contains(DEFINES, QTOX_PLATFORM_EXT) {
+            LIBS += -lX11 -lXss
+        }
+
+        contains(DEFINES, QTOX_FILTER_AUDIO) {
+            contains(STATICPKG, YES) {
+                LIBS += -Wl,-Bstatic -lfilteraudio
+            } else {
+                LIBS += -lfilteraudio
+            }
         }
 
         contains(JENKINS, YES) {
-            LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxcore.a ./libs/lib/libsodium.a -lopencv_core -lopencv_highgui -lopenal
+            LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxdns.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxcore.a ./libs/lib/libsodium.a ./libs/lib/libfilteraudio.a /usr/lib/libopencv_core.so /usr/lib/libopencv_highgui.so /usr/lib/libopencv_imgproc.so -lopenal -lX11 -lXss -s
         }
     }
 }
-
-
-#### Static linux build
-#LIBS += -Wl,-Bstatic -ltoxcore -ltoxav -lsodium -lvpx -lopus \
-#      -lgstbase-0.10 -lgstreamer-0.10 -lgmodule-2.0 -lgstaudio-0.10 -lxml2 \
-#       -lX11-xcb -lXi -lxcb-render-util -lxcb-glx -lxcb-render -ldbus-1 \
-#    -lxcb -lXau -lXdmcp -lxcb-image -lxcb-icccm -lxcb-sync -lxcb-xfixes -lxcb-shm -lxcb-randr -lxcb-shape \
-#    -lxcb-keysyms -lxcb-xkb -lfontconfig -lfreetype -lXrender -lXext -lX11 \
-#   -lpng -lz -licui18n -licuuc -licudata -lm -lgthread-2.0 \
-#     -pthread -lrt -lGL -lpthread -Wl,-Bdynamic -ldl -lc
-#QMAKE_CXXFLAGS += -Os -flto -static-libstdc++ -static-libgcc
 
 HEADERS  += src/widget/form/addfriendform.h \
     src/widget/form/chatform.h \
@@ -115,7 +138,7 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/friendlist.h \
     src/misc/cdata.h \
     src/misc/cstring.h \
-    src/camera.h \
+    src/video/camera.h \
     src/widget/netcamview.h \
     src/misc/smileypack.h \
     src/widget/emoticonswidget.h \
@@ -137,10 +160,27 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/widget/tool/chatactions/actionaction.h \
     src/widget/tool/chatactions/alertaction.h \
     src/widget/maskablepixmapwidget.h \
-    src/videosource.h \
-    src/cameraworker.h \
+    src/video/videosource.h \
+    src/video/cameraworker.h \
     src/widget/videosurface.h \
-    src/widget/form/tabcompleter.h
+    src/widget/form/loadhistorydialog.h \
+    src/historykeeper.h \
+    src/misc/db/genericddinterface.h \
+    src/misc/db/plaindb.h \
+    src/misc/db/encrypteddb.h \
+    src/widget/form/inputpassworddialog.h \
+    src/widget/form/setpassworddialog.h \
+    src/widget/form/tabcompleter.h \
+    src/video/videoframe.h \
+    src/misc/flowlayout.h \
+    src/ipc.h \
+    src/widget/toxuri.h \
+    src/toxdns.h \
+    src/widget/toxsave.h \
+    src/autoupdate.h \
+    src/misc/serialize.h \
+    src/widget/form/settings/advancedform.h \
+    src/audio.h
 
 SOURCES += \
     src/widget/form/addfriendform.cpp \
@@ -166,7 +206,7 @@ SOURCES += \
     src/misc/settings.cpp \
     src/misc/cdata.cpp \
     src/misc/cstring.cpp \
-    src/camera.cpp \
+    src/video/camera.cpp \
     src/widget/netcamview.cpp \
     src/misc/smileypack.cpp \
     src/widget/emoticonswidget.cpp \
@@ -187,7 +227,36 @@ SOURCES += \
     src/widget/tool/chatactions/actionaction.cpp \
     src/widget/tool/chatactions/alertaction.cpp \
     src/widget/maskablepixmapwidget.cpp \
-    src/cameraworker.cpp \
+    src/video/cameraworker.cpp \
     src/widget/videosurface.cpp \
-    src/netvideosource.cpp \
-    src/widget/form/tabcompleter.cpp
+    src/widget/form/loadhistorydialog.cpp \
+    src/historykeeper.cpp \
+    src/misc/db/genericddinterface.cpp \
+    src/misc/db/plaindb.cpp \
+    src/misc/db/encrypteddb.cpp \
+    src/widget/form/inputpassworddialog.cpp \
+    src/widget/form/setpassworddialog.cpp \
+    src/video/netvideosource.cpp \
+    src/widget/form/tabcompleter.cpp \
+    src/video/videoframe.cpp \
+    src/misc/flowlayout.cpp \
+    src/widget/toxuri.cpp \
+    src/toxdns.cpp \
+    src/ipc.cpp \
+    src/widget/toxsave.cpp \    
+    src/autoupdate.cpp \
+    src/misc/serialize.cpp \
+    src/widget/form/settings/advancedform.cpp \
+    src/audio.cpp
+
+contains(DEFINES, QTOX_FILTER_AUDIO) {
+    HEADERS += src/audiofilterer.h
+    SOURCES += src/audiofilterer.cpp
+}
+
+contains(DEFINES, QTOX_PLATFORM_EXT) {
+    HEADERS += src/platform/timer.h
+    SOURCES += src/platform/timer_osx.cpp \
+               src/platform/timer_win.cpp \
+               src/platform/timer_x11.cpp
+}

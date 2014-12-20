@@ -22,11 +22,10 @@
 
 FileTransferAction::FileTransferAction(FileTransferInstance *widget, const QString &author, const QString &date, const bool &me)
   : ChatAction(me, author, date)
-  , edit(nullptr)
 {
     w = widget;
 
-    connect(w, &FileTransferInstance::stateUpdated, this, &FileTransferAction::updateHtml);
+    connect(w, &FileTransferInstance::stateUpdated, this, &FileTransferAction::updateContent);
 }
 
 FileTransferAction::~FileTransferAction()
@@ -43,6 +42,7 @@ QString FileTransferAction::getMessage()
     return widgetHtml;
 }
 
+/*
 void FileTransferAction::setup(QTextCursor cursor, QTextEdit *textEdit)
 {
     cur = cursor;
@@ -53,7 +53,8 @@ void FileTransferAction::setup(QTextCursor cursor, QTextEdit *textEdit)
 
     edit = textEdit;
 }
-
+*/
+/*
 void FileTransferAction::updateHtml()
 {
     if (cur.isNull() || !edit)
@@ -74,15 +75,15 @@ void FileTransferAction::updateHtml()
 
     // restore old slider value
     edit->verticalScrollBar()->setValue(vSliderVal);
-
-    // Free our ressources if we'll never need to update again
+}
+*/
+bool FileTransferAction::isInteractive()
+{
     if (w->getState() == FileTransferInstance::TransfState::tsCanceled
             || w->getState() == FileTransferInstance::TransfState::tsFinished)
     {
-        name.clear();
-        name.squeeze();
-        date.clear();
-        date.squeeze();
-        cur = QTextCursor();
+        return false;
     }
+
+    return true;
 }

@@ -18,16 +18,16 @@
 
 #include <QFont>
 #include <QMessageBox>
+#include <QErrorMessage>
 #include <tox/tox.h>
 #include "ui_mainwindow.h"
 #include "src/core.h"
+#include "src/misc/cdata.h"
+#include "src/toxdns.h"
+#include "src/misc/settings.h"
 
-#define TOX_ID_LENGTH 2*TOX_FRIEND_ADDRESS_SIZE
-
-AddFriendForm::AddFriendForm() : dns(this)
+AddFriendForm::AddFriendForm()
 {
-    dns.setType(QDnsLookup::TXT);
-
     main = new QWidget(), head = new QWidget();
     QFont bold;
     bold.setBold(true);
@@ -50,7 +50,6 @@ AddFriendForm::AddFriendForm() : dns(this)
     headLayout.addWidget(&headLabel);
 
     connect(&sendButton, SIGNAL(clicked()), this, SLOT(onSendTriggered()));
-    connect(&dns, SIGNAL(finished()), this, SLOT(handleDnsLookup()));
 }
 
 AddFriendForm::~AddFriendForm()
@@ -67,10 +66,10 @@ void AddFriendForm::show(Ui::MainWindow &ui)
     head->show();
 }
 
-bool AddFriendForm::isToxId(const QString &value) const
+QString AddFriendForm::getMessage() const
 {
-    const QRegularExpression hexRegExp("^[A-Fa-f0-9]+$");
-    return value.length() == TOX_ID_LENGTH && value.contains(hexRegExp);
+    const QString msg = message.toPlainText();
+    return !msg.isEmpty() ? msg : message.placeholderText();
 }
 
 void AddFriendForm::showWarning(const QString &message) const
@@ -82,78 +81,38 @@ void AddFriendForm::showWarning(const QString &message) const
     warning.exec();
 }
 
-QString AddFriendForm::getMessage() const
-{
-    const QString msg = message.toPlainText();
-    return !msg.isEmpty() ? msg : message.placeholderText();
-}
-
 void AddFriendForm::onSendTriggered()
 {
     QString id = toxId.text().trimmed();
 
     if (id.isEmpty()) {
         showWarning(tr("Please fill in a valid Tox ID","Tox ID of the friend you're sending a friend request to"));
-    } else if (isToxId(id)) {
+    } else if (ToxID::isToxId(id)) {
         if (id.toUpper() == Core::getInstance()->getSelfId().toString().toUpper())
             showWarning(tr("You can't add yourself as a friend!","When trying to add your own Tox ID as friend"));
         else
             emit friendRequested(id, getMessage());
-        this->toxId.setText("");
-        this->message.setText("");
+        this->toxId.clear();
+        this->message.clear();
     } else {
-        id = id.replace("@", "._tox.");
-        dns.setName(id);
-        dns.lookup();
-    }
-}
+        if (Settings::getInstance().getUseProxy())
+        {
+            QMessageBox::StandardButton btn = QMessageBox::warning(main, "qTox", tr("qTox needs to use the Tox DNS, but can't do it through a proxy.\n\
+Ignore the proxy and connect to the Internet directly?"), QMessageBox::Ok|QMessageBox::No, QMessageBox::No);
+            if (btn != QMessageBox::Ok)
+                return;
+        }
 
-void AddFriendForm::handleDnsLookup()
-{
-    const QString idKeyWord("id=");
+        ToxID toxId = ToxDNS::resolveToxAddress(id, true);
 
-    if (dns.error() == QDnsLookup::NotFoundError) {
-        showWarning(tr("This address does not exist","The DNS gives the Tox ID associated to toxme.se addresses"));
-        return;
-    }
-    else if (dns.error() != QDnsLookup::NoError) {
-        showWarning(tr("Error while looking up DNS","The DNS gives the Tox ID associated to toxme.se addresses"));
-        return;
-    }
+        if (toxId.toString().isEmpty())
+        {
+            showWarning(tr("This Tox ID does not exist","DNS error"));
+            return;
+        }
 
-    const QList<QDnsTextRecord> textRecords = dns.textRecords();
-    if (textRecords.length() != 1) {
-        showWarning(tr("Unexpected number of text records", "Error with the DNS"));
-        return;
+        emit friendRequested(toxId.toString(), getMessage());
+        this->toxId.clear();
+        this->message.clear();
     }
-
-    const QList<QByteArray> textRecordValues = textRecords.first().values();
-    if (textRecordValues.length() != 1) {
-        showWarning(tr("Unexpected number of values in text record", "Error with the DNS"));
-        return;
-    }
-
-    const QString entry(textRecordValues.first());
-    int idx = entry.indexOf(idKeyWord);
-    if (idx < 0) {
-        showWarning(tr("The DNS lookup does not contain any Tox ID", "Error with the DNS"));
-        return;
-    }
-
-    idx += idKeyWord.length();
-    if (entry.length() < idx + static_cast<int>(TOX_ID_LENGTH)) {
-        showWarning(tr("The DNS lookup does not contain a valid Tox ID", "Error with the DNS"));
-        return;
-    }
-
-    const QString friendAdress = entry.mid(idx, TOX_ID_LENGTH);
-    if (!isToxId(friendAdress)) {
-        showWarning(tr("The DNS lookup does not contain a valid Tox ID", "Error with the DNS"));
-        return;
-    }
-
-    // finally we got it
-    emit friendRequested(friendAdress, getMessage());
-    this->toxId.setText("");
-    this->message.setText("");
 }

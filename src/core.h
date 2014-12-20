@@ -19,6 +19,9 @@
 
 #include <cstdint>
 #include <QObject>
+#include <QMutex>
+
+#include <tox/tox.h>
 
 #include "corestructs.h"
 #include "coreav.h"
@@ -30,11 +33,16 @@ class QTimer;
 class QString;
 class CString;
 class VideoSource;
+#ifdef QTOX_FILTER_AUDIO
+class AudioFilterer;
+#endif
 
 class Core : public QObject
 {
     Q_OBJECT
 public:
+    enum PasswordType {ptMain = 0, ptHistory, ptCounter};
+
     explicit Core(Camera* cam, QThread* coreThread, QString initialLoadPath);
     static Core* getInstance(); ///< Returns the global widget's Core instance
     ~Core();
@@ -42,53 +50,62 @@ public:
     static const QString TOX_EXT;
     static const QString CONFIG_FILE_NAME;
     static QString sanitize(QString name);
+    static QList<CString> splitMessage(const QString &message);
 
-    int getGroupNumberPeers(int groupId) const;
-    QString getGroupPeerName(int groupId, int peerId) const;
-    QList<QString> getGroupPeerNames(int groupId) const;
-    QString getFriendAddress(int friendNumber) const;
-    QString getFriendUsername(int friendNumber) const;
-    int joinGroupchat(int32_t friendnumber, const uint8_t* friend_group_public_key,uint16_t length) const;
-    void quitGroupChat(int groupId) const;
-    void dispatchVideoFrame(vpx_image img) const;
+    QString getPeerName(const ToxID& id) const;
+
+    int getGroupNumberPeers(int groupId) const; ///< Return the number of peers in the group chat on success, or -1 on failure
+    QString getGroupPeerName(int groupId, int peerId) const; ///< Get the name of a peer of a group
+    ToxID getGroupPeerToxID(int groupId, int peerId) const; ///< Get the ToxID of a peer of a group
+    QList<QString> getGroupPeerNames(int groupId) const; ///< Get the names of the peers of a group
+    QString getFriendAddress(int friendNumber) const; ///< Get the full address if known, or Tox ID of a friend
+    QString getFriendUsername(int friendNumber) const; ///< Get the username of a friend
+    bool hasFriendWithAddress(const QString &addr) const; ///< Check if we have a friend by address
+    bool hasFriendWithPublicKey(const QString &pubkey) const; ///< Check if we have a friend by public key
+    int joinGroupchat(int32_t friendNumber, uint8_t type, const uint8_t* pubkey,uint16_t length) const; ///< Accept a groupchat invite
+    void quitGroupChat(int groupId) const; ///< Quit a groupchat
 
     void saveConfiguration();
     void saveConfiguration(const QString& path);
     
-    QString getIDString();
+    QString getIDString() const; ///< Get the 12 first characters of our Tox ID
     
-    QString getUsername();
-    QString getStatusMessage();
-    ToxID getSelfId();
+    QString getUsername() const; ///< Returns our username, or an empty string on failure
+    QString getStatusMessage() const; ///< Returns our status message, or an empty string on failure
+    ToxID getSelfId() const; ///< Returns our Tox ID
 
-    VideoSource* getVideoSourceFromCall(int callNumber);
-    void increaseVideoBusyness();
-    void decreaseVideoBusyness();
+    VideoSource* getVideoSourceFromCall(int callNumber); ///< Get a call's video source
 
-    bool anyActiveCalls();
+    bool anyActiveCalls(); ///< true is any calls are currently active (note: a call about to start is not yet active)
+    bool isPasswordSet(PasswordType passtype);
+    bool isReady(); ///< Most of the API shouldn't be used until Core is ready, call start() first
+
+    void resetCallSources(); ///< Forces to regenerate each call's audio sources
 
 public slots:
-    void start();
-    void process();
-    void bootstrapDht();
-    void switchConfiguration(const QString& profile);
+    void start(); ///< Initializes the core, must be called before anything else
+    void process(); ///< Processes toxcore events and ensure we stay connected, called by its own timer
+    void bootstrapDht(); ///< Connects us to the Tox network
+    void switchConfiguration(const QString& profile); ///< Load a different profile and restart the core
 
     void acceptFriendRequest(const QString& userId);
     void requestFriendship(const QString& friendAddress, const QString& message);
     void groupInviteFriend(int friendId, int groupId);
-    void createGroup();
+    void createGroup(uint8_t type = TOX_GROUPCHAT_TYPE_AV);
 
-    void removeFriend(int friendId);
-    void removeGroup(int groupId);
+    void removeFriend(int friendId, bool fake = false);
+    void removeGroup(int groupId, bool fake = false);
 
     void setStatus(Status status);
     void setUsername(const QString& username);
     void setStatusMessage(const QString& message);
     void setAvatar(uint8_t format, const QByteArray& data);
 
-    void sendMessage(int friendId, const QString& message);
+     int sendMessage(int friendId, const QString& message);
     void sendGroupMessage(int groupId, const QString& message);
-    void sendAction(int friendId, const QString& action);
+    void sendGroupAction(int groupId, const QString& message);
+    void changeGroupTitle(int groupId, const QString& title);
+     int sendAction(int friendId, const QString& action);
     void sendTyping(int friendId, bool typing);
 
     void sendFile(int32_t friendId, QString Filename, QString FilePath, long long filesize);
@@ -105,11 +122,29 @@ public slots:
     void cancelCall(int callId, int friendId);
 
     void micMuteToggle(int callId);
+    void volMuteToggle(int callId);
+
+    void setNospam(uint32_t nospam);
+
+    static void joinGroupCall(int groupId); ///< Starts a call in an existing AV groupchat. Call from the GUI thread.
+    static void leaveGroupCall(int groupId); ///< Will not leave the group, just stop the call. Call from the GUI thread.
+    static void disableGroupCallMic(int groupId);
+    static void disableGroupCallVol(int groupId);
+    static void enableGroupCallMic(int groupId);
+    static void enableGroupCallVol(int groupId);
+    static bool isGroupCallMicEnabled(int groupId);
+    static bool isGroupCallVolEnabled(int groupId);
+
+    void setPassword(QString& password, PasswordType passtype, uint8_t* salt = nullptr);
+    void clearPassword(PasswordType passtype);
+    QByteArray encryptData(const QByteArray& data, PasswordType passtype);
+    QByteArray decryptData(const QByteArray& data, PasswordType passtype);
 
 signals:
     void connected();
     void disconnected();
     void blockingClearContacts();
+    void blockingGetPassword(QString info, int passtype, uint8_t* salt = nullptr);
 
     void friendRequestReceived(const QString& userId, const QString& message);
     void friendMessageReceived(int friendId, const QString& message, bool isAction);
@@ -128,9 +163,10 @@ signals:
     void friendLastSeenChanged(int friendId, const QDateTime& dateTime);
 
     void emptyGroupCreated(int groupnumber);
-    void groupInviteReceived(int friendnumber, const uint8_t *group_public_key,uint16_t length);
-    void groupMessageReceived(int groupnumber, const QString& message, const QString& author);
+    void groupInviteReceived(int friendnumber, uint8_t type, QByteArray publicKey);
+    void groupMessageReceived(int groupnumber, int peernumber, const QString& message, bool isAction);
     void groupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
+    void groupTitleChanged(int groupnumber, const QString& author, const QString& title);
 
     void usernameSet(const QString& username);
     void statusMessageSet(const QString& message);
@@ -142,7 +178,9 @@ signals:
     void groupSentResult(int groupId, const QString& message, int result);
     void actionSentResult(int friendId, const QString& action, int success);
 
-    void failedToAddFriend(const QString& userId);
+    void receiptRecieved(int friedId, int receipt);
+
+    void failedToAddFriend(const QString& userId, const QString& errorInfo = QString());
     void failedToRemoveFriend(int friendId);
     void failedToSetUsername(const QString& username);
     void failedToSetStatusMessage(const QString& message);
@@ -176,6 +214,8 @@ signals:
     void avRequestTimeout(int friendId, int callIndex);
     void avPeerTimeout(int friendId, int callIndex);
     void avMediaChange(int friendId, int callIndex, bool videoEnabled);
+    void avCallFailed(int friendId);
+    void avRejected(int friendId, int callIndex);
 
     void videoFrameReceived(vpx_image* frame);
 
@@ -188,9 +228,11 @@ private:
     static void onUserStatusChanged(Tox* tox, int friendId, uint8_t userstatus, void* core);
     static void onConnectionStatusChanged(Tox* tox, int friendId, uint8_t status, void* core);
     static void onAction(Tox* tox, int friendId, const uint8_t* cMessage, uint16_t cMessageSize, void* core);
-    static void onGroupInvite(Tox *tox, int friendnumber, const uint8_t *group_public_key, uint16_t length,void *userdata);
+    static void onGroupAction(Tox* tox, int groupnumber, int peernumber, const uint8_t * action, uint16_t length, void* core);
+    static void onGroupInvite(Tox *tox, int friendnumber, uint8_t type, const uint8_t *data, uint16_t length,void *userdata);
     static void onGroupMessage(Tox *tox, int groupnumber, int friendgroupnumber, const uint8_t * message, uint16_t length, void *userdata);
     static void onGroupNamelistChange(Tox *tox, int groupnumber, int peernumber, uint8_t change, void *userdata);
+    static void onGroupTitleChange(Tox*, int groupnumber, int peernumber, const uint8_t* title, uint8_t len, void* _core);
     static void onFileSendRequestCallback(Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize,
                                           const uint8_t *filename, uint16_t filename_length, void *userdata);
     static void onFileControlCallback(Tox *tox, int32_t friendnumber, uint8_t receive_send, uint8_t filenumber,
@@ -198,6 +240,7 @@ private:
     static void onFileDataCallback(Tox *tox, int32_t friendnumber, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata);
     static void onAvatarInfoCallback(Tox* tox, int32_t friendnumber, uint8_t format, uint8_t *hash, void *userdata);
     static void onAvatarDataCallback(Tox* tox, int32_t friendnumber, uint8_t format, uint8_t *hash, uint8_t *data, uint32_t datalen, void *userdata);
+    static void onReadReceiptCallback(Tox *tox, int32_t friendnumber, uint32_t receipt, void *core);
 
     static void onAvInvite(void* toxav, int32_t call_index, void* core);
     static void onAvStart(void* toxav, int32_t call_index, void* core);
@@ -205,18 +248,18 @@ private:
     static void onAvReject(void* toxav, int32_t call_index, void* core);
     static void onAvEnd(void* toxav, int32_t call_index, void* core);
     static void onAvRinging(void* toxav, int32_t call_index, void* core);
-    static void onAvStarting(void* toxav, int32_t call_index, void* core);
-    static void onAvEnding(void* toxav, int32_t call_index, void* core);
     static void onAvRequestTimeout(void* toxav, int32_t call_index, void* core);
     static void onAvPeerTimeout(void* toxav, int32_t call_index, void* core);
     static void onAvMediaChange(void *toxav, int32_t call_index, void* core);
 
+    static void sendGroupCallAudio(int groupId, ToxAv* toxav);
+
     static void prepareCall(int friendId, int callId, ToxAv *toxav, bool videoEnabled);
     static void cleanupCall(int callId);
-    static void playCallAudio(ToxAv *toxav, int32_t callId, int16_t *data, int samples, void *user_data); // Callback
+    static void playCallAudio(void *toxav, int32_t callId, const int16_t *data, uint16_t samples, void *user_data); // Callback
     static void sendCallAudio(int callId, ToxAv* toxav);
-    static void playAudioBuffer(int callId, int16_t *data, int samples, unsigned channels, int sampleRate);
-    static void playCallVideo(ToxAv* toxav, int32_t callId, vpx_image_t* img, void *user_data);
+    static void playAudioBuffer(ALuint alSource, const int16_t *data, int samples, unsigned channels, int sampleRate);
+    static void playCallVideo(void *toxav, int32_t callId, const vpx_image_t* img, void *user_data);
     void sendCallVideo(int callId);
 
     bool checkConnection();
@@ -230,8 +273,6 @@ private:
 
     void checkLastOnline(int friendId);
 
-    QList<CString> splitMessage(const QString &message);
-
 private slots:
      void onFileTransferFinished(ToxFile file);
 
@@ -244,16 +285,22 @@ private:
     QList<DhtServer> dhtServerList;
     int dhtServerId;
     static QList<ToxFile> fileSendQueue, fileRecvQueue;
-    static ToxCall calls[];
+    static ToxCall calls[TOXAV_MAX_CALLS];
+#ifdef QTOX_FILTER_AUDIO
+    static AudioFilterer * filterer[TOXAV_MAX_CALLS];
+#endif
+    static QHash<int, ToxGroupCall> groupCalls; // Maps group IDs to ToxGroupCalls
+    QMutex fileSendMutex, messageSendMutex;
+    bool ready;
+
+    uint8_t* pwsaltedkeys[PasswordType::ptCounter]; // use the pw's hash as the "pw"
 
     static const int videobufsize;
     static uint8_t* videobuf;
-    static int videoBusyness; // Used to know when to drop frames
 
-    static ALCdevice* alOutDev, *alInDev;
-    static ALCcontext* alContext;
-public:
-    static ALuint alMainSource;
+    static QThread *coreThread;
+
+    friend class Audio; ///< Audio can access our calls directly to reduce latency
 };
 
 #endif // CORE_HPP

@@ -19,6 +19,7 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include <QMessageBox>
 #include "form/addfriendform.h"
 #include "form/settingswidget.h"
 #include "form/settings/identityform.h"
@@ -56,21 +57,30 @@ public:
     QThread* getCoreThread();
     Camera* getCamera();
     static Widget* getInstance();
-    void newMessageAlert();
+    void newMessageAlert(GenericChatroomWidget* chat);
     bool isFriendWidgetCurActiveWidget(Friend* f);
     bool getIsWindowMinimized();
     static QList<QString> searchProfiles();
     void clearContactsList();
-    void setIdleTimer(int minutes);
     void setTranslation();
+    void updateTrayIcon();
+    Q_INVOKABLE QMessageBox::StandardButton showWarningMsgBox(const QString& title, const QString& msg,
+                                              QMessageBox::StandardButtons buttonss = QMessageBox::Ok);
+    Q_INVOKABLE void setEnabledThreadsafe(bool enabled);
+    Q_INVOKABLE bool askMsgboxQuestion(const QString& title, const QString& msg);
     ~Widget();
 
     virtual void closeEvent(QCloseEvent *event);
     virtual void changeEvent(QEvent *event);
-    
+    virtual void resizeEvent(QResizeEvent *event);
+
+    void clearAllReceipts();
+
+    void reloadTheme();
 
 public slots:
     void onSettingsClicked();
+    void setWindowTitle(const QString& title);
 
 signals:
     void friendRequestAccepted(const QString& userId);
@@ -97,17 +107,19 @@ private slots:
     void setUsername(const QString& username);
     void setStatusMessage(const QString &statusMessage);
     void addFriend(int friendId, const QString& userId);
-    void addFriendFailed(const QString& userId);
-    void onFriendStatusChanged(int friendId, Status status); 
+    void addFriendFailed(const QString& userId, const QString& errorInfo = QString());
+    void onFriendStatusChanged(int friendId, Status status);
     void onFriendStatusMessageChanged(int friendId, const QString& message);
     void onFriendUsernameChanged(int friendId, const QString& username);
     void onChatroomWidgetClicked(GenericChatroomWidget *);
     void onFriendMessageReceived(int friendId, const QString& message, bool isAction);
     void onFriendRequestReceived(const QString& userId, const QString& message);
+    void onReceiptRecieved(int friendId, int receipt);
     void onEmptyGroupCreated(int groupId);
-    void onGroupInviteReceived(int32_t friendId, const uint8_t *publicKey,uint16_t length);
-    void onGroupMessageReceived(int groupnumber, const QString& message, const QString& author);
+    void onGroupInviteReceived(int32_t friendId, uint8_t type, QByteArray invite);
+    void onGroupMessageReceived(int groupnumber, int peernumber, const QString& message, bool isAction);
     void onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t change);
+    void onGroupTitleChanged(int groupnumber, const QString& author, const QString& title);
     void removeFriend(int friendId);
     void copyFriendIdToClipboard(int friendId);
     void removeGroup(int groupId);
@@ -118,15 +130,20 @@ private slots:
     void onGroupSendResult(int groupId, const QString& message, int result);
     void playRingtone();
     void onIconClick(QSystemTrayIcon::ActivationReason);
-    void onUserAway();
+    void onUserAwayCheck();
+    void getPassword(QString info, int passtype, uint8_t* salt);
+    void onSetShowSystemTray(bool newValue);
+    void onSplitterMoved(int pos, int index);
 
 private:
     void init();
     void hideMainForms();
     virtual bool event(QEvent * e);
     Group* createGroup(int groupId);
-    void removeFriend(Friend* f);
-    void removeGroup(Group* g);
+    void removeFriend(Friend* f, bool fake = false);
+    void removeGroup(Group* g, bool fake = false);
+    void saveWindowGeometry();
+    void saveSplitterGeometry();
     QString askProfiles();
     QString detectProfile();
     QSystemTrayIcon *icon;
@@ -150,8 +167,11 @@ private:
     MaskablePixmapWidget* profilePicture;
     bool notify(QObject *receiver, QEvent *event);
     bool autoAwayActive = false;
+    Status beforeDisconnect = Status::Offline;
     QTimer* idleTimer;
     QTranslator* translator;
 };
+
+void toxActivateEventHandler(const QByteArray& data);
 
 #endif // WIDGET_H

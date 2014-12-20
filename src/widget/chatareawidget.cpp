@@ -22,11 +22,13 @@
 #include <QAbstractTextDocumentLayout>
 #include <QCoreApplication>
 #include <QDebug>
+#include <algorithm>
 
 ChatAreaWidget::ChatAreaWidget(QWidget *parent)
     : QTextBrowser(parent)
     , tableFrmt(nullptr)
     , nameWidth(75)
+    , empty{true}
 {
     setReadOnly(true);
     viewport()->setCursor(Qt::ArrowCursor);
@@ -49,10 +51,6 @@ ChatAreaWidget::ChatAreaWidget(QWidget *parent)
 
 ChatAreaWidget::~ChatAreaWidget()
 {
-    for (ChatAction* action : messages)
-        delete action;
-    messages.clear();
-
     if (tableFrmt)
         delete tableFrmt;
 }
@@ -89,6 +87,7 @@ void ChatAreaWidget::mouseReleaseEvent(QMouseEvent * event)
             }
         }
     }
+    emit onClick();
 }
 
 void ChatAreaWidget::onAnchorClicked(const QUrl &url)
@@ -96,14 +95,18 @@ void ChatAreaWidget::onAnchorClicked(const QUrl &url)
     QDesktopServices::openUrl(url);
 }
 
-void ChatAreaWidget::insertMessage(ChatAction *msgAction)
+void ChatAreaWidget::insertMessage(ChatActionPtr msgAction, QTextCursor::MoveOperation pos)
 {
     if (msgAction == nullptr)
         return;
 
     checkSlider();
 
-    QTextTable *chatTextTable = getMsgTable();
+    QTextTable *chatTextTable = getMsgTable(pos);
+    msgAction->assignPlace(chatTextTable, this);
+    msgAction->dispaly();
+
+    /*
     QTextCursor cur = chatTextTable->cellAt(0, 2).firstCursorPosition();
     cur.clearSelection();
     cur.setKeepPositionOnInsert(true);
@@ -112,15 +115,18 @@ void ChatAreaWidget::insertMessage(ChatAction *msgAction)
     chatTextTable->cellAt(0, 2).firstCursorPosition().insertHtml(msgAction->getMessage());
     chatTextTable->cellAt(0, 4).firstCursorPosition().setBlockFormat(dateFormat);
     chatTextTable->cellAt(0, 4).firstCursorPosition().insertHtml(msgAction->getDate());
-
     msgAction->setup(cur, this);
+    */
 
-    messages.append(msgAction);
+    if (msgAction->isInteractive())
+        messages.append(msgAction);
+
+    empty = false;
 }
 
-int ChatAreaWidget::getNumberOfMessages()
+bool ChatAreaWidget::isEmpty()
 {
-    return messages.size();
+    return empty;
 }
 
 void ChatAreaWidget::onSliderRangeChanged()
@@ -136,7 +142,7 @@ void ChatAreaWidget::checkSlider()
     lockSliderToBottom = scroll && scroll->value() == scroll->maximum();
 }
 
-QTextTable *ChatAreaWidget::getMsgTable()
+QTextTable *ChatAreaWidget::getMsgTable(QTextCursor::MoveOperation pos)
 {
     if (tableFrmt == nullptr)
     {
@@ -151,7 +157,8 @@ QTextTable *ChatAreaWidget::getMsgTable()
     }
 
     QTextCursor tc = textCursor();
-    tc.movePosition(QTextCursor::End);
+    tc.movePosition(pos);
+
     QTextTable *chatTextTable = tc.insertTable(1, 5, *tableFrmt);
 
     return chatTextTable;
@@ -166,4 +173,36 @@ void ChatAreaWidget::setNameColWidth(int w)
     }
 
     nameWidth = w;
+}
+
+void ChatAreaWidget::clearChatArea()
+{
+    QList<ChatActionPtr> newMsgs;
+    for (ChatActionPtr message : messages)
+    {
+        if (message->isInteractive())
+        {
+            newMsgs.append(message);
+        }
+    }
+    messages.clear();
+    this->clear();
+    empty = true;
+
+    for (ChatActionPtr message : newMsgs)
+    {
+        insertMessage(message);
+    }
+}
+
+void ChatAreaWidget::insertMessagesTop(QList<ChatActionPtr> &list)
+{
+    std::reverse(list.begin(), list.end());
+
+    for (ChatActionPtr it : list)
+    {
+        insertMessage(it, QTextCursor::Start);
+    }
+
+    empty = false;
 }

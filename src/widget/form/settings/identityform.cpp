@@ -21,6 +21,7 @@
 #include "src/misc/settings.h"
 #include "src/widget/croppinglabel.h"
 #include "src/widget/widget.h"
+#include "src/historykeeper.h"
 #include "src/misc/style.h"
 #include <QLabel>
 #include <QLineEdit>
@@ -35,6 +36,7 @@ IdentityForm::IdentityForm() :
 {
     bodyUI = new Ui::IdentitySettings;
     bodyUI->setupUi(this);
+    core = Core::getInstance();
 
     // tox
     toxId = new ClickableTE();
@@ -43,10 +45,14 @@ IdentityForm::IdentityForm() :
     toxId->setFont(Style::getFont(Style::Small));
     
     bodyUI->toxGroup->layout()->addWidget(toxId);
+
+    timer.setInterval(1000);
+    timer.setSingleShot(true);
+    connect(&timer, &QTimer::timeout, this, [=]() {bodyUI->toxIdLabel->setText(bodyUI->toxIdLabel->text().replace(" ✔", ""));});
     
     connect(bodyUI->toxIdLabel, SIGNAL(clicked()), this, SLOT(copyIdClicked()));
     connect(toxId, SIGNAL(clicked()), this, SLOT(copyIdClicked()));
-    connect(Core::getInstance(), &Core::idSet, this, &IdentityForm::setToxId);
+    connect(core, &Core::idSet, this, &IdentityForm::setToxId);
     connect(bodyUI->userName, SIGNAL(editingFinished()), this, SLOT(onUserNameEdited()));
     connect(bodyUI->statusMessage, SIGNAL(editingFinished()), this, SLOT(onStatusMessageEdited()));
     connect(bodyUI->loadButton, &QPushButton::clicked, this, &IdentityForm::onLoadClicked);
@@ -56,12 +62,23 @@ IdentityForm::IdentityForm() :
     connect(bodyUI->importButton, &QPushButton::clicked, this, &IdentityForm::onImportClicked);
     connect(bodyUI->newButton, &QPushButton::clicked, this, &IdentityForm::onNewClicked);
 
-    connect(Core::getInstance(), &Core::usernameSet, this, [=](const QString& val) { bodyUI->userName->setText(val); });
-    connect(Core::getInstance(), &Core::statusMessageSet, this, [=](const QString& val) { bodyUI->statusMessage->setText(val); });
+    connect(core, &Core::avStart, this, &IdentityForm::disableSwitching);
+    connect(core, &Core::avStarting, this, &IdentityForm::disableSwitching);
+    connect(core, &Core::avInvite, this, &IdentityForm::disableSwitching);
+    connect(core, &Core::avRinging, this, &IdentityForm::disableSwitching);
+    connect(core, &Core::avCancel, this, &IdentityForm::enableSwitching);
+    connect(core, &Core::avEnd, this, &IdentityForm::enableSwitching);
+    connect(core, &Core::avEnding, this, &IdentityForm::enableSwitching);
+    connect(core, &Core::avPeerTimeout, this, &IdentityForm::enableSwitching);
+    connect(core, &Core::avRequestTimeout, this, &IdentityForm::enableSwitching);
+
+    connect(core, &Core::usernameSet, this, [=](const QString& val) { bodyUI->userName->setText(val); });
+    connect(core, &Core::statusMessageSet, this, [=](const QString& val) { bodyUI->statusMessage->setText(val); });
 }
 
 IdentityForm::~IdentityForm()
 {
+    delete bodyUI;
 }
 
 void IdentityForm::copyIdClicked()
@@ -71,6 +88,9 @@ void IdentityForm::copyIdClicked()
     txt.replace('\n',"");
     QApplication::clipboard()->setText(txt);
     toxId->setCursorPosition(0);
+
+    bodyUI->toxIdLabel->setText(bodyUI->toxIdLabel->text() + " ✔");
+    timer.start();
 }
 
 void IdentityForm::onUserNameEdited()
@@ -133,6 +153,7 @@ void IdentityForm::onRenameClicked()
         {
             QFile::rename(dir.filePath(cur+Core::TOX_EXT), file);
             bodyUI->profiles->setItemText(bodyUI->profiles->currentIndex(), name);
+            HistoryKeeper::renameHistory(cur, name);
             Settings::getInstance().setCurrentProfile(name);
             break;
         }
@@ -146,7 +167,24 @@ void IdentityForm::onExportClicked()
                     QDir::home().filePath(current), 
                     tr("Tox save file (*.tox)", "save dialog filter"));
     if (!path.isEmpty())
-        QFile::copy(QDir(Settings::getSettingsDirPath()).filePath(current), path);
+    {
+        bool success;
+        if (QFile::exists(path))
+        {
+            // should we popup a warning?
+            // if (!checkContinue(tr("Overwriting a file"), tr("Are you sure you want to overwrite %1?").arg(path)))
+            //     return;
+            success = QFile::remove(path);
+            if (!success)
+            {
+                QMessageBox::warning(this, tr("Failed to remove file"), tr("The file you chose to overwrite could not be removed first."));
+                return;
+            }
+        }
+        success = QFile::copy(QDir(Settings::getSettingsDirPath()).filePath(current), path);
+        if (!success)
+            QMessageBox::warning(this, tr("Failed to copy file"), tr("The file you chose could not be written to."));
+    }
 }
 
 void IdentityForm::onDeleteClicked()
@@ -158,9 +196,16 @@ void IdentityForm::onDeleteClicked()
     else
     {        
         if (checkContinue(tr("Deletion imminent!","deletion confirmation title"),
-                          tr("Are you sure you want to delete this profile?","deletion confirmation text")))
+                          tr("Are you sure you want to delete this profile?\nAssociated friend information and chat logs will be deleted as well.","deletion confirmation text")))
         {
-            QFile::remove(QDir(Settings::getSettingsDirPath()).filePath(bodyUI->profiles->currentText()+Core::TOX_EXT));
+            QString profile = bodyUI->profiles->currentText();
+            QDir dir(Settings::getSettingsDirPath());
+
+            QFile::remove(dir.filePath(profile + Core::TOX_EXT));
+            QFile::remove(dir.filePath(profile + ".ini"));
+            QFile::remove(HistoryKeeper::getHistoryPath(profile, 0));
+            QFile::remove(HistoryKeeper::getHistoryPath(profile, 1));
+
             bodyUI->profiles->removeItem(bodyUI->profiles->currentIndex());
             bodyUI->profiles->setCurrentText(Settings::getInstance().getCurrentProfile());
         }
@@ -169,7 +214,10 @@ void IdentityForm::onDeleteClicked()
 
 void IdentityForm::onImportClicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Import profile", "import dialog title"), QDir::homePath(), tr("Tox save file (*.tox)", "import dialog filter"));
+    QString path = QFileDialog::getOpenFileName(this,
+                                                tr("Import profile", "import dialog title"),
+                                                QDir::homePath(),
+                                                tr("Tox save file (*.tox)", "import dialog filter"));
     if (path.isEmpty())
         return;
 
@@ -178,15 +226,18 @@ void IdentityForm::onImportClicked()
 
     if (info.suffix() != "tox")
     {
-        QMessageBox::warning(this, tr("Ignoring non-Tox file", "popup title"), tr("Warning: you've chosen a file that is not a Tox save file; ignoring.", "popup text"));
+        QMessageBox::warning(this,
+                             tr("Ignoring non-Tox file", "popup title"),
+                             tr("Warning: you've chosen a file that is not a Tox save file; ignoring.", "popup text"));
         return;
     }
 
-    if (info.exists() && !checkContinue(tr("Profile already exists", "import confirm title"),
+    QString profilePath = QDir(Settings::getSettingsDirPath()).filePath(profile + Core::TOX_EXT);
+
+    if (QFileInfo(profilePath).exists() && !checkContinue(tr("Profile already exists", "import confirm title"),
             tr("A profile named \"%1\" already exists. Do you want to erase it?", "import confirm text").arg(profile)))
         return;
 
-    QString profilePath = QDir(Settings::getSettingsDirPath()).filePath(profile + Core::TOX_EXT);
     QFile::copy(path, profilePath);
     bodyUI->profiles->addItem(profile);
 }
@@ -200,4 +251,19 @@ bool IdentityForm::checkContinue(const QString& title, const QString& msg)
 {
     QMessageBox::StandardButton resp = QMessageBox::question(this, title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     return resp == QMessageBox::Yes;
+}
+
+void IdentityForm::disableSwitching()
+{
+    bodyUI->loadButton->setEnabled(false);
+    bodyUI->newButton->setEnabled(false);
+}
+
+void IdentityForm::enableSwitching()
+{
+    if (!core->anyActiveCalls())
+    {
+        bodyUI->loadButton->setEnabled(true);
+        bodyUI->newButton->setEnabled(true);
+    }
 }

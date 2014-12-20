@@ -20,29 +20,56 @@
 #include "src/widget/widget.h"
 #include "src/misc/settings.h"
 #include "src/misc/smileypack.h"
+#include "src/core.h"
+#include "src/misc/style.h"
 #include <QMessageBox>
 #include <QStyleFactory>
+#include <QTime>
+#include <QFileDialog>
+#include <QStandardPaths>
 
-static QStringList locales = {"de", "en", "fr", "it", "mannol", "pirate", "pl", "ru", "fi", "uk"};
-static QStringList langs = {"Deustch", "English", "Français", "Italiano", "mannol", "Pirate", "Polski", "Русский", "Suomi", "Українська"};  
+#include "src/autoupdate.h"
+
+static QStringList locales = {"bg", "de", "en", "es", "fr", "it", "mannol", "pirate", "pl", "ru", "fi", "sv", "uk"};
+static QStringList langs = {"Български", "Deutsch", "English", "Español", "Français", "Italiano", "mannol", "Pirate", "Polski", "Русский", "Suomi", "Svenska", "Українська"};
+
+static QStringList timeFormats = {"hh:mm AP", "hh:mm", "hh:mm:ss AP", "hh:mm:ss"};
 
 GeneralForm::GeneralForm(SettingsWidget *myParent) :
     GenericForm(tr("General"), QPixmap(":/img/settings/general.png"))
 {
-    parent = myParent;    
-    
+    parent = myParent;
+
     bodyUI = new Ui::GeneralSettings;
     bodyUI->setupUi(this);
-    
+
+    bodyUI->checkUpdates->setVisible(AUTOUPDATE_ENABLED);
+    bodyUI->checkUpdates->setChecked(Settings::getInstance().getCheckUpdates());
+    bodyUI->trayBehavior->addStretch();
+
     bodyUI->cbEnableIPv6->setChecked(Settings::getInstance().getEnableIPv6());
     for (int i = 0; i < langs.size(); i++)
         bodyUI->transComboBox->insertItem(i, langs[i]);
     bodyUI->transComboBox->setCurrentIndex(locales.indexOf(Settings::getInstance().getTranslation()));
     bodyUI->cbMakeToxPortable->setChecked(Settings::getInstance().getMakeToxPortable());
+
+    bool showSystemTray = Settings::getInstance().getShowSystemTray();
+   
+    bodyUI->showSystemTray->setChecked(showSystemTray);
     bodyUI->startInTray->setChecked(Settings::getInstance().getAutostartInTray());
+    bodyUI->startInTray->setEnabled(showSystemTray);
     bodyUI->closeToTray->setChecked(Settings::getInstance().getCloseToTray());
+    bodyUI->closeToTray->setEnabled(showSystemTray);
     bodyUI->minimizeToTray->setChecked(Settings::getInstance().getMinimizeToTray());
+    bodyUI->minimizeToTray->setEnabled(showSystemTray);
+    bodyUI->lightTrayIcon->setChecked(Settings::getInstance().getLightTrayIcon());
+    bodyUI->lightTrayIcon->setEnabled(showSystemTray);
     bodyUI->statusChanges->setChecked(Settings::getInstance().getStatusChangeNotificationEnabled());
+    bodyUI->useEmoticons->setChecked(Settings::getInstance().getUseEmoticons());
+    bodyUI->autoacceptFiles->setChecked(Settings::getInstance().getAutoSaveEnabled());
+    bodyUI->autoSaveFilesDir->setText(Settings::getInstance().getGlobalAutoAcceptDir());
+    bodyUI->showInFront->setChecked(Settings::getInstance().getShowInFront());
+    bodyUI->cbFauxOfflineMessaging->setChecked(Settings::getInstance().getFauxOfflineMessaging());
 
     for (auto entry : SmileyPack::listSmileyPacks())
     {
@@ -51,17 +78,34 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->smileyPackBrowser->setCurrentIndex(bodyUI->smileyPackBrowser->findData(Settings::getInstance().getSmileyPack()));
     reloadSmiles();
 
+    bodyUI->styleBrowser->addItem(tr("None"));
     bodyUI->styleBrowser->addItems(QStyleFactory::keys());
-    bodyUI->styleBrowser->addItem("None");
-        
-    if(QStyleFactory::keys().contains(Settings::getInstance().getStyle()))
+
+    if (QStyleFactory::keys().contains(Settings::getInstance().getStyle()))
         bodyUI->styleBrowser->setCurrentText(Settings::getInstance().getStyle());
     else
-        bodyUI->styleBrowser->setCurrentText("None");
-    
+        bodyUI->styleBrowser->setCurrentText(tr("None"));
+
+    for (QString color : Style::themeColorNames)
+        bodyUI->themeColorCBox->addItem(color);
+    bodyUI->themeColorCBox->setCurrentIndex(Settings::getInstance().getThemeColor());
+
+    bodyUI->emoticonSize->setValue(Settings::getInstance().getEmojiFontPointSize());
+
+    QStringList timestamps;
+    timestamps << QString("%1 - %2").arg(timeFormats[0],QTime::currentTime().toString(timeFormats[0]))
+               << QString("%1 - %2").arg(timeFormats[1],QTime::currentTime().toString(timeFormats[1]))
+               << QString("%1 - %2").arg(timeFormats[2],QTime::currentTime().toString(timeFormats[2]))
+               << QString("%1 - %2").arg(timeFormats[3],QTime::currentTime().toString(timeFormats[3]));
+    bodyUI->timestamp->addItems(timestamps);
+
+    bodyUI->timestamp->setCurrentText(QString("%1 - %2").arg(Settings::getInstance().getTimestampFormat(),
+                                                             QTime::currentTime().toString(Settings::getInstance().getTimestampFormat()))
+                                      ); //idiot proof enough?
+
     bodyUI->autoAwaySpinBox->setValue(Settings::getInstance().getAutoAwayTime());
-    
-    bodyUI->cbUDPDisabled->setChecked(Settings::getInstance().getForceTCP());
+
+    bodyUI->cbEnableUDP->setChecked(!Settings::getInstance().getForceTCP());
     bodyUI->proxyAddr->setText(Settings::getInstance().getProxyAddr());
     int port = Settings::getInstance().getProxyPort();
     if (port != -1)
@@ -70,21 +114,41 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->cbUseProxy->setChecked(Settings::getInstance().getUseProxy());
     onUseProxyUpdated();
 
-    connect(bodyUI->cbEnableIPv6, &QCheckBox::stateChanged, this, &GeneralForm::onEnableIPv6Updated);
+    //general
+    connect(bodyUI->checkUpdates, &QCheckBox::stateChanged, this, &GeneralForm::onCheckUpdateChanged);
     connect(bodyUI->transComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onTranslationUpdated()));
     connect(bodyUI->cbMakeToxPortable, &QCheckBox::stateChanged, this, &GeneralForm::onMakeToxPortableUpdated);
+    connect(bodyUI->showSystemTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetShowSystemTray);
     connect(bodyUI->startInTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetAutostartInTray);
     connect(bodyUI->closeToTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetCloseToTray);
-    connect(bodyUI->minimizeToTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetMinimizeToTray);    
+    connect(bodyUI->minimizeToTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetMinimizeToTray);
+    connect(bodyUI->lightTrayIcon, &QCheckBox::stateChanged, this, &GeneralForm::onSetLightTrayIcon);
     connect(bodyUI->statusChanges, &QCheckBox::stateChanged, this, &GeneralForm::onSetStatusChange);
+    connect(bodyUI->autoAwaySpinBox, SIGNAL(editingFinished()), this, SLOT(onAutoAwayChanged()));
+    connect(bodyUI->showInFront, &QCheckBox::stateChanged, this, &GeneralForm::onSetShowInFront);
+    connect(bodyUI->autoacceptFiles, &QCheckBox::stateChanged, this, &GeneralForm::onAutoAcceptFileChange);
+    if (bodyUI->autoacceptFiles->isChecked())
+        connect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()), this, SLOT(onAutoSaveDirChange()));
+    //theme
+    connect(bodyUI->useEmoticons, &QCheckBox::stateChanged, this, &GeneralForm::onUseEmoticonsChange);
     connect(bodyUI->smileyPackBrowser, SIGNAL(currentIndexChanged(int)), this, SLOT(onSmileyBrowserIndexChanged(int)));
-    // new syntax can't handle overloaded signals... (at least not in a pretty way)
-    connect(bodyUI->cbUDPDisabled, &QCheckBox::stateChanged, this, &GeneralForm::onUDPUpdated);
+    connect(bodyUI->styleBrowser, SIGNAL(currentTextChanged(QString)), this, SLOT(onStyleSelected(QString)));
+    connect(bodyUI->themeColorCBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onThemeColorChanged(int)));
+    connect(bodyUI->emoticonSize, SIGNAL(editingFinished()), this, SLOT(onEmoticonSizeChanged()));
+    connect(bodyUI->timestamp, SIGNAL(currentIndexChanged(int)), this, SLOT(onTimestampSelected(int)));
+    //connection
+    connect(bodyUI->cbEnableIPv6, &QCheckBox::stateChanged, this, &GeneralForm::onEnableIPv6Updated);
+    connect(bodyUI->cbEnableUDP, &QCheckBox::stateChanged, this, &GeneralForm::onUDPUpdated);
+    connect(bodyUI->cbUseProxy, &QCheckBox::stateChanged, this, &GeneralForm::onUseProxyUpdated);
     connect(bodyUI->proxyAddr, &QLineEdit::editingFinished, this, &GeneralForm::onProxyAddrEdited);
     connect(bodyUI->proxyPort, SIGNAL(valueChanged(int)), this, SLOT(onProxyPortEdited(int)));
-    connect(bodyUI->cbUseProxy, &QCheckBox::stateChanged, this, &GeneralForm::onUseProxyUpdated);
-    connect(bodyUI->styleBrowser, SIGNAL(currentTextChanged(QString)), this, SLOT(onStyleSelected(QString)));
-    connect(bodyUI->autoAwaySpinBox, SIGNAL(editingFinished()), this, SLOT(onAutoAwayChanged()));
+    connect(bodyUI->reconnectButton, &QPushButton::clicked, this, &GeneralForm::onReconnectClicked);
+    connect(bodyUI->cbFauxOfflineMessaging, &QCheckBox::stateChanged, this, &GeneralForm::onFauxOfflineMessaging);
+
+#ifndef QTOX_PLATFORM_EXT
+    bodyUI->autoAwayLabel->setEnabled(false);   // these don't seem to change the appearance of the widgets,
+    bodyUI->autoAwaySpinBox->setEnabled(false); // though they are unusable
+#endif
 }
 
 GeneralForm::~GeneralForm()
@@ -108,6 +172,12 @@ void GeneralForm::onMakeToxPortableUpdated()
     Settings::getInstance().setMakeToxPortable(bodyUI->cbMakeToxPortable->isChecked());
 }
 
+void GeneralForm::onSetShowSystemTray()
+{
+    Settings::getInstance().setShowSystemTray(bodyUI->showSystemTray->isChecked());
+    emit parent->setShowSystemTray(bodyUI->showSystemTray->isChecked());
+}
+
 void GeneralForm::onSetAutostartInTray()
 {
     Settings::getInstance().setAutostartInTray(bodyUI->startInTray->isChecked());
@@ -118,6 +188,12 @@ void GeneralForm::onSetCloseToTray()
     Settings::getInstance().setCloseToTray(bodyUI->closeToTray->isChecked());
 }
 
+void GeneralForm::onSetLightTrayIcon()
+{
+    Settings::getInstance().setLightTrayIcon(bodyUI->lightTrayIcon->isChecked());
+    Widget::getInstance()->updateTrayIcon();
+}
+
 void GeneralForm::onSetMinimizeToTray()
 {
     Settings::getInstance().setMinimizeToTray(bodyUI->minimizeToTray->isChecked());
@@ -125,16 +201,55 @@ void GeneralForm::onSetMinimizeToTray()
 
 void GeneralForm::onStyleSelected(QString style)
 {
-    Settings::getInstance().setStyle(style);
+    if (bodyUI->styleBrowser->currentIndex() == 0)
+        Settings::getInstance().setStyle("None");
+    else
+        Settings::getInstance().setStyle(style);
+
     this->setStyle(QStyleFactory::create(style));
     parent->setBodyHeadStyle(style);
+}
+
+void GeneralForm::onEmoticonSizeChanged()
+{
+    Settings::getInstance().setEmojiFontPointSize(bodyUI->emoticonSize->value());
+}
+
+void GeneralForm::onTimestampSelected(int index)
+{
+    Settings::getInstance().setTimestampFormat(timeFormats.at(index));
 }
 
 void GeneralForm::onAutoAwayChanged()
 {
     int minutes = bodyUI->autoAwaySpinBox->value();
     Settings::getInstance().setAutoAwayTime(minutes);
-    Widget::getInstance()->setIdleTimer(minutes);
+}
+
+void GeneralForm::onAutoAcceptFileChange()
+{
+    Settings::getInstance().setAutoSaveEnabled(bodyUI->autoacceptFiles->isChecked());
+
+    if (bodyUI->autoacceptFiles->isChecked() == true)
+        connect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()), this, SLOT(onAutoSaveDirChange()));
+    else
+        disconnect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()),this, SLOT(onAutoSaveDirChange()));
+}
+
+void GeneralForm::onAutoSaveDirChange()
+{
+    QString previousDir = Settings::getInstance().getGlobalAutoAcceptDir();
+    QString directory = QFileDialog::getExistingDirectory(0, tr("Choose an auto accept directory","popup title"));
+    if (directory.isEmpty())
+        directory = previousDir;
+
+    Settings::getInstance().setGlobalAutoAcceptDir(directory);
+    bodyUI->autoSaveFilesDir->setText(directory);
+}
+
+void GeneralForm::onUseEmoticonsChange()
+{
+    Settings::getInstance().setUseEmoticons(bodyUI->useEmoticons->isChecked());
 }
 
 void GeneralForm::onSetStatusChange()
@@ -151,7 +266,7 @@ void GeneralForm::onSmileyBrowserIndexChanged(int index)
 
 void GeneralForm::onUDPUpdated()
 {
-    Settings::getInstance().setForceTCP(bodyUI->cbUDPDisabled->isChecked());
+    Settings::getInstance().setForceTCP(!bodyUI->cbEnableUDP->isChecked());
 }
 
 void GeneralForm::onProxyAddrEdited()
@@ -178,25 +293,56 @@ void GeneralForm::onUseProxyUpdated()
     Settings::getInstance().setUseProxy(state);
 }
 
+void GeneralForm::onReconnectClicked()
+{
+    if (Core::getInstance()->anyActiveCalls())
+        QMessageBox::warning(this, tr("Call active", "popup title"),
+           tr("You can't disconnect while a call is active!", "popup text"));
+    else
+        emit Widget::getInstance()->changeProfile(Settings::getInstance().getCurrentProfile());
+}
+
 void GeneralForm::reloadSmiles()
 {
     QList<QStringList> emoticons = SmileyPack::getInstance().getEmoticons();
     QStringList smiles;
     smiles << ":)" << ";)" << ":p" << ":O" << ":["; //just in case...
 
-    for(int i = 0; i < emoticons.size(); i++)  
+    for (int i = 0; i < emoticons.size(); i++)
         smiles.push_front(emoticons.at(i).first());
-        
+
     int pixSize = 30;
     bodyUI->smile1->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[0]).pixmap(pixSize, pixSize));
     bodyUI->smile2->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[1]).pixmap(pixSize, pixSize));
     bodyUI->smile3->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[2]).pixmap(pixSize, pixSize));
     bodyUI->smile4->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[3]).pixmap(pixSize, pixSize));
     bodyUI->smile5->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[4]).pixmap(pixSize, pixSize));
-    
-    bodyUI->smile1->setToolTip(smiles[0]);    
+
+    bodyUI->smile1->setToolTip(smiles[0]);
     bodyUI->smile2->setToolTip(smiles[1]);
     bodyUI->smile3->setToolTip(smiles[2]);
     bodyUI->smile4->setToolTip(smiles[3]);
     bodyUI->smile5->setToolTip(smiles[4]);
+}
+
+void GeneralForm::onCheckUpdateChanged()
+{
+    Settings::getInstance().setCheckUpdates(bodyUI->checkUpdates->isChecked());
+}
+
+void GeneralForm::onSetShowInFront()
+{
+   Settings::getInstance().setShowInFront(bodyUI->showInFront->isChecked());
+}
+
+void GeneralForm::onFauxOfflineMessaging()
+{
+    Settings::getInstance().setFauxOfflineMessaging(bodyUI->cbFauxOfflineMessaging->isChecked());
+}
+
+void GeneralForm::onThemeColorChanged(int)
+{
+    int index = bodyUI->themeColorCBox->currentIndex();
+    Settings::getInstance().setThemeColor(index);
+    Style::setThemeColor(index);
 }
