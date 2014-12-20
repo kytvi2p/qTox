@@ -15,7 +15,7 @@ index 98323e4..fab3f32 100644
      src/widget/form/settings/advancedsettings.ui
      
 -CONFIG   += c++11
-+CONFIG   += c++0x
++CONFIG   += gnu++11
  
  # Rules for creating/updating {ts|qm}-files
  include(translations/i18n.pri)
