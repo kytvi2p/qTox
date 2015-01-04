@@ -49,6 +49,8 @@ QList<ToxFile> Core::fileRecvQueue;
 QHash<int, ToxGroupCall> Core::groupCalls;
 QThread* Core::coreThread{nullptr};
 
+#define MAX_GROUP_MESSAGE_LEN 1024
+
 Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
     tox(nullptr), camera(cam), loadPath(loadPath), ready{false}
 {
@@ -121,7 +123,7 @@ void Core::make_tox()
     // IPv6 needed for LAN discovery, but can crash some weird routers. On by default, can be disabled in options.
     bool enableIPv6 = Settings::getInstance().getEnableIPv6();
     bool forceTCP = Settings::getInstance().getForceTCP();
-    bool useProxy = Settings::getInstance().getUseProxy();
+    ProxyType proxyType = Settings::getInstance().getProxyType();
 
     if (enableIPv6)
         qDebug() << "Core starting with IPv6 enabled";
@@ -133,11 +135,11 @@ void Core::make_tox()
     toxOptions.udp_disabled = forceTCP;
 
     // No proxy by default
-    toxOptions.proxy_enabled = false;
+    toxOptions.proxy_type = TOX_PROXY_NONE;
     toxOptions.proxy_address[0] = 0;
     toxOptions.proxy_port = 0;
 
-    if (useProxy)
+    if (proxyType != ProxyType::ptNone)
     {
         QString proxyAddr = Settings::getInstance().getProxyAddr();
         int proxyPort = Settings::getInstance().getProxyPort();
@@ -149,7 +151,11 @@ void Core::make_tox()
         else if (proxyAddr != "" && proxyPort > 0)
         {
             qDebug() << "Core: using proxy" << proxyAddr << ":" << proxyPort;
-            toxOptions.proxy_enabled = true;
+            // protection against changings in TOX_PROXY_TYPE enum
+            if (proxyType == ProxyType::ptSOCKS5)
+                toxOptions.proxy_type = TOX_PROXY_SOCKS5;
+            else if (proxyType == ProxyType::ptHTTP)
+                toxOptions.proxy_type = TOX_PROXY_HTTP;
             uint16_t sz = CString::fromString(proxyAddr, (unsigned char*)toxOptions.proxy_address);
             toxOptions.proxy_address[sz] = 0;
             toxOptions.proxy_port = proxyPort;
@@ -165,7 +171,7 @@ void Core::make_tox()
             tox = tox_new(&toxOptions);
             if (tox == nullptr)
             {
-                if (toxOptions.proxy_enabled)
+                if (toxOptions.proxy_type != TOX_PROXY_NONE)
                 {
                     //QMessageBox::critical(Widget::getInstance(), tr("Proxy failure", "popup title"), 
                     //tr("toxcore failed to start with your proxy settings. qTox cannot run; please modify your "
@@ -183,7 +189,7 @@ void Core::make_tox()
             else
                 qWarning() << "Core failed to start with IPv6, falling back to IPv4. LAN discovery may not work properly.";
         }
-        else if (toxOptions.proxy_enabled)
+        else if (toxOptions.proxy_type != TOX_PROXY_NONE)
         {
             emit badProxy();
             return;
@@ -779,7 +785,7 @@ void Core::sendTyping(int friendId, bool typing)
 
 void Core::sendGroupMessage(int groupId, const QString& message)
 {
-    QList<CString> cMessages = splitMessage(message);
+    QList<CString> cMessages = splitMessage(message, MAX_GROUP_MESSAGE_LEN);
 
     for (auto &cMsg :cMessages)
     {
@@ -792,7 +798,7 @@ void Core::sendGroupMessage(int groupId, const QString& message)
 
 void Core::sendGroupAction(int groupId, const QString& message)
 {
-    QList<CString> cMessages = splitMessage(message);
+    QList<CString> cMessages = splitMessage(message, MAX_GROUP_MESSAGE_LEN);
 
     for (auto &cMsg :cMessages)
     {
@@ -1741,17 +1747,17 @@ QString Core::getFriendUsername(int friendnumber) const
     return CString::toString(name, tox_get_name_size(tox, friendnumber));
 }
 
-QList<CString> Core::splitMessage(const QString &message)
+QList<CString> Core::splitMessage(const QString &message, int maxLen)
 {
     QList<CString> splittedMsgs;
     QByteArray ba_message(message.toUtf8());
 
-    while (ba_message.size() > TOX_MAX_MESSAGE_LENGTH)
+    while (ba_message.size() > maxLen)
     {
-        int splitPos = ba_message.lastIndexOf(' ', TOX_MAX_MESSAGE_LENGTH - 1);
+        int splitPos = ba_message.lastIndexOf(' ', maxLen - 1);
         if (splitPos <= 0)
         {
-            splitPos = TOX_MAX_MESSAGE_LENGTH;
+            splitPos = maxLen;
             if (ba_message[splitPos] & 0x80)
             {
                 do {
