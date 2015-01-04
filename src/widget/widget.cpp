@@ -96,12 +96,11 @@ void Widget::init()
         statusAway->setIcon(QIcon(":ui/statusButton/dot_idle.png"));
         connect(statusAway, SIGNAL(triggered()), this, SLOT(setStatusAway()));
         statusBusy = new QAction(tr("Busy"), this);
-        connect(statusBusy, SIGNAL(triggered()), this, SLOT(setStatusBusy()));
         statusBusy->setIcon(QIcon(":ui/statusButton/dot_busy.png"));
+        connect(statusBusy, SIGNAL(triggered()), this, SLOT(setStatusBusy()));
         actionQuit = new QAction(tr("&Quit"), this);
         connect(actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
         
-        trayMenu->addAction(new QAction(tr("Change status to:"), this));
         trayMenu->addAction(statusOnline);
         trayMenu->addAction(statusAway);
         trayMenu->addAction(statusBusy);
@@ -243,6 +242,7 @@ void Widget::init()
     connect(core, &Core::avInvite, this, &Widget::playRingtone);
     connect(core, &Core::blockingClearContacts, this, &Widget::clearContactsList, Qt::BlockingQueuedConnection);
     connect(core, &Core::blockingGetPassword, this, &Widget::getPassword, Qt::BlockingQueuedConnection);
+    connect(core, &Core::friendTypingChanged, this, &Widget::onFriendTypingChanged);
 
     connect(core, SIGNAL(messageSentResult(int,QString,int)), this, SLOT(onMessageSendResult(int,QString,int)));
     connect(core, SIGNAL(groupSentResult(int,QString,int)), this, SLOT(onGroupSendResult(int,QString,int)));
@@ -726,7 +726,7 @@ void Widget::onFriendStatusChanged(int friendId, Status status)
     if (!f)
         return;
 
-    contactListWidget->moveWidget(f->getFriendWidget(), status);
+    contactListWidget->moveWidget(f->getFriendWidget(), status, f->getEventFlag());
 
     bool isActualChange = f->getStatus() != status;
 
@@ -1177,6 +1177,14 @@ void Widget::getPassword(QString info, int passtype, uint8_t* salt)
         else
             core->setPassword(pswd, pt, salt);
     }
+}
+
+void Widget::onFriendTypingChanged(int friendId, bool isTyping)
+{
+    Friend* f = FriendList::findFriend(friendId);
+    if (!f)
+        return;
+    f->getChatForm()->setFriendTyping(isTyping);
 }
 
 void Widget::onSetShowSystemTray(bool newValue){
