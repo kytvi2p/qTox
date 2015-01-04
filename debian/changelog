@@ -1,3 +1,16 @@
+qtox (0.0.0+git20150104.r1785-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Ask user to fallback to tox1 if needed
+
+  [ Zetok Zalbavar ]
+  * Some wording improvements
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 04 Jan 2015 21:27:19 +0000
+
 qtox (0.0.0+git20150104.r1782-1~trusty+1) trusty; urgency=medium
 
   * Building for Trusty
