@@ -1,3 +1,14 @@
+qtox (0.0.0+git20150104.r1788-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Filter outgoing audio, not incoming
+  * Fix #909
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 05 Jan 2015 13:17:26 +0000
+
 qtox (0.0.0+git20150104.r1785-1) unstable; urgency=medium
 
   [ Tux3 / Mlkj / !Lev.uXFMLA ]
