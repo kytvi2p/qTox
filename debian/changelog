@@ -1,3 +1,30 @@
+qtox (0.0.0+git20150105.r1795-1) unstable; urgency=medium
+
+  [ zero-one ]
+  * Alphabetizes groupchat user list (fixes #701)
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ apprb ]
+  * more userfriendly history load dialog
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 06 Jan 2015 12:25:43 +0000
+
+qtox (0.0.0+git20150104.r1788-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Filter outgoing audio, not incoming
+  * Fix #909
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 05 Jan 2015 13:17:26 +0000
+
 qtox (0.0.0+git20150104.r1785-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
