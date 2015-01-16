@@ -1,3 +1,53 @@
+qtox (0.0.0+git20150105.r1795-2) unstable; urgency=medium
+
+  [ lumirayz ]
+  * added a compact layout for the friends list
+  * make the code style more consistent
+  * fix more consistency issues
+
+  [ Olexandr Nesterenko ]
+  * Update Ukrainian translation
+
+  [ agilob ]
+  * closes tux3/qtox#988
+
+  [ Bruno Kühnen Meneguello ]
+  * Add Portuguese translation
+
+  [ minj ]
+  * add lt.ts
+  * translate into Lithuanian
+
+  [ Lednerb ]
+  * Fixed translation bug.
+
+  [ Ildar Akhmetgaleev ]
+  * Defining link color in chat area css
+
+  [ derMart ]
+  * fix videosurface flipping buffers
+  * 0x0 resolution removed better camera initializing in av settings
+  * refactoring audio device initialization in av setting to prevent opening
+    devices twice
+
+  [ Lednerb ]
+  * Added German translations
+
+  [ Zetok Zalbavar ]
+  * Small spelling fix
+
+  [ derMart ]
+  * fix incompatibility of MSAA (SampleBuffers) and SingleBuffer mode in
+    VideoSurface
+  * fix missing showEvent in AVForm
+  * fix resetting AVForm resolution combobox index to get change signal always
+    fired during init
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 16 Jan 2015 09:04:29 +0000
+
 qtox (0.0.0+git20150105.r1795-1) unstable; urgency=medium
 
   [ zero-one ]
