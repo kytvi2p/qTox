@@ -30,8 +30,8 @@
 
 #include "src/autoupdate.h"
 
-static QStringList locales = {"bg", "de", "en", "es", "fr", "it", "mannol", "pirate", "pl", "pt", "ru", "fi", "sv", "uk"};
-static QStringList langs = {"Български", "Deutsch", "English", "Español", "Français", "Italiano", "mannol", "Pirate", "Polski", "Português", "Русский", "Suomi", "Svenska", "Українська"};
+static QStringList locales = {"bg", "de", "en", "es", "fr", "it", "lt", "mannol", "pirate", "pl", "pt", "ru", "fi", "sv", "uk"};
+static QStringList langs = {"Български", "Deutsch", "English", "Español", "Français", "Italiano", "Lietuvių", "mannol", "Pirate", "Polski", "Português", "Русский", "Suomi", "Svenska", "Українська"};
 
 static QStringList timeFormats = {"hh:mm AP", "hh:mm", "hh:mm:ss AP", "hh:mm:ss"};
 
@@ -54,7 +54,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->cbMakeToxPortable->setChecked(Settings::getInstance().getMakeToxPortable());
 
     bool showSystemTray = Settings::getInstance().getShowSystemTray();
-   
+
     bodyUI->showSystemTray->setChecked(showSystemTray);
     bodyUI->startInTray->setChecked(Settings::getInstance().getAutostartInTray());
     bodyUI->startInTray->setEnabled(showSystemTray);
@@ -70,6 +70,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->autoSaveFilesDir->setText(Settings::getInstance().getGlobalAutoAcceptDir());
     bodyUI->showInFront->setChecked(Settings::getInstance().getShowInFront());
     bodyUI->cbFauxOfflineMessaging->setChecked(Settings::getInstance().getFauxOfflineMessaging());
+    bodyUI->cbCompactLayout->setChecked(Settings::getInstance().getCompactLayout());
 
     for (auto entry : SmileyPack::listSmileyPacks())
     {
@@ -144,6 +145,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     connect(bodyUI->proxyPort, SIGNAL(valueChanged(int)), this, SLOT(onProxyPortEdited(int)));
     connect(bodyUI->reconnectButton, &QPushButton::clicked, this, &GeneralForm::onReconnectClicked);
     connect(bodyUI->cbFauxOfflineMessaging, &QCheckBox::stateChanged, this, &GeneralForm::onFauxOfflineMessaging);
+    connect(bodyUI->cbCompactLayout, &QCheckBox::stateChanged, this, &GeneralForm::onCompactLayout);
 
 #ifndef QTOX_PLATFORM_EXT
     bodyUI->autoAwayLabel->setEnabled(false);   // these don't seem to change the appearance of the widgets,
@@ -338,6 +340,11 @@ void GeneralForm::onSetShowInFront()
 void GeneralForm::onFauxOfflineMessaging()
 {
     Settings::getInstance().setFauxOfflineMessaging(bodyUI->cbFauxOfflineMessaging->isChecked());
+}
+
+void GeneralForm::onCompactLayout()
+{
+    Settings::getInstance().setCompactLayout(bodyUI->cbCompactLayout->isChecked());
 }
 
 void GeneralForm::onThemeColorChanged(int)

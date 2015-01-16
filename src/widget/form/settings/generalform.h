@@ -56,6 +56,7 @@ private slots:
     void onCheckUpdateChanged();
     void onSetShowInFront();
     void onFauxOfflineMessaging();
+    void onCompactLayout();
     void onThemeColorChanged(int);
 
 private:
