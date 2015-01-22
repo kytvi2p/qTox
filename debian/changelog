@@ -1,3 +1,46 @@
+qtox (0.0.0+git20150121.r1841-1) unstable; urgency=medium
+
+  [ novist ]
+  * Fixed warning in timer_win.cpp
+  * Including only required opencv headers. Workaround for opencv bug where
+    partial builds would lack certain headers but opencv.hpp includes them
+    anyway resulting in a build error.
+  * Added windows/bootstrap.sh which downloads and compiles all qtox
+    dependencies Fixed install_libfilteraudio.sh to work on windows
+    bootstrap.bat now invokes sh bootstrap.sh (for convenience) Updated
+    INSTALL.md to reflect simplified bootstrapping procedure
+  * Updated linked libs for win32:   * Removed libs that were not used   *
+    Reordered few libs to make mingw happy   * Updated version of opencv libs
+    to 249
+
+  [ Zetok Zalbavar ]
+  * Re-word 'Compact layout' → 'Compact contact list'
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix tux3-dev.tox.im links in README
+  * Check that dropped files are readable&non-sequential
+  * Update french translation
+
+  [ saneki ]
+  * Context menu style fix for chat title
+
+  [ Dubslow ]
+  * minor reword (I meant to apply this with the relevant merge commit, but
+    forgot to "git add"... life is hard)
+  * Typing notifications disappear automagically Fixes #984
+  * Fix #967
+  * check -P option for invalid profiles closes #977
+  * correct static lib extension on *nix
+
+  [ Zetok Zalbavar ]
+  * Remove unnecesary word
+  * Update Polish translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 22 Jan 2015 00:37:24 +0000
+
 qtox (0.0.0+git20150115.r1820-1) unstable; urgency=medium
 
   [ lumirayz ]
