@@ -84,7 +84,7 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
     }
 
     // OpenAL init
-    QString outDevDescr = Settings::getInstance().getOutDev();                                     ;
+    QString outDevDescr = Settings::getInstance().getOutDev();
     Audio::openOutput(outDevDescr);
     QString inDevDescr = Settings::getInstance().getInDev();
     Audio::openInput(inDevDescr);
@@ -92,8 +92,18 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
 
 Core::~Core()
 {
+    qDebug() << "Deleting Core";
+
     clearPassword(Core::ptMain);
     clearPassword(Core::ptHistory);
+
+    toxTimer->stop();
+    coreThread->exit(0);
+    while (coreThread->isRunning())
+    {
+        qApp->processEvents();
+        coreThread->wait(500);
+    }
 
     if (tox)
     {
@@ -355,7 +365,7 @@ void Core::bootstrapDht()
     }
     static int j = qrand() % listSize;
 
-    qDebug() << "Core: Bootstraping to the DHT ...";
+    qDebug() << "Core: Bootstrapping to the DHT ...";
 
     int i=0;
     while (i < 2) // i think the more we bootstrap, the more we jitter because the more we overwrite nodes
@@ -363,10 +373,10 @@ void Core::bootstrapDht()
         const Settings::DhtServer& dhtServer = dhtServerList[j % listSize];
         if (tox_bootstrap_from_address(tox, dhtServer.address.toLatin1().data(),
             dhtServer.port, CUserId(dhtServer.userId).data()) == 1)
-            qDebug() << QString("Core: Bootstraping from ")+dhtServer.name+QString(", addr ")+dhtServer.address.toLatin1().data()
+            qDebug() << QString("Core: Bootstrapping from ")+dhtServer.name+QString(", addr ")+dhtServer.address.toLatin1().data()
                         +QString(", port ")+QString().setNum(dhtServer.port);
         else
-            qDebug() << "Core: Error bootstraping from "+dhtServer.name;
+            qDebug() << "Core: Error bootstrapping from "+dhtServer.name;
 
         j++;
         i++;
@@ -1295,6 +1305,9 @@ bool Core::loadConfiguration(QString path)
 
 void Core::saveConfiguration()
 {
+    if (QThread::currentThread() != coreThread)
+        return (void) QMetaObject::invokeMethod(this, "saveConfiguration");
+
     QString dir = Settings::getSettingsDirPath();
     QDir directory(dir);
     if (!directory.exists() && !directory.mkpath(directory.absolutePath())) {
@@ -1321,6 +1334,9 @@ void Core::saveConfiguration()
 
 void Core::saveConfiguration(const QString& path)
 {
+    if (QThread::currentThread() != coreThread)
+        return (void) QMetaObject::invokeMethod(this, "saveConfiguration", Q_ARG(const QString&, path));
+
     if (!tox)
     {
         qWarning() << "Core::saveConfiguration: Tox not started, aborting!";
@@ -1330,27 +1346,28 @@ void Core::saveConfiguration(const QString& path)
     Settings::getInstance().save();
 
     QSaveFile configurationFile(path);
-    if (!configurationFile.open(QIODevice::WriteOnly)) {
+    if (!configurationFile.open(QIODevice::WriteOnly))
+    {
         qCritical() << "File " << path << " cannot be opened";
         return;
     }
 
     qDebug() << "Core: writing tox_save to " << path;
 
-    uint32_t fileSize; bool encrypt = Settings::getInstance().getEncryptTox();
+    uint32_t fileSize;
+    bool encrypt = Settings::getInstance().getEncryptTox();
     if (encrypt)
         fileSize = tox_encrypted_size(tox);
     else
         fileSize = tox_size(tox);
 
-    if (fileSize > 0 && fileSize <= INT32_MAX) {
+    if (fileSize > 0 && fileSize <= INT32_MAX)
+    {
         uint8_t *data = new uint8_t[fileSize];
-
         if (encrypt)
         {
             if (!pwsaltedkeys[ptMain])
             {
-                // probably zero chance event
                 Widget::getInstance()->showWarningMsgBox(tr("NO Password"), tr("Will be saved without encryption!"));
                 tox_save(tox, data);
             }
@@ -1365,7 +1382,9 @@ void Core::saveConfiguration(const QString& path)
             }
         }
         else
+        {
             tox_save(tox, data);
+        }
 
         configurationFile.write(reinterpret_cast<char *>(data), fileSize);
         configurationFile.commit();

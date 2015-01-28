@@ -1,3 +1,192 @@
+qtox (0.0.0+git20150128.r1895-1) unstable; urgency=medium
+
+  [ novist ]
+  * General settings UI cleanup
+  * Separate setting to show window on new message (without focusing window)
+    Setting to always notify on messages in group chats (like normal chats)
+    Check for mentioned name only triggers if name is not in the middle of
+    other word
+
+  [ Lednerb ]
+  * Fixed translation errors.
+  * Added tox1-protocol prompt.
+
+  [ Dubslow ]
+  * Move "Make Tox portable" to advanced settings tab
+  * Fix most of the things suhr mentioned also added colons a buncha places
+    translation->language save files in->save to moved emoticon size after
+    smiley pack Ignoring the excellent point raised by zer0-One for now
+  * Simplify regex
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Use Yes/No, not Ok/No when asking questions
+
+  [ Dubslow ]
+  * In groupchats, check for sanitized name as well Fixes #952
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Save camera video res in settings
+  * Fix some memory leaks and fix #1038
+  * Fix possible crashes on exit, add debug info
+  * Prevent possible deadlock on exit
+  * Fix #681
+  * Fix #1037
+  * Fix #1040
+  * Fix #1039
+  * Pixel-perfect spacing of chat form buttons
+  * Implement new call confirm widget logic
+  * Stylized CallConfirmedWidget, placeholder buttons
+  * Show call confirm under video if appropriate
+  * CallConfirmWidget: don't overflow to the right
+  * CallConfirmWidget: track anchor's position
+  * Add real buttons for CallConfirmWidget
+  * Change some signal connections to new style
+  * Change OS X download link to jenkins
+  * Don't call auto-updates unstable anymore
+  * Create volButtonDisabled.png
+
+  [ agilob ]
+  * closes tux3/qtox#850
+  * undo double polishing in chatform
+  * fixed memory leaks
+  * arrow up to paste previous message
+  * removed unused code
+  * added comment to explain this spaghetti
+  * dont clear msg everytime
+
+  [ Tux3/Mlkj ]
+  * Update outdated autoupdate comments
+
+  [ Dubslow ]
+  * Make greentext pickier > must be the first character (i.e. leading
+    whitespace disables greentext) > must be followed by a "word" character,
+    with an optional space (sorry zetok, but this is much more intuitive) >
+    followed by two+ spaces doesn't count Fixes #945
+
+  [ novist ]
+  * Fixed showing window when clicking tray icon / shortcut and window is
+    minimized Double-clicking tray icon shows window Middle-clicking tray icon
+    hides window
+
+  [ agilob ]
+  * fixing problem with +1 lines in msg edit
+
+  [ Dubslow ]
+  * Make compact contact layout dynamically changeable There was some various
+    minor incidental cleanups as well
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix rounding for non-square CallConfirmWidget
+  * Windows updater: Improve reliability
+  * Auto-update: Better resuming support, lockfree-threading
+
+  [ agilob ]
+  * adding volButtonDisabled to rsc
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Use YYYY-MM-DD date format in logs, fixes #1060
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 28 Jan 2015 12:55:28 +0000
+
+qtox (0.0.0+git20150121.r1841-1) unstable; urgency=medium
+
+  [ novist ]
+  * Fixed warning in timer_win.cpp
+  * Including only required opencv headers. Workaround for opencv bug where
+    partial builds would lack certain headers but opencv.hpp includes them
+    anyway resulting in a build error.
+  * Added windows/bootstrap.sh which downloads and compiles all qtox
+    dependencies Fixed install_libfilteraudio.sh to work on windows
+    bootstrap.bat now invokes sh bootstrap.sh (for convenience) Updated
+    INSTALL.md to reflect simplified bootstrapping procedure
+  * Updated linked libs for win32:   * Removed libs that were not used   *
+    Reordered few libs to make mingw happy   * Updated version of opencv libs
+    to 249
+
+  [ Zetok Zalbavar ]
+  * Re-word 'Compact layout' → 'Compact contact list'
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix tux3-dev.tox.im links in README
+  * Check that dropped files are readable&non-sequential
+  * Update french translation
+
+  [ saneki ]
+  * Context menu style fix for chat title
+
+  [ Dubslow ]
+  * minor reword (I meant to apply this with the relevant merge commit, but
+    forgot to "git add"... life is hard)
+  * Typing notifications disappear automagically Fixes #984
+  * Fix #967
+  * check -P option for invalid profiles closes #977
+  * correct static lib extension on *nix
+
+  [ Zetok Zalbavar ]
+  * Remove unnecesary word
+  * Update Polish translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 22 Jan 2015 00:37:24 +0000
+
+qtox (0.0.0+git20150115.r1820-1) unstable; urgency=medium
+
+  [ lumirayz ]
+  * added a compact layout for the friends list
+  * make the code style more consistent
+  * fix more consistency issues
+
+  [ Olexandr Nesterenko ]
+  * Update Ukrainian translation
+
+  [ agilob ]
+  * closes tux3/qtox#988
+
+  [ Bruno Kühnen Meneguello ]
+  * Add Portuguese translation
+
+  [ minj ]
+  * add lt.ts
+  * translate into Lithuanian
+
+  [ Lednerb ]
+  * Fixed translation bug.
+
+  [ Ildar Akhmetgaleev ]
+  * Defining link color in chat area css
+
+  [ derMart ]
+  * fix videosurface flipping buffers
+  * 0x0 resolution removed better camera initializing in av settings
+  * refactoring audio device initialization in av setting to prevent opening
+    devices twice
+
+  [ Lednerb ]
+  * Added German translations
+
+  [ Zetok Zalbavar ]
+  * Small spelling fix
+
+  [ derMart ]
+  * fix incompatibility of MSAA (SampleBuffers) and SingleBuffer mode in
+    VideoSurface
+  * fix missing showEvent in AVForm
+  * fix resetting AVForm resolution combobox index to get change signal always
+    fired during init
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 16 Jan 2015 09:04:29 +0000
+
 qtox (0.0.0+git20150105.r1795-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
