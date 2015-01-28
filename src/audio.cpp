@@ -64,6 +64,18 @@ Audio& Audio::getInstance()
     return *instance;
 }
 
+Audio::~Audio()
+{
+    qDebug() << "Deleting Audio";
+    audioThread->exit(0);
+    audioThread->wait();
+    if (audioThread->isRunning())
+        audioThread->terminate();
+    delete audioThread;
+    delete audioInLock;
+    delete audioOutLock;
+}
+
 void Audio::suscribeInput()
 {
     if (!alInDev)
