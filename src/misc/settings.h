@@ -115,8 +115,14 @@ public:
     bool getCheckUpdates() const;
     void setCheckUpdates(bool newValue);
 
+    bool getShowWindow() const;
+    void setShowWindow(bool newValue);
+
     bool getShowInFront() const;
     void setShowInFront(bool newValue);
+
+    bool getGroupAlwaysNotify() const;
+    void setGroupAlwaysNotify(bool newValue);
 
     QPixmap getSavedAvatar(const QString& ownerId);
     void saveAvatar(QPixmap& pic, const QString& ownerId);
@@ -132,6 +138,9 @@ public:
 
     bool getFilterAudio() const;
     void setFilterAudio(bool newValue);
+
+    QSize getCamVideoRes() const;
+    void setCamVideoRes(QSize newValue);
 
     // Assume all widgets have unique names
     // Don't use it to save every single thing you want to save, use it
@@ -259,7 +268,9 @@ private:
     bool lightTrayIcon;
     bool useEmoticons;
     bool checkUpdates;
+    bool showWindow;
     bool showInFront;
+    bool groupAlwaysNotify;
 
     bool forceTCP;
 
@@ -308,6 +319,9 @@ private:
     QString inDev;
     QString outDev;
     bool filterAudio;
+
+    // Video
+    QSize camVideoRes;
 
     struct friendProp
     {

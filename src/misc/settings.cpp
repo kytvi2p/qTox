@@ -136,7 +136,9 @@ void Settings::load()
         currentProfile = s.value("currentProfile", "").toString();
         autoAwayTime = s.value("autoAwayTime", 10).toInt();
         checkUpdates = s.value("checkUpdates", false).toBool();
+        showWindow = s.value("showWindow", true).toBool();
         showInFront = s.value("showInFront", false).toBool();
+        groupAlwaysNotify = s.value("groupAlwaysNotify", false).toBool();
         fauxOfflineMessaging = s.value("fauxOfflineMessaging", true).toBool();
         autoSaveEnabled = s.value("autoSaveEnabled", false).toBool();
         globalAutoAcceptDir = s.value("globalAutoAcceptDir",
@@ -200,6 +202,10 @@ void Settings::load()
         inDev = s.value("inDev", "").toString();
         outDev = s.value("outDev", "").toString();
         filterAudio = s.value("filterAudio", false).toBool();
+    s.endGroup();
+
+    s.beginGroup("Video");
+        camVideoRes = s.value("camVideoRes",QSize()).toSize();
     s.endGroup();
 
     // Read the embedded DHT bootsrap nodes list if needed
@@ -290,7 +296,9 @@ void Settings::save(QString path, bool writeFriends)
         s.setValue("currentProfile", currentProfile);
         s.setValue("autoAwayTime", autoAwayTime);
         s.setValue("checkUpdates", checkUpdates);
+        s.setValue("showWindow", showWindow);
         s.setValue("showInFront", showInFront);
+        s.setValue("groupAlwaysNotify", groupAlwaysNotify);
         s.setValue("fauxOfflineMessaging", fauxOfflineMessaging);
         s.setValue("compactLayout", compactLayout);
         s.setValue("autoSaveEnabled", autoSaveEnabled);
@@ -344,6 +352,10 @@ void Settings::save(QString path, bool writeFriends)
         s.setValue("inDev", inDev);
         s.setValue("outDev", outDev);
         s.setValue("filterAudio", filterAudio);
+    s.endGroup();
+
+    s.beginGroup("Video");
+        s.setValue("camVideoRes",camVideoRes);
     s.endGroup();
 
     if (!writeFriends || currentProfile.isEmpty()) // Core::switchConfiguration
@@ -563,7 +575,17 @@ bool Settings::getShowInFront() const
 
 void Settings::setShowInFront(bool newValue)
 {
-   showInFront = newValue;
+    showInFront = newValue;
+}
+
+bool Settings::getGroupAlwaysNotify() const
+{
+    return groupAlwaysNotify;
+}
+
+void Settings::setGroupAlwaysNotify(bool newValue)
+{
+    groupAlwaysNotify = newValue;
 }
 
 QString Settings::getTranslation() const
@@ -856,6 +878,16 @@ void Settings::setCheckUpdates(bool newValue)
     checkUpdates = newValue;
 }
 
+bool Settings::getShowWindow() const
+{
+    return showWindow;
+}
+
+void Settings::setShowWindow(bool newValue)
+{
+    showWindow = newValue;
+}
+
 QByteArray Settings::getSplitterState() const
 {
     return splitterState;
@@ -914,6 +946,16 @@ bool Settings::getFilterAudio() const
 void Settings::setFilterAudio(bool newValue)
 {
     filterAudio = newValue;
+}
+
+QSize Settings::getCamVideoRes() const
+{
+    return camVideoRes;
+}
+
+void Settings::setCamVideoRes(QSize newValue)
+{
+    camVideoRes = newValue;
 }
 
 QString Settings::getFriendAdress(const QString &publicKey) const
