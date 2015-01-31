@@ -66,20 +66,23 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("uri", QObject::tr("Tox URI to parse"));
-    parser.addOption(QCommandLineOption("P", QObject::tr("Starts new instance and loads specified profile."), QObject::tr("profile")));
+    parser.addOption(QCommandLineOption("p", QObject::tr("Starts new instance and loads specified profile."), QObject::tr("profile")));
     parser.process(a);
 
     Settings::getInstance(); // Build our Settings singleton as soon as QApplication is ready, not before
-    if (parser.isSet("P"))
+    if (parser.isSet("p"))
     {
-        QString profile = parser.value("P");
+        QString profile = parser.value("p");
         if (QDir(Settings::getSettingsDirPath()).exists(profile + ".tox"))
         {
             qDebug() << "Setting profile to" << profile;
             Settings::getInstance().setCurrentProfile(profile);
         }
         else
-            qWarning() << "Warning: -P profile" << profile + ".tox" << "doesn't exist";
+        {
+            qWarning() << "Error: -p profile" << profile + ".tox" << "doesn't exist";
+            return EXIT_FAILURE;
+        }
     }
 
     sodium_init(); // For the auto-updater
@@ -165,7 +168,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
-    else if (!ipc.isCurrentOwner() && !parser.isSet("P"))
+    else if (!ipc.isCurrentOwner() && !parser.isSet("p"))
     {
         time_t event = ipc.postEvent("$activate");
         ipc.waitUntilProcessed(event);
