@@ -36,6 +36,7 @@
 #include "src/autoupdate.h"
 #include "src/audio.h"
 #include "src/platform/timer.h"
+#include "systemtrayicon.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
@@ -84,7 +85,7 @@ void Widget::init()
 
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
-        icon = new QSystemTrayIcon(this);
+        icon = new SystemTrayIcon;
         updateTrayIcon();
         trayMenu = new QMenu;
         
@@ -318,6 +319,7 @@ Widget::~Widget()
     core->saveConfiguration();
     AutoUpdater::abortUpdates();
     delete core;
+    icon->hide();
     hideMainForms();
     delete settingsWidget;
     delete addFriendForm;
@@ -608,10 +610,14 @@ void Widget::onIconClick(QSystemTrayIcon::ActivationReason reason)
                 show();
                 activateWindow();
             }
-            else if (isMinimized() || !isActiveWindow())
+            else if (isMinimized())
+            {
                 forceShow();
+            }
             else
+            {
                 hide();
+            }
 
             break;
         }
@@ -620,6 +626,10 @@ void Widget::onIconClick(QSystemTrayIcon::ActivationReason reason)
             break;
         case QSystemTrayIcon::MiddleClick:
             hide();
+            break;
+        case QSystemTrayIcon::Unknown:
+            if (isHidden())
+                forceShow();
             break;
         default:
             break;
