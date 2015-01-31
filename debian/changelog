@@ -1,3 +1,39 @@
+qtox (0.0.0+git20150130.r1911-1) unstable; urgency=medium
+
+  [ Сухарик ]
+  * fix greentext, take 2
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Exit if nonnexistant profile passed to -P
+  * Change -P command line option to -p
+
+  [ Tux3/Mlkj ]
+  * Implement SystemTrayIcon with Qt backend and Unity stub
+  * Fix tr warning in CallConfirmWidget
+
+  [ Dubslow ]
+  * Fix #1064
+
+  [ Tux3/Mlkj ]
+  * Implement SystemTrayIcon Unity backend
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix some SystemTrayIcon issues with Qt backend
+  * Show systray icon by default on linux too
+  * Allow coloring multi-level quotes
+
+  [ kushagra ]
+  * issue 960
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * CppCheck, some video perf improvements
+  * Fix some systray issues on windows
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 31 Jan 2015 00:14:35 +0000
+
 qtox (0.0.0+git20150128.r1895-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
