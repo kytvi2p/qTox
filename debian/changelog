@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150201.r1933-1ubuntu1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 02 Feb 2015 11:35:12 +0000
+
 qtox (0.0.0+git20150201.r1933-1) unstable; urgency=medium
 
   [ Christoffer Sterner ]
@@ -46,12 +52,6 @@ qtox (0.0.0+git20150201.r1918-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 31 Jan 2015 23:53:43 +0000
-
-qtox (0.0.0+git20150130.r1911-1ubuntu1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 31 Jan 2015 01:24:13 +0000
 
 qtox (0.0.0+git20150130.r1911-1) unstable; urgency=medium
 
