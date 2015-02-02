@@ -1,3 +1,52 @@
+qtox (0.0.0+git20150201.r1933-1) unstable; urgency=medium
+
+  [ Christoffer Sterner ]
+  * Added sudo to yum install
+
+  [ Sascha Brendel ]
+  * Updated German translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update for toxcore API break
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Some tweaks for tooltips in settings
+  * Update Polish translation
+
+  [ Christoffer Sterner ]
+  * Add support for playback audio slider setting
+  * Playback audio slider support non-group call
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: Fix x64 install path
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 02 Feb 2015 02:41:47 +0000
+
+qtox (0.0.0+git20150201.r1918-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian traslation: update
+
+  [ Zetok Zalbavar ]
+  * Add tooltips in settings
+
+  [ Christoffer Sterner ]
+  * Fix keypad enter not sending message
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix spurious quitting when dialog closed and in tray
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 31 Jan 2015 23:53:43 +0000
+
 qtox (0.0.0+git20150130.r1911-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
