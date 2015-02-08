@@ -1,3 +1,221 @@
+qtox (0.0.0+git20150207.r2041-1) unstable; urgency=medium
+
+  [ apprb ]
+  * proper encrypted history loading
+  * encrypted history: class constructor: refacroring
+  * Fixes
+
+  [ dubslow ]
+  * move encryption to separate file for sanity
+  * core encryption file is basically complete, I need to verify privacy tab
+  * incremental
+  * Incremental work, starting to take shape
+  * Ah, much cleaner
+  * Added change pw buttons; encryption is very nearly done. @apprb there is
+    one question and one TODO that you should look over in privacyform.cpp, as
+    well as a TODO in historykeeper.cpp Also both the encryption settings box
+    and the pw dialog lineedits should probably be in a QGridLayout... but I
+    don't really want to do that by hand :P
+
+  [ Dubslow ]
+  * Clarification
+  * fix copyright statement, update comment
+  * Fix not setting tox null after cleanup also reordered functions for super
+    extra safety
+
+  [ apprb ]
+  * history: encrypted <-> plain convertion
+  * small code unification
+
+  [ Dubslow ]
+  * finishing touches
+
+  [ apprb ]
+  * plain db encryption
+
+  [ Dubslow ]
+  * just remove clearing password in dtor which is only called on exit solves
+    the bug found by apprb
+  * turns out the password code saving Configuration was useless anyways would
+    have avoided the bug I just "fixed"
+  * warn only once on unecrypted file with encryption set
+  * Fix threading issue with startup pw popup The GUI is slow to update after
+    accepting a password, but a cursory ten minute investigation didn't yield
+    why I inserted a processEvents() call before ready = true; at the end of
+    Core::start, but that didn't help. Define the total time between the
+    password dialog disappearing and the UI updating with your own status is
+    T: Then my debug statement indicated that this processEvents call happened
+    around 1/3T, raising two questions: 1) What the hell is happening between
+    0 and 1/3 T? Decryption doesn't take that long... Note that bad passwords
+    are immediately rejected with a new dialog, so I highly doubt it's the
+    decryption cpu time 2) The remaining 2/3rds: processEvents has been called
+    after the avatar and username signals, yet they don't update in the UI
+    till time T when everything updates after bootstrapping...
+  * remove files that I shouldn't have added in the first place
+  * tweak to popup questions
+  * fix change profiles button
+  * Move privacy tab settings to per-profile settings file This may lose the
+    current settings in the tab, but currently only keep history is enabled
+    anyways
+  * word wrap the privacy tab string
+
+  [ apprb ]
+  * password strength meter
+
+  [ Dubslow ]
+  * refactor/fix switching profile with separate settings
+  * minor tweaks
+  * check for non-existent file
+  * more file open checking
+  * when loading, try using main password for history
+  * fix clearing duplicate passwords fixes dubslow/qTox#2
+  * fix loading an encrypted chat log failing
+  * fix bug with "use other password" It's more trouble than it's worth to
+    shallow copy; changed to deep copy with STL
+  * Improve dialogs around unencrypting history, per zetok's suggestions
+  * Ignore empty history files on start This fixes an esoteric issue of
+    enabling chat log encryption and then restarting before adding any
+    messages
+  * Slightly more useful initial password dialogs
+  * Fix profile settings issue from command line, default unencrypt history is Cancel
+  * Fix segfault, minor cleanup
+  * Fix bug with initial password dialogs accepting empty passwords
+  * Confirm decrypt data, various ui/txt tweaks
+  * oops, fortunately this wasn't a bug yet...
+  * Fix the segfault fix
+  * Fix two minor bugs
+  * Fix threading issue while widget's killing itself
+  * fix button typo, closes dubslow/qTox#7
+  * write settings *after* changing them... closes dubslow/qTox#3
+  * Hacky fix to cancelling a switch to an encrypted profile closing It's
+    either this or some fairly major refactoring, which is preferable, but
+    I've got another even bigger refactoring in mind, and fixing this will be
+    rolled into that. Closes dubslow/qTox#4
+  * Potential fix for history issues, both dubslow/qTox#5 and dubslow/qTox#6
+  * Fix SPE
+
+  [ novist ]
+  * Use svg for taskbar/tray icons
+
+  [ Dubslow ]
+  * When enabling history encryption, check for and use previously-ignored
+    encrypted history Should close dubslow/qTox#5 and close dubslow/qTox#6
+    Note that the GUI isn't updated with the ignored history, that's a TODO
+  * Fix the previous todo
+  * Code cleanup
+  * Reword opening password dialog per srkunze's suggestion
+
+  [ novist ]
+  * Tray icon notification of new messages
+
+  [ Dubslow ]
+  * chat logs -> chat history, miscellaneous rewordings
+  * More descriptive dialog text
+  * Add svg to dependencies
+  * Implement hack to make closing the history dialog not disable history Also
+    word wrap the extra long text
+  * Tweak re-enabling old history popups
+
+  [ Zetok Zalbavar ]
+  * Add Qt svg module to dependencies in INSTALL.md
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Try to prevent nullptr dereference of icon
+  * Check icon for nullity in Widget
+  * Initial android support
+
+  [ tux3/mlkj ]
+  * Initial Android support
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sascha Brendel ]
+  * Added German translation for new Encryption-Dialogs and -forms
+
+  [ tux3/mlkj ]
+  * Use GUI instead of Widget for common GUI tasks
+
+  [ Sascha Brendel ]
+  * Added svg-Support
+
+  [ novist ]
+  * Fixed busy and invisible taskbar icons Updated other status icons Removed
+    duplicate status icons from ui/statusButton
+
+  [ Sascha Brendel ]
+  * removed whitespace
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cleanup before returning from main
+
+  [ Sascha Brendel ]
+  * Added pacman qt5-svg support.
+  * Added yum qt5-qtsvg support.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Assert that Widget isn't used on Android
+
+  [ Zetok Zalbavar ]
+  * Change warning message to less confusing one
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #1099
+  * Fix typo in regexp
+
+  [ Dubslow ]
+  * Cleanup 331baa74474b27e18671d4a38a4847cf17e2e179
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix screenshot in README.md
+
+  [ Dubslow ]
+  * Fix newlines in German translation
+
+  [ Zetok Zalbavar ]
+  * [README.md] Add link pointing to ways of contributing
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * First draft of the Android GUI
+
+  [ Sascha Brendel ]
+  * Added German translation for new Encryption-Dialogs and -forms
+  * Added svg-Support
+
+  [ novist ]
+  * Fixed busy and invisible taskbar icons Updated other status icons Removed
+    duplicate status icons from ui/statusButton
+
+  [ Sascha Brendel ]
+  * removed whitespace
+  * Added pacman qt5-svg support.
+  * Added yum qt5-qtsvg support.
+
+  [ Zetok Zalbavar ]
+  * Change warning message to less confusing one
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix screenshot in README.md
+
+  [ Dubslow ]
+  * Fix newlines in German translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add input method hints to some fields
+
+  [ apprb ]
+  * Offline messaging refactoring: Separated class for this purpose + more
+    reliable resenging
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Disable systray icon on KDE 5
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+  * Add build-dep on libqt5svg5-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 08 Feb 2015 03:23:14 +0000
+
 qtox (0.0.0+git20150201.r1933-1) unstable; urgency=medium
 
   [ Christoffer Sterner ]
