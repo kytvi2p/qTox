@@ -1,3 +1,41 @@
+qtox (0.0.0+git20150211.r2060-1) unstable; urgency=medium
+
+  [ Joseph Anania III ]
+  * Added Twitter emoji SVGs with copyright notice and my emoticons.xml file
+    this brings color emoji support to qtox
+  * Updated res.qrc file to add TwitterEmojiSVG emoticon files minor fixup to
+    emoticons.xml
+  * added emoticons.xml to res.qrc for the TwitterEmojiSVG theme
+  * Set Emoticon Widget input to 8x8 instead of 5x3 for larger emoticon sets
+  * Set TwitteEmojiSVG as the default emoticon theme
+
+  [ Zetok Zalbavar ]
+  * Add libqt5svg5-dev to Debian dependencies
+
+  [ apprb ]
+  * fix #513
+
+  [ Joseph Anania III ]
+  * Split smileys to seperate qrc file and added it to qtox.pro
+
+  [ Dubslow ]
+  * Fix smileys.qrc, remove duplicates
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Dubslow ]
+  * Fix #1129
+  * Fix #1131
+
+  [ Dubslow ]
+  * Minor translation things in the ui files
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Feb 2015 01:07:54 +0000
+
 qtox (0.0.0+git20150207.r2041-1) unstable; urgency=medium
 
   [ apprb ]
