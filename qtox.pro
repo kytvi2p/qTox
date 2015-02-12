@@ -43,7 +43,8 @@ include(translations/i18n.pri)
 # Build all the qm files now, to make RCC happy
 system($$fromfile(translations/i18n.pri, updateallqm))
 
-RESOURCES += res.qrc
+RESOURCES += res.qrc \
+    smileys/smileys.qrc
 
 GIT_VERSION = $$system(git rev-parse HEAD 2> /dev/null || echo "built without git")
 DEFINES += GIT_VERSION=\"\\\"$$quote($$GIT_VERSION)\\\"\"
@@ -320,4 +321,9 @@ contains(DEFINES, QTOX_PLATFORM_EXT) {
     SOURCES += src/platform/timer_osx.cpp \
                src/platform/timer_win.cpp \
                src/platform/timer_x11.cpp
+
+    HEADERS += src/platform/autorun.h
+    SOURCES += src/platform/autorun_win.cpp \
+               src/platform/autorun_xdg.cpp \
+               src/platform/autorun_osx.cpp
 }
