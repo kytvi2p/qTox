@@ -1,3 +1,253 @@
+qtox (0.0.0+git20150214.r2278-1) unstable; urgency=medium
+
+  [ krepa098 ]
+  * initial commit
+  * progress
+  * progress
+  * progress
+  * bye bye base64 emoticons
+  * (c)
+  * artwork
+  * progress
+  * filetransferwidget: first steps
+  * hooked up filetransferwidget
+  * more work on filetransferwidget
+  * ui tweaks
+  * removed ChatLine vAlignCol
+  * don't depend on valid cursur
+  * revisited selection
+  * changed color of selGraphItem
+  * margins, update selection rect during resize
+  * filetransferwidget: added open (browse?) button, fixed layout
+  * chatline: fixed bbox height calculation
+  * filetransferwidget.ui: reverted margins. chatlinecontentproxy: calculate
+    firstLineVOffset
+  * cleanup
+  * Text: use ascent rather than height
+  * adjusted Image, Spinner, ChatLineContentProxy vOffset
+  * renamed firstLineVOffset to getAscent
+  * Text: selection use fuzzy hit
+  * Text: detect anchors
+  * filling the gaps
+  * Text: toHtmlChars
+  * innerStyle, groupchats
+  * filetransferwidget layout changes
+  * fix selection
+  * chatlinecontentproxy: scaling behaviour
+  * filetransferwidget: use CroppingLabel
+  * chatlog: save chat log
+  * chatline: set row and col number
+  * chatlog: Don't accept drops
+  * styled chatlog, cleanup
+  * respect time format
+  * disabled group joined/left messages
+  * don't use DesignMetrics
+  * don't set cache mode
+
+  [ apprb ]
+  * honouring aliases in the loaded history
+
+  [ krepa098 ]
+  * fixup merge
+  * fixed anchors
+  * quoting support, toHtmlChars, fixes
+  * fixed history
+  * refactoring, fixes
+  * fix no visible line case
+  * check "use emoticons"
+  * cleanup
+  * ChatLine: cell spacing
+  * use resolveToxID
+  * fixed eliding (ie. invisible nicknames)
+  * cleanup
+  * filetransferwidget: fixed pause button, ETA, font size, resource usage
+  * ChatLine/ChatMessage: use shared_ptr
+  * cleanup
+  * Moved the context menu to GenericChatForm
+  * ChatLog: Autoscroll while selecting
+  * refactoring
+  * ChatLog: insertChatlineAtBottom, refactoring
+  * history fixes
+  * cleanup
+  * changed output of ChatLog::toPlainText
+  * history: require markAsSent
+  * ChatLog::insertChatlineOnTop: overload taking a list
+  * hopefully less noticeably partial updates
+  * history: fixed regression
+  * refactoring
+  * change previousId on action
+  * fixed first message not getting displayed properly
+  * cache innerStyle as it gets used frequently
+  * renamed deltaRepos to deltaY
+  * FileTransferWidget: limit browse to pics and archives
+  * qrc: added missing browse_path.png
+  * cleanup
+  * error symbol
+  * speed up ChatLine::moveBy
+  * [test] use std::vector rather than QVector
+  * plain svg
+  * [test] use BspTreeIndex (might be slower?)
+  * optimized ChatLog::getContentFromPos
+  * Revert "[test] use BspTreeIndex (might be slower?)"
+  * faster scrolling, more cheating
+  * moved history loading to FriendWidget::setAsActiveChatroom()
+  * towards better scrolling
+  * cleanup
+  * Text: copy image keys
+  * cleanup
+  * moved typing notifications to ChatLog
+  * tweaks, colorize the blue * in /me
+  * FileTransferWidget: fixed autoaccept
+  * cleanup
+  * tweaked FileTransferWidget min size
+  * FileTransferWidget: use baseName instead of completeBaseName + tweaked autoAccept
+  * cleanup
+  * cleanup
+  * fixed chatlog not scrolling to bottom after resize
+  * Don't stick to bottom if the user scrolls while the worker is still running
+  * comments
+  * More pleasant multi-line selection, refactoring
+  * refactoring
+  * tweaked ChatLog::getSelectedText
+  * FileTransferWidget::acceptTransfer: Regression - check whether the path is NOT writable
+  * refactoring, reverted ChatLog::getVisibleRect
+  * refactoring
+  * don't forget to reposition the typingNotification on insertChatline*
+  * createChatInfoMessage: increase icon size from 16 to 20 px
+  * FileTransferWidget: calculate mean
+  * "%user is typing..." -> "%user ..."
+  * update typing notification on resize
+  * extended spinner class
+  * ChatMessage::createTypingNotification, resized images to 18x18, new
+    (spinning) notification icon
+  * updated error/info.png
+
+  [ Dubslow ]
+  * minor code cleanup
+
+  [ krepa098 ]
+  * fixed potential null deref. & memory leak
+  * nice!
+  * cleanup
+  * Text: Do not rely on QTextCursor for selection
+  * removed selectAll()
+  * double-click selection
+  * Text: extractSanitizedText, hookup double-click selection
+  * NotificationIcon
+  * renamed get/setRowIndex to get/setRow
+  * cleanup
+  * fix divide by zero
+  * show 2 decimals starting from MiB
+  * typo
+  * cleanup
+  * ChatLog: busy-screen during resize
+  * Added Timestamp class, moved output generation while saving to
+    GenericChatForm and changed the generated layout
+  * ChatMessage::createChatInfoMessage: use toHtmlChars
+  * use html <center> instead of ColumnFormat::Center
+  * [HiDPI] ChatLog: replaced all .png by .svg, FTW custom paintEvent This
+    does not enable HiDPI support!
+  * cleanup previous commit
+  * specify background brush
+  * reposition busy notification *after* resize
+  * fix regression: chatlog didn't scroll to bottom on startup
+  * ChatLog::selectAll, refactoring of actions (issue #808)
+  * make use of EmojiFontPointSize (fix #1026)
+  * fix showEvent calling centerOn
+  * FileTransferWidget: visual tweaks
+  * Moved status messages back to the left
+  * use QSize instead of QSizeF, cleanup
+  * set ChatLine::isVisible to true
+  * Speed-up rendering
+  * ChatLineContent: removed boundingSceneRect()
+  * renamed ChatLine::boundingSceneRect to ChatLine::sceneBoundingRect
+  * comparators should be public
+  * change ChatLine::isVisible to false, rename Text::isVisible to
+    Text::keepInMemory
+  * tweaks
+  * fix a render artifact
+  * revert to "[user] is typing"
+  * optimizations and tweaks
+  * fixup! Merge branch 'master' into chatlog_v3_1
+  * tweaked ChatLog::getSelectedText
+  * selection rect: change color on focus-in/out, action cleanup
+  * change color for precise selection on focus-in/out
+  * fixup! Merge branch 'master' into chatlog_v3_1
+  * use QPainter::setClipRect
+  * ChatLog: don't start the resize worker if the width doesn't change
+  * set the correct wrap mode
+  * fix crash on exit
+  * add svg to CONFIG (link against the svg module)
+  * fix bbox calculation
+  * cleanup
+  * FTW: circular buttons [feedback wanted]
+  * FTW: color animation
+  * FTW: don't display "Location not writable" if path is empty
+  * Spinner: lowered rotational speed
+  * faster, synchronized spinners
+  * cleanup
+  * Spinner: fade in
+  * cleanup
+  * FTW: Replaced QPropertyAnimation by QVariantAnimation
+  * FTW: Use KeepAspectRatioByExpanding
+  * FTW: Don't fire an animation if start- and endcolor are the same
+  * FTW: Slightly increased height
+  * fix actions not triggering reliably + ctrl+insert shortcut on linux
+  * do not change clipboard content if selected text is null
+  * Merge branch 'master' into chatlog_v3_1
+  * Text: documentLayout()->update()
+  * add timestamp to copied text (issue #4)
+  * clear previous id on action (issue #7)
+  * Fix ownership problem (issue #8)
+  * add copy to selection buffer (middle mouse-button issue #6)
+  * copy: handle pending messages
+  * tweaked layout calculation
+  * ownership (again)
+  * refactoring
+  * revised issue #6
+  * fix issue #10
+  * copy/paste changed format (issue #11)
+  * Text anchors: use PointingHandCursor
+
+  [ TheLastProject ]
+  * Add Dutch translation
+
+  [ krepa098 ]
+  * fix crash in Text::hoverMoveEvent
+  * reverse history entries as they are no longer reversed in
+    ChatLog::insertChatlineOnTop
+  * do not trigger repaint if invisible
+
+  [ Bruno Kühnen Meneguello ]
+  * Updated portuguese translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+  * Add qtopengl as dependency in INSTALL.md
+
+  [ Dubslow ]
+  * Refactor OfflineMsgEngine, fix potential segfault (@apprb take note
+    please)
+  * Minor cleanup
+
+  [ krepa098 ]
+  * mockup (WIP)
+  * Revert "FTW: circular buttons [feedback wanted]"
+  * finished work on FTW
+  * FTW: 1px spacing instead of 2px
+  * display "unconfirmed" on new file transfer requests
+
+  [ Dubslow ]
+  * Fix #1158
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Feb 2015 23:46:46 +0000
+
 qtox (0.0.0+git20150211.r2060-1) unstable; urgency=medium
 
   [ Joseph Anania III ]
