@@ -23,19 +23,16 @@
 #include <QTimer>
 
 const int OfflineMsgEngine::offlineTimeout = 2000;
-QSet<OfflineMsgEngine*> OfflineMsgEngine::engines;
 QMutex OfflineMsgEngine::globalMutex;
 
 OfflineMsgEngine::OfflineMsgEngine(Friend *frnd) :
     mutex(QMutex::Recursive),
     f(frnd)
 {
-    engines.insert(this);
 }
 
 OfflineMsgEngine::~OfflineMsgEngine()
 {
-    engines.remove(this);
 }
 
 void OfflineMsgEngine::dischargeReceipt(int receipt)
@@ -50,15 +47,14 @@ void OfflineMsgEngine::dischargeReceipt(int receipt)
         if (msgIt != undeliveredMsgs.end())
         {
             HistoryKeeper::getInstance()->markAsSent(mID);
-            msgIt.value().msg->markAsSent();
-            msgIt.value().msg->featureUpdate();
+            msgIt.value().msg->markAsSent(QDateTime::currentDateTime());
             undeliveredMsgs.erase(msgIt);
         }
         receipts.erase(it);
     }
 }
 
-void OfflineMsgEngine::registerReceipt(int receipt, int messageID, MessageActionPtr msg, const QDateTime &timestamp)
+void OfflineMsgEngine::registerReceipt(int receipt, int messageID, ChatMessage::Ptr msg, const QDateTime &timestamp)
 {
     QMutexLocker ml(&mutex);
 
@@ -89,7 +85,7 @@ void OfflineMsgEngine::deliverOfflineMsgs()
             registerReceipt(iter.value().receipt, iter.key(), iter.value().msg, iter.value().timestamp);
             continue;
         }
-        QString messageText = iter.value().msg->getRawMessage();
+        QString messageText = iter.value().msg->toString();
         int rec;
         if (iter.value().msg->isAction())
             rec = Core::getInstance()->sendAction(f->getFriendID(), messageText);
@@ -105,17 +101,4 @@ void OfflineMsgEngine::removeAllReciepts()
 
     receipts.clear();
     undeliveredMsgs.clear();
-}
-
-void OfflineMsgEngine::processAllMsgs()
-{
-    if (globalMutex.tryLock())
-    {
-        for (auto &it : engines)
-        {
-            it->deliverOfflineMsgs();
-        }
-
-        globalMutex.unlock();
-    }
 }

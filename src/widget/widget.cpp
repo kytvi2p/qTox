@@ -225,7 +225,7 @@ void Widget::init()
     connect(addFriendForm, SIGNAL(friendRequested(QString, QString)), this, SIGNAL(friendRequested(QString, QString)));
     connect(timer, &QTimer::timeout, this, &Widget::onUserAwayCheck);
     connect(timer, &QTimer::timeout, this, &Widget::onEventIconTick);
-    connect(offlineMsgTimer, &QTimer::timeout, &OfflineMsgEngine::processAllMsgs);
+    connect(offlineMsgTimer, &QTimer::timeout, this, &Widget::processOfflineMsgs);
 
     addFriendForm->show(*ui);
 
@@ -595,9 +595,6 @@ void Widget::addFriend(int friendId, const QString &userId)
     QLayout* layout = contactListWidget->getFriendLayout(Status::Offline);
     layout->addWidget(newfriend->getFriendWidget());
 
-    if (Settings::getInstance().getEnableLogging())
-        newfriend->getChatForm()->loadHistory(QDateTime::currentDateTime().addDays(-7), true);
-
     Core* core = Nexus::getCore();
     connect(settingsWidget, &SettingsWidget::compactToggled, newfriend->getFriendWidget(), &GenericChatroomWidget::onCompactChanged);
     connect(newfriend->getFriendWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*)));
@@ -684,7 +681,7 @@ void Widget::onFriendStatusChanged(int friendId, Status status)
         }
         if (isActualChange)
             f->getChatForm()->addSystemInfoMessage(tr("%1 is now %2", "e.g. \"Dubslow is now online\"").arg(f->getDisplayedName()).arg(fStatus),
-                                          "white", QDateTime::currentDateTime());
+                                                   ChatMessage::INFO, QDateTime::currentDateTime());
     }
 
     if (isActualChange && status != Status::Offline)
@@ -912,9 +909,10 @@ void Widget::onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t Cha
     {
         if (name.isEmpty())
             name = tr("<Unknown>", "Placeholder when we don't know someone's name in a group chat");
+
         // g->addPeer(peernumber,name);
         g->regeneratePeerList();
-        //g->chatForm->addSystemInfoMessage(tr("%1 has joined the chat").arg(name), "green");
+        // g->getChatForm()->addSystemInfoMessage(tr("%1 has joined the chat").arg(name), "white", QDateTime::currentDateTime());
         // we can't display these messages until irungentoo fixes peernumbers
         // https://github.com/irungentoo/toxcore/issues/1128
     }
@@ -922,7 +920,7 @@ void Widget::onGroupNamelistChanged(int groupnumber, int peernumber, uint8_t Cha
     {
         // g->removePeer(peernumber);
         g->regeneratePeerList();
-        //g->chatForm->addSystemInfoMessage(tr("%1 has left the chat").arg(name), "silver");
+        // g->getChatForm()->addSystemInfoMessage(tr("%1 has left the chat").arg(name), "white", QDateTime::currentDateTime());
     }
     else if (change == TOX_CHAT_CHANGE_PEER_NAME) // core overwrites old name before telling us it changed...
         g->updatePeer(peernumber,Nexus::getCore()->getGroupPeerName(groupnumber, peernumber));
@@ -936,7 +934,7 @@ void Widget::onGroupTitleChanged(int groupnumber, const QString& author, const Q
 
     g->setName(title);
     if (!author.isEmpty())
-        g->getChatForm()->addSystemInfoMessage(tr("%1 has set the title to %2").arg(author, title), "silver", QDateTime::currentDateTime());
+        g->getChatForm()->addSystemInfoMessage(tr("%1 has set the title to %2").arg(author, title), ChatMessage::INFO, QDateTime::currentDateTime());
 }
 
 void Widget::removeGroup(Group* g, bool fake)
@@ -1092,7 +1090,7 @@ void Widget::onGroupSendResult(int groupId, const QString& message, int result)
         return;
 
     if (result == -1)
-        g->getChatForm()->addSystemInfoMessage(tr("Message failed to send"), "red", QDateTime::currentDateTime());
+        g->getChatForm()->addSystemInfoMessage(tr("Message failed to send"), ChatMessage::INFO, QDateTime::currentDateTime());
 }
 
 void Widget::onFriendTypingChanged(int friendId, bool isTyping)
@@ -1123,6 +1121,20 @@ void Widget::onSplitterMoved(int pos, int index)
     Q_UNUSED(pos);
     Q_UNUSED(index);
     saveSplitterGeometry();
+}
+
+void Widget::processOfflineMsgs()
+{
+    if (OfflineMsgEngine::globalMutex.tryLock())
+    {
+        QList<Friend*> frnds = FriendList::getAllFriends();
+        for (Friend *f : frnds)
+        {
+            f->getChatForm()->getOfflineMsgEngine()->deliverOfflineMsgs();
+        }
+
+        OfflineMsgEngine::globalMutex.unlock();
+    }
 }
 
 void Widget::clearAllReceipts()
