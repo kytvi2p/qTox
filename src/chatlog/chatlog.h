@@ -19,7 +19,7 @@
 
 #include <QGraphicsView>
 #include <QDateTime>
-#include <QMarginsF>
+#include <QMargins>
 
 #include "chatline.h"
 #include "chatmessage.h"
@@ -29,7 +29,7 @@ class QGraphicsRectItem;
 class QMouseEvent;
 class QTimer;
 class ChatLineContent;
-class ToxFile;
+struct ToxFile;
 
 class ChatLog : public QGraphicsView
 {
@@ -49,6 +49,7 @@ public:
     void setTypingNotificationVisible(bool visible);
     void scrollToLine(ChatLine::Ptr line);
     void selectAll();
+    void forceRelayout();
 
     QString getSelectedText() const;
 
@@ -138,7 +139,7 @@ private:
     ChatLine::Ptr workerAnchorLine;
 
     // layout
-    QMarginsF margins = QMarginsF(10.0,10.0,10.0,10.0);
+    QMargins margins = QMargins(10,10,10,10);
     qreal lineSpacing = 5.0f;
 
 };
