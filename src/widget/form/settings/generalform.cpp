@@ -30,8 +30,8 @@
 
 #include "src/autoupdate.h"
 
-static QStringList locales = {"bg", "de", "en", "es", "fr", "it", "lt", "mannol", "pirate", "pl", "pt", "ru", "fi", "sv", "uk"};
-static QStringList langs = {"Български", "Deutsch", "English", "Español", "Français", "Italiano", "Lietuvių", "mannol", "Pirate", "Polski", "Português", "Русский", "Suomi", "Svenska", "Українська"};
+static QStringList locales = {"bg", "de", "en", "es", "fr", "it", "lt", "mannol", "nl", "pirate", "pl", "pt", "ru", "fi", "sv", "uk"};
+static QStringList langs = {"Български", "Deutsch", "English", "Español", "Français", "Italiano", "Lietuvių", "mannol", "Nederlands", "Pirate", "Polski", "Português", "Русский", "Suomi", "Svenska", "Українська"};
 
 static QStringList timeFormats = {"hh:mm AP", "hh:mm", "hh:mm:ss AP", "hh:mm:ss"};
 
@@ -50,6 +50,10 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     for (int i = 0; i < langs.size(); i++)
         bodyUI->transComboBox->insertItem(i, langs[i]);
     bodyUI->transComboBox->setCurrentIndex(locales.indexOf(Settings::getInstance().getTranslation()));
+    bodyUI->cbAutorun->setChecked(Settings::getInstance().getAutorun());
+#if defined(__APPLE__) && defined(__MACH__)
+    bodyUI->cbAutorun->setEnabled(false);
+#endif
 
     bool showSystemTray = Settings::getInstance().getShowSystemTray();
 
@@ -118,6 +122,7 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     //general
     connect(bodyUI->checkUpdates, &QCheckBox::stateChanged, this, &GeneralForm::onCheckUpdateChanged);
     connect(bodyUI->transComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onTranslationUpdated()));
+    connect(bodyUI->cbAutorun, &QCheckBox::stateChanged, this, &GeneralForm::onAutorunUpdated);
     connect(bodyUI->showSystemTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetShowSystemTray);
     connect(bodyUI->startInTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetAutostartInTray);
     connect(bodyUI->closeToTray, &QCheckBox::stateChanged, this, &GeneralForm::onSetCloseToTray);
@@ -168,6 +173,11 @@ void GeneralForm::onTranslationUpdated()
 {
     Settings::getInstance().setTranslation(locales[bodyUI->transComboBox->currentIndex()]);
     Widget::getInstance()->setTranslation();
+}
+
+void GeneralForm::onAutorunUpdated()
+{
+    Settings::getInstance().setAutorun(bodyUI->cbAutorun->isChecked());
 }
 
 void GeneralForm::onSetShowSystemTray()
@@ -309,14 +319,14 @@ void GeneralForm::reloadSmiles()
     for (int i = 0; i < emoticons.size(); i++)
         smiles.push_front(emoticons.at(i).first());
 
-    int pixSize = 30;
-    bodyUI->smile1->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[0]).pixmap(pixSize, pixSize));
-    bodyUI->smile2->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[1]).pixmap(pixSize, pixSize));
-    bodyUI->smile3->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[2]).pixmap(pixSize, pixSize));
-    bodyUI->smile4->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[3]).pixmap(pixSize, pixSize));
-    bodyUI->smile5->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[4]).pixmap(pixSize, pixSize));
-
-    bodyUI->smile1->setToolTip(smiles[0]);
+    const QSize size(18,18);
+    bodyUI->smile1->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[0]).pixmap(size));
+    bodyUI->smile2->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[1]).pixmap(size));
+    bodyUI->smile3->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[2]).pixmap(size));
+    bodyUI->smile4->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[3]).pixmap(size));
+    bodyUI->smile5->setPixmap(SmileyPack::getInstance().getAsIcon(smiles[4]).pixmap(size));
+    
+    bodyUI->smile1->setToolTip(smiles[0]);    
     bodyUI->smile2->setToolTip(smiles[1]);
     bodyUI->smile3->setToolTip(smiles[2]);
     bodyUI->smile4->setToolTip(smiles[3]);
@@ -359,4 +369,5 @@ void GeneralForm::onThemeColorChanged(int)
     int index = bodyUI->themeColorCBox->currentIndex();
     Settings::getInstance().setThemeColor(index);
     Style::setThemeColor(index);
+    Style::applyTheme();
 }

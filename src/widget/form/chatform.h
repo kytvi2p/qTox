@@ -32,6 +32,7 @@ class QPixmap;
 class CallConfirmWidget;
 class QHideEvent;
 class QMoveEvent;
+class OfflineMsgEngine;
 
 class ChatForm : public GenericChatForm
 {
@@ -44,6 +45,7 @@ public:
 
     void dischargeReceipt(int receipt);
     void setFriendTyping(bool isTyping);
+    OfflineMsgEngine* getOfflineMsgEngine();
 
     virtual void show(Ui::MainWindow &ui);
 
@@ -60,8 +62,6 @@ signals:
     void aliasChanged(const QString& alias);
 
 public slots:
-    void deliverOfflineMsgs();
-    void clearReciepts();
     void startFileSend(ToxFile file);
     void onFileRecvRequest(ToxFile file);
     void onAvInvite(int FriendId, int CallId, bool video);
@@ -91,7 +91,6 @@ private slots:
     void onHangupCallTriggered();
     void onCancelCallTriggered();
     void onRejectCallTriggered();
-    void onFileTansBtnClicked(QString widgetName, QString buttonName);
     void onFileSendFailed(int FriendId, const QString &fname);
     void onLoadHistory();
     void onUpdateTime();
@@ -101,8 +100,8 @@ protected:
     // drag & drop
     void dragEnterEvent(QDragEnterEvent* ev);
     void dropEvent(QDropEvent* ev);
+    void registerReceipt(int receipt, int messageID, ChatMessage::Ptr msg);
     virtual void hideEvent(QHideEvent* event);
-    void registerReceipt(int receipt, int messageID, MessageActionPtr msg);
 
 private:
     Friend* f;
@@ -114,16 +113,15 @@ private:
     QTimer typingTimer;    
     QTimer *disableCallButtonsTimer;
     QElapsedTimer timeElapsed;
-    QLabel *isTypingLabel;
+    OfflineMsgEngine *offlineEngine;
 
     QHash<uint, FileTransferInstance*> ftransWidgets;
     void startCounter();
     void stopCounter();
     QString secondsToDHMS(quint32 duration);
-    QHash<int, int> receipts;
-    QMap<int, MessageActionPtr> undeliveredMsgs;
     CallConfirmWidget *callConfirm;
     void enableCallButtons();    
+    bool isTyping;
 };
 
 #endif // CHATFORM_H

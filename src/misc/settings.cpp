@@ -18,6 +18,11 @@
 #include "smileypack.h"
 #include "src/corestructs.h"
 #include "src/misc/db/plaindb.h"
+#include "src/core.h"
+#include "src/widget/gui.h"
+#ifdef QTOX_PLATFORM_EXT
+#include "src/platform/autorun.h"
+#endif
 
 #include <QFont>
 #include <QApplication>
@@ -57,6 +62,77 @@ void Settings::resetInstance()
         settings = nullptr;
     }
 }
+
+void Settings::switchProfile(const QString& profile)
+{
+    setCurrentProfile(profile);
+    save(false);
+    resetInstance();
+}
+
+QString Settings::detectProfile()
+{
+    QDir dir(getSettingsDirPath());
+    QString path, profile = getCurrentProfile();
+    path = dir.filePath(profile + Core::TOX_EXT);
+    QFile file(path);
+    if (profile.isEmpty() || !file.exists())
+    {
+        setCurrentProfile("");
+#if 1 // deprecation attempt
+        // if the last profile doesn't exist, fall back to old "data"
+        path = dir.filePath(Core::CONFIG_FILE_NAME);
+        QFile file(path);
+        if (file.exists())
+            return path;
+        else if (QFile(path = dir.filePath("tox_save")).exists()) // also import tox_save if no data
+            return path;
+        else
+#endif
+        {
+            profile = askProfiles();
+            if (profile.isEmpty())
+                return "";
+            else
+            {
+                switchProfile(profile);
+                return dir.filePath(profile + Core::TOX_EXT);
+            }
+        }
+    }
+    else
+        return path;
+}
+
+QList<QString> Settings::searchProfiles()
+{
+    QList<QString> out;
+    QDir dir(getSettingsDirPath());
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+    dir.setNameFilters(QStringList("*.tox"));
+    for (QFileInfo file : dir.entryInfoList())
+        out += file.completeBaseName();
+    return out;
+}
+
+QString Settings::askProfiles()
+{   // TODO: allow user to create new Tox ID, even if a profile already exists
+    QList<QString> profiles = searchProfiles();
+    if (profiles.empty()) return "";
+    bool ok;
+    QString profile = GUI::itemInputDialog(nullptr,
+                                            tr("Choose a profile"),
+                                            tr("Please choose which identity to use"),
+                                            profiles,
+                                            0, // which slot to start on
+                                            false, // if the user can enter their own input
+                                            &ok);
+    if (!ok) // user cancelled
+        return "";
+    else
+        return profile;
+}
+
 
 void Settings::load()
 {
@@ -156,10 +232,10 @@ void Settings::load()
 
     s.beginGroup("GUI");
         enableSmoothAnimation = s.value("smoothAnimation", true).toBool();
-        smileyPack = s.value("smileyPack", ":/smileys/cylgom/emoticons.xml").toString();
+        smileyPack = s.value("smileyPack", ":/smileys/TwitterEmojiSVG/emoticons.xml").toString();
         customEmojiFont = s.value("customEmojiFont", true).toBool();
         emojiFontFamily = s.value("emojiFontFamily", "DejaVu Sans").toString();
-        emojiFontPointSize = s.value("emojiFontPointSize", 12).toInt();
+        emojiFontPointSize = s.value("emojiFontPointSize", 16).toInt();
         firstColumnHandlePos = s.value("firstColumnHandlePos", 50).toInt();
         secondColumnHandlePosFromRight = s.value("secondColumnHandlePosFromRight", 50).toInt();
         timestampFormat = s.value("timestampFormat", "hh:mm").toString();
@@ -184,13 +260,6 @@ void Settings::load()
         windowGeometry = s.value("windowGeometry", QByteArray()).toByteArray();
         windowState = s.value("windowState", QByteArray()).toByteArray();
         splitterState = s.value("splitterState", QByteArray()).toByteArray();
-    s.endGroup();
-
-    s.beginGroup("Privacy");
-        typingNotification = s.value("typingNotification", true).toBool();
-        enableLogging = s.value("enableLogging", false).toBool();
-        encryptLogs = s.value("encryptLogs", false).toBool();
-        encryptTox = s.value("encryptTox", false).toBool();
     s.endGroup();
 
     s.beginGroup("Audio");
@@ -225,38 +294,45 @@ void Settings::load()
 
     loaded = true;
 
-    if (currentProfile.isEmpty()) // new profile in Core::switchConfiguration
-        return;
+    if (!currentProfile.isEmpty()) // new profile in Core::switchConfiguration
+    {
+        // load from a profile specific friend data list if possible
+        QString tmp = dir.filePath(currentProfile + ".ini");
+        if (QFile(tmp).exists()) // otherwise, filePath remains the global file
+            filePath = tmp;
 
-    // load from a profile specific friend data list if possible
-    QString tmp = dir.filePath(currentProfile + ".ini");
-    if (QFile(tmp).exists())
-        filePath = tmp;
+        QSettings ps(filePath, QSettings::IniFormat);
+        friendLst.clear();
+        ps.beginGroup("Friends");
+            int size = ps.beginReadArray("Friend");
+            for (int i = 0; i < size; i ++)
+            {
+                ps.setArrayIndex(i);
+                friendProp fp;
+                fp.addr = ps.value("addr").toString();
+                fp.alias = ps.value("alias").toString();
+                fp.autoAcceptDir = ps.value("autoAcceptDir").toString();
+                friendLst[ToxID::fromString(fp.addr).publicKey] = fp;
+            }
+            ps.endArray();
+        ps.endGroup();
 
-    QSettings fs(filePath, QSettings::IniFormat);
-    friendLst.clear();
-    fs.beginGroup("Friends");
-        int size = fs.beginReadArray("Friend");
-        for (int i = 0; i < size; i ++)
-        {
-            fs.setArrayIndex(i);
-            friendProp fp;
-            fp.addr = fs.value("addr").toString();
-            fp.alias = fs.value("alias").toString();
-            fp.autoAcceptDir = fs.value("autoAcceptDir").toString();
-            friendLst[ToxID::fromString(fp.addr).publicKey] = fp;
-        }
-        fs.endArray();
-    fs.endGroup();
+        ps.beginGroup("Privacy");
+            typingNotification = ps.value("typingNotification", false).toBool();
+            enableLogging = ps.value("enableLogging", false).toBool();
+            encryptLogs = ps.value("encryptLogs", false).toBool();
+            encryptTox = ps.value("encryptTox", false).toBool();
+        ps.endGroup();
+    }
 }
 
-void Settings::save(bool writeFriends)
+void Settings::save(bool writePersonal)
 {
     QString filePath = QDir(getSettingsDirPath()).filePath(FILENAME);
-    save(filePath, writeFriends);
+    save(filePath, writePersonal);
 }
 
-void Settings::save(QString path, bool writeFriends)
+void Settings::save(QString path, bool writePersonal)
 {
     qDebug() << "Settings: Saving in "<<path;
 
@@ -336,13 +412,6 @@ void Settings::save(QString path, bool writeFriends)
         s.setValue("splitterState", splitterState);
     s.endGroup();
 
-    s.beginGroup("Privacy");
-        s.setValue("typingNotification", typingNotification);
-        s.setValue("enableLogging", enableLogging);
-        s.setValue("encryptLogs", encryptLogs);
-        s.setValue("encryptTox", encryptTox);
-    s.endGroup();
-
     s.beginGroup("Audio");
         s.setValue("inDev", inDev);
         s.setValue("outDev", outDev);
@@ -353,23 +422,30 @@ void Settings::save(QString path, bool writeFriends)
         s.setValue("camVideoRes",camVideoRes);
     s.endGroup();
 
-    if (!writeFriends || currentProfile.isEmpty()) // Core::switchConfiguration
-        return;
+    if (writePersonal && !currentProfile.isEmpty()) // Core::switchConfiguration
+    {
+        QSettings ps(QFileInfo(path).dir().filePath(currentProfile + ".ini"), QSettings::IniFormat);
+        ps.beginGroup("Friends");
+            ps.beginWriteArray("Friend", friendLst.size());
+            int index = 0;
+            for (auto& frnd : friendLst)
+            {
+                ps.setArrayIndex(index);
+                ps.setValue("addr", frnd.addr);
+                ps.setValue("alias", frnd.alias);
+                ps.setValue("autoAcceptDir", frnd.autoAcceptDir);
+                index++;
+            }
+            ps.endArray();
+        ps.endGroup();
 
-    QSettings fs(QFileInfo(path).dir().filePath(currentProfile + ".ini"), QSettings::IniFormat);
-    fs.beginGroup("Friends");
-        fs.beginWriteArray("Friend", friendLst.size());
-        int index = 0;
-        for (auto& frnd : friendLst)
-        {
-            fs.setArrayIndex(index);
-            fs.setValue("addr", frnd.addr);
-            fs.setValue("alias", frnd.alias);
-            fs.setValue("autoAcceptDir", frnd.autoAcceptDir);
-            index++;
-        }
-        fs.endArray();
-    fs.endGroup();
+        ps.beginGroup("Privacy");
+            ps.setValue("typingNotification", typingNotification);
+            ps.setValue("enableLogging", enableLogging);
+            ps.setValue("encryptLogs", encryptLogs);
+            ps.setValue("encryptTox", encryptTox);
+        ps.endGroup();
+    }
 }
 
 QString Settings::getSettingsDirPath()
@@ -470,6 +546,22 @@ void Settings::setMakeToxPortable(bool newValue)
     save(FILENAME); // Commit to the portable file that we don't want to use it
     if (!newValue) // Update the new file right now if not already done
         save();
+}
+
+bool Settings::getAutorun() const
+{
+#ifdef QTOX_PLATFORM_EXT
+    return Platform::getAutorun();
+#else
+    return false;
+#endif
+}
+
+void Settings::setAutorun(bool newValue)
+{
+#ifdef QTOX_PLATFORM_EXT
+    Platform::setAutorun(newValue);
+#endif
 }
 
 bool Settings::getAutostartInTray() const

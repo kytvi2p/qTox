@@ -1,3 +1,538 @@
+qtox (0.0.0+git20150215.r2290-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * Make Dutch selectable translation
+
+  [ krepa098 ]
+  * replaced QMarginsF by QMargins
+  * Text: color property
+  * refactoring & dark-theme awareness
+  * redo layout on Settings::emojiFontChanged
+
+  [ Dubslow ]
+  * Remove QMarginsF, reduce to Qt 5.2
+
+  [ krepa098 ]
+  * FTW: Always show the checkmark after a successful transfer
+  * fix issue #14
+
+  [ Dubslow ]
+  * Fix compile error
+  * Fix clang warnings It complained about row being used uninitialized,
+    though it was a spurious warning
+  * Fix #1154
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 15 Feb 2015 22:17:13 +0000
+
+qtox (0.0.0+git20150214.r2278-1) unstable; urgency=medium
+
+  [ krepa098 ]
+  * initial commit
+  * progress
+  * progress
+  * progress
+  * bye bye base64 emoticons
+  * (c)
+  * artwork
+  * progress
+  * filetransferwidget: first steps
+  * hooked up filetransferwidget
+  * more work on filetransferwidget
+  * ui tweaks
+  * removed ChatLine vAlignCol
+  * don't depend on valid cursur
+  * revisited selection
+  * changed color of selGraphItem
+  * margins, update selection rect during resize
+  * filetransferwidget: added open (browse?) button, fixed layout
+  * chatline: fixed bbox height calculation
+  * filetransferwidget.ui: reverted margins. chatlinecontentproxy: calculate
+    firstLineVOffset
+  * cleanup
+  * Text: use ascent rather than height
+  * adjusted Image, Spinner, ChatLineContentProxy vOffset
+  * renamed firstLineVOffset to getAscent
+  * Text: selection use fuzzy hit
+  * Text: detect anchors
+  * filling the gaps
+  * Text: toHtmlChars
+  * innerStyle, groupchats
+  * filetransferwidget layout changes
+  * fix selection
+  * chatlinecontentproxy: scaling behaviour
+  * filetransferwidget: use CroppingLabel
+  * chatlog: save chat log
+  * chatline: set row and col number
+  * chatlog: Don't accept drops
+  * styled chatlog, cleanup
+  * respect time format
+  * disabled group joined/left messages
+  * don't use DesignMetrics
+  * don't set cache mode
+
+  [ apprb ]
+  * honouring aliases in the loaded history
+
+  [ krepa098 ]
+  * fixup merge
+  * fixed anchors
+  * quoting support, toHtmlChars, fixes
+  * fixed history
+  * refactoring, fixes
+  * fix no visible line case
+  * check "use emoticons"
+  * cleanup
+  * ChatLine: cell spacing
+  * use resolveToxID
+  * fixed eliding (ie. invisible nicknames)
+  * cleanup
+  * filetransferwidget: fixed pause button, ETA, font size, resource usage
+  * ChatLine/ChatMessage: use shared_ptr
+  * cleanup
+  * Moved the context menu to GenericChatForm
+  * ChatLog: Autoscroll while selecting
+  * refactoring
+  * ChatLog: insertChatlineAtBottom, refactoring
+  * history fixes
+  * cleanup
+  * changed output of ChatLog::toPlainText
+  * history: require markAsSent
+  * ChatLog::insertChatlineOnTop: overload taking a list
+  * hopefully less noticeably partial updates
+  * history: fixed regression
+  * refactoring
+  * change previousId on action
+  * fixed first message not getting displayed properly
+  * cache innerStyle as it gets used frequently
+  * renamed deltaRepos to deltaY
+  * FileTransferWidget: limit browse to pics and archives
+  * qrc: added missing browse_path.png
+  * cleanup
+  * error symbol
+  * speed up ChatLine::moveBy
+  * [test] use std::vector rather than QVector
+  * plain svg
+  * [test] use BspTreeIndex (might be slower?)
+  * optimized ChatLog::getContentFromPos
+  * Revert "[test] use BspTreeIndex (might be slower?)"
+  * faster scrolling, more cheating
+  * moved history loading to FriendWidget::setAsActiveChatroom()
+  * towards better scrolling
+  * cleanup
+  * Text: copy image keys
+  * cleanup
+  * moved typing notifications to ChatLog
+  * tweaks, colorize the blue * in /me
+  * FileTransferWidget: fixed autoaccept
+  * cleanup
+  * tweaked FileTransferWidget min size
+  * FileTransferWidget: use baseName instead of completeBaseName + tweaked autoAccept
+  * cleanup
+  * cleanup
+  * fixed chatlog not scrolling to bottom after resize
+  * Don't stick to bottom if the user scrolls while the worker is still running
+  * comments
+  * More pleasant multi-line selection, refactoring
+  * refactoring
+  * tweaked ChatLog::getSelectedText
+  * FileTransferWidget::acceptTransfer: Regression - check whether the path is NOT writable
+  * refactoring, reverted ChatLog::getVisibleRect
+  * refactoring
+  * don't forget to reposition the typingNotification on insertChatline*
+  * createChatInfoMessage: increase icon size from 16 to 20 px
+  * FileTransferWidget: calculate mean
+  * "%user is typing..." -> "%user ..."
+  * update typing notification on resize
+  * extended spinner class
+  * ChatMessage::createTypingNotification, resized images to 18x18, new
+    (spinning) notification icon
+  * updated error/info.png
+
+  [ Dubslow ]
+  * minor code cleanup
+
+  [ krepa098 ]
+  * fixed potential null deref. & memory leak
+  * nice!
+  * cleanup
+  * Text: Do not rely on QTextCursor for selection
+  * removed selectAll()
+  * double-click selection
+  * Text: extractSanitizedText, hookup double-click selection
+  * NotificationIcon
+  * renamed get/setRowIndex to get/setRow
+  * cleanup
+  * fix divide by zero
+  * show 2 decimals starting from MiB
+  * typo
+  * cleanup
+  * ChatLog: busy-screen during resize
+  * Added Timestamp class, moved output generation while saving to
+    GenericChatForm and changed the generated layout
+  * ChatMessage::createChatInfoMessage: use toHtmlChars
+  * use html <center> instead of ColumnFormat::Center
+  * [HiDPI] ChatLog: replaced all .png by .svg, FTW custom paintEvent This
+    does not enable HiDPI support!
+  * cleanup previous commit
+  * specify background brush
+  * reposition busy notification *after* resize
+  * fix regression: chatlog didn't scroll to bottom on startup
+  * ChatLog::selectAll, refactoring of actions (issue #808)
+  * make use of EmojiFontPointSize (fix #1026)
+  * fix showEvent calling centerOn
+  * FileTransferWidget: visual tweaks
+  * Moved status messages back to the left
+  * use QSize instead of QSizeF, cleanup
+  * set ChatLine::isVisible to true
+  * Speed-up rendering
+  * ChatLineContent: removed boundingSceneRect()
+  * renamed ChatLine::boundingSceneRect to ChatLine::sceneBoundingRect
+  * comparators should be public
+  * change ChatLine::isVisible to false, rename Text::isVisible to
+    Text::keepInMemory
+  * tweaks
+  * fix a render artifact
+  * revert to "[user] is typing"
+  * optimizations and tweaks
+  * fixup! Merge branch 'master' into chatlog_v3_1
+  * tweaked ChatLog::getSelectedText
+  * selection rect: change color on focus-in/out, action cleanup
+  * change color for precise selection on focus-in/out
+  * fixup! Merge branch 'master' into chatlog_v3_1
+  * use QPainter::setClipRect
+  * ChatLog: don't start the resize worker if the width doesn't change
+  * set the correct wrap mode
+  * fix crash on exit
+  * add svg to CONFIG (link against the svg module)
+  * fix bbox calculation
+  * cleanup
+  * FTW: circular buttons [feedback wanted]
+  * FTW: color animation
+  * FTW: don't display "Location not writable" if path is empty
+  * Spinner: lowered rotational speed
+  * faster, synchronized spinners
+  * cleanup
+  * Spinner: fade in
+  * cleanup
+  * FTW: Replaced QPropertyAnimation by QVariantAnimation
+  * FTW: Use KeepAspectRatioByExpanding
+  * FTW: Don't fire an animation if start- and endcolor are the same
+  * FTW: Slightly increased height
+  * fix actions not triggering reliably + ctrl+insert shortcut on linux
+  * do not change clipboard content if selected text is null
+  * Merge branch 'master' into chatlog_v3_1
+  * Text: documentLayout()->update()
+  * add timestamp to copied text (issue #4)
+  * clear previous id on action (issue #7)
+  * Fix ownership problem (issue #8)
+  * add copy to selection buffer (middle mouse-button issue #6)
+  * copy: handle pending messages
+  * tweaked layout calculation
+  * ownership (again)
+  * refactoring
+  * revised issue #6
+  * fix issue #10
+  * copy/paste changed format (issue #11)
+  * Text anchors: use PointingHandCursor
+
+  [ TheLastProject ]
+  * Add Dutch translation
+
+  [ krepa098 ]
+  * fix crash in Text::hoverMoveEvent
+  * reverse history entries as they are no longer reversed in
+    ChatLog::insertChatlineOnTop
+  * do not trigger repaint if invisible
+
+  [ Bruno Kühnen Meneguello ]
+  * Updated portuguese translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+  * Add qtopengl as dependency in INSTALL.md
+
+  [ Dubslow ]
+  * Refactor OfflineMsgEngine, fix potential segfault (@apprb take note
+    please)
+  * Minor cleanup
+
+  [ krepa098 ]
+  * mockup (WIP)
+  * Revert "FTW: circular buttons [feedback wanted]"
+  * finished work on FTW
+  * FTW: 1px spacing instead of 2px
+  * display "unconfirmed" on new file transfer requests
+
+  [ Dubslow ]
+  * Fix #1158
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Feb 2015 23:46:46 +0000
+
+qtox (0.0.0+git20150211.r2060-1) unstable; urgency=medium
+
+  [ Joseph Anania III ]
+  * Added Twitter emoji SVGs with copyright notice and my emoticons.xml file
+    this brings color emoji support to qtox
+  * Updated res.qrc file to add TwitterEmojiSVG emoticon files minor fixup to
+    emoticons.xml
+  * added emoticons.xml to res.qrc for the TwitterEmojiSVG theme
+  * Set Emoticon Widget input to 8x8 instead of 5x3 for larger emoticon sets
+  * Set TwitteEmojiSVG as the default emoticon theme
+
+  [ Zetok Zalbavar ]
+  * Add libqt5svg5-dev to Debian dependencies
+
+  [ apprb ]
+  * fix #513
+
+  [ Joseph Anania III ]
+  * Split smileys to seperate qrc file and added it to qtox.pro
+
+  [ Dubslow ]
+  * Fix smileys.qrc, remove duplicates
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Dubslow ]
+  * Fix #1129
+  * Fix #1131
+
+  [ Dubslow ]
+  * Minor translation things in the ui files
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Feb 2015 01:07:54 +0000
+
+qtox (0.0.0+git20150207.r2041-1) unstable; urgency=medium
+
+  [ apprb ]
+  * proper encrypted history loading
+  * encrypted history: class constructor: refacroring
+  * Fixes
+
+  [ dubslow ]
+  * move encryption to separate file for sanity
+  * core encryption file is basically complete, I need to verify privacy tab
+  * incremental
+  * Incremental work, starting to take shape
+  * Ah, much cleaner
+  * Added change pw buttons; encryption is very nearly done. @apprb there is
+    one question and one TODO that you should look over in privacyform.cpp, as
+    well as a TODO in historykeeper.cpp Also both the encryption settings box
+    and the pw dialog lineedits should probably be in a QGridLayout... but I
+    don't really want to do that by hand :P
+
+  [ Dubslow ]
+  * Clarification
+  * fix copyright statement, update comment
+  * Fix not setting tox null after cleanup also reordered functions for super
+    extra safety
+
+  [ apprb ]
+  * history: encrypted <-> plain convertion
+  * small code unification
+
+  [ Dubslow ]
+  * finishing touches
+
+  [ apprb ]
+  * plain db encryption
+
+  [ Dubslow ]
+  * just remove clearing password in dtor which is only called on exit solves
+    the bug found by apprb
+  * turns out the password code saving Configuration was useless anyways would
+    have avoided the bug I just "fixed"
+  * warn only once on unecrypted file with encryption set
+  * Fix threading issue with startup pw popup The GUI is slow to update after
+    accepting a password, but a cursory ten minute investigation didn't yield
+    why I inserted a processEvents() call before ready = true; at the end of
+    Core::start, but that didn't help. Define the total time between the
+    password dialog disappearing and the UI updating with your own status is
+    T: Then my debug statement indicated that this processEvents call happened
+    around 1/3T, raising two questions: 1) What the hell is happening between
+    0 and 1/3 T? Decryption doesn't take that long... Note that bad passwords
+    are immediately rejected with a new dialog, so I highly doubt it's the
+    decryption cpu time 2) The remaining 2/3rds: processEvents has been called
+    after the avatar and username signals, yet they don't update in the UI
+    till time T when everything updates after bootstrapping...
+  * remove files that I shouldn't have added in the first place
+  * tweak to popup questions
+  * fix change profiles button
+  * Move privacy tab settings to per-profile settings file This may lose the
+    current settings in the tab, but currently only keep history is enabled
+    anyways
+  * word wrap the privacy tab string
+
+  [ apprb ]
+  * password strength meter
+
+  [ Dubslow ]
+  * refactor/fix switching profile with separate settings
+  * minor tweaks
+  * check for non-existent file
+  * more file open checking
+  * when loading, try using main password for history
+  * fix clearing duplicate passwords fixes dubslow/qTox#2
+  * fix loading an encrypted chat log failing
+  * fix bug with "use other password" It's more trouble than it's worth to
+    shallow copy; changed to deep copy with STL
+  * Improve dialogs around unencrypting history, per zetok's suggestions
+  * Ignore empty history files on start This fixes an esoteric issue of
+    enabling chat log encryption and then restarting before adding any
+    messages
+  * Slightly more useful initial password dialogs
+  * Fix profile settings issue from command line, default unencrypt history is Cancel
+  * Fix segfault, minor cleanup
+  * Fix bug with initial password dialogs accepting empty passwords
+  * Confirm decrypt data, various ui/txt tweaks
+  * oops, fortunately this wasn't a bug yet...
+  * Fix the segfault fix
+  * Fix two minor bugs
+  * Fix threading issue while widget's killing itself
+  * fix button typo, closes dubslow/qTox#7
+  * write settings *after* changing them... closes dubslow/qTox#3
+  * Hacky fix to cancelling a switch to an encrypted profile closing It's
+    either this or some fairly major refactoring, which is preferable, but
+    I've got another even bigger refactoring in mind, and fixing this will be
+    rolled into that. Closes dubslow/qTox#4
+  * Potential fix for history issues, both dubslow/qTox#5 and dubslow/qTox#6
+  * Fix SPE
+
+  [ novist ]
+  * Use svg for taskbar/tray icons
+
+  [ Dubslow ]
+  * When enabling history encryption, check for and use previously-ignored
+    encrypted history Should close dubslow/qTox#5 and close dubslow/qTox#6
+    Note that the GUI isn't updated with the ignored history, that's a TODO
+  * Fix the previous todo
+  * Code cleanup
+  * Reword opening password dialog per srkunze's suggestion
+
+  [ novist ]
+  * Tray icon notification of new messages
+
+  [ Dubslow ]
+  * chat logs -> chat history, miscellaneous rewordings
+  * More descriptive dialog text
+  * Add svg to dependencies
+  * Implement hack to make closing the history dialog not disable history Also
+    word wrap the extra long text
+  * Tweak re-enabling old history popups
+
+  [ Zetok Zalbavar ]
+  * Add Qt svg module to dependencies in INSTALL.md
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Try to prevent nullptr dereference of icon
+  * Check icon for nullity in Widget
+  * Initial android support
+
+  [ tux3/mlkj ]
+  * Initial Android support
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sascha Brendel ]
+  * Added German translation for new Encryption-Dialogs and -forms
+
+  [ tux3/mlkj ]
+  * Use GUI instead of Widget for common GUI tasks
+
+  [ Sascha Brendel ]
+  * Added svg-Support
+
+  [ novist ]
+  * Fixed busy and invisible taskbar icons Updated other status icons Removed
+    duplicate status icons from ui/statusButton
+
+  [ Sascha Brendel ]
+  * removed whitespace
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cleanup before returning from main
+
+  [ Sascha Brendel ]
+  * Added pacman qt5-svg support.
+  * Added yum qt5-qtsvg support.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Assert that Widget isn't used on Android
+
+  [ Zetok Zalbavar ]
+  * Change warning message to less confusing one
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #1099
+  * Fix typo in regexp
+
+  [ Dubslow ]
+  * Cleanup 331baa74474b27e18671d4a38a4847cf17e2e179
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix screenshot in README.md
+
+  [ Dubslow ]
+  * Fix newlines in German translation
+
+  [ Zetok Zalbavar ]
+  * [README.md] Add link pointing to ways of contributing
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * First draft of the Android GUI
+
+  [ Sascha Brendel ]
+  * Added German translation for new Encryption-Dialogs and -forms
+  * Added svg-Support
+
+  [ novist ]
+  * Fixed busy and invisible taskbar icons Updated other status icons Removed
+    duplicate status icons from ui/statusButton
+
+  [ Sascha Brendel ]
+  * removed whitespace
+  * Added pacman qt5-svg support.
+  * Added yum qt5-qtsvg support.
+
+  [ Zetok Zalbavar ]
+  * Change warning message to less confusing one
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix screenshot in README.md
+
+  [ Dubslow ]
+  * Fix newlines in German translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add input method hints to some fields
+
+  [ apprb ]
+  * Offline messaging refactoring: Separated class for this purpose + more
+    reliable resenging
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Disable systray icon on KDE 5
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+  * Add build-dep on libqt5svg5-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 08 Feb 2015 03:23:14 +0000
+
 qtox (0.0.0+git20150201.r1933-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
