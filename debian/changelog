@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150215.r2290-1ubuntu1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 16 Feb 2015 00:04:13 +0000
+
 qtox (0.0.0+git20150215.r2290-1) unstable; urgency=medium
 
   [ Dubslow ]
@@ -532,12 +538,6 @@ qtox (0.0.0+git20150207.r2041-1) unstable; urgency=medium
   * Add build-dep on libqt5svg5-dev
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 08 Feb 2015 03:23:14 +0000
-
-qtox (0.0.0+git20150201.r1933-1ubuntu1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 02 Feb 2015 11:35:12 +0000
 
 qtox (0.0.0+git20150201.r1933-1) unstable; urgency=medium
 
