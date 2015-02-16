@@ -20,7 +20,7 @@
 #    See the COPYING file for more details.
 
 
-QT       += core gui network xml opengl sql
+QT       += core gui network xml opengl sql svg
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET    = qtox
@@ -32,9 +32,10 @@ FORMS    += \
     src/widget/form/settings/identitysettings.ui \
     src/widget/form/settings/privacysettings.ui \
     src/widget/form/loadhistorydialog.ui \
-    src/widget/form/inputpassworddialog.ui \
     src/widget/form/setpassworddialog.ui \
-    src/widget/form/settings/advancedsettings.ui
+    src/chatlog/content/filetransferwidget.ui \
+    src/widget/form/settings/advancedsettings.ui \
+    src/android.ui
     
 CONFIG   += c++11
 
@@ -43,7 +44,8 @@ include(translations/i18n.pri)
 # Build all the qm files now, to make RCC happy
 system($$fromfile(translations/i18n.pri, updateallqm))
 
-RESOURCES += res.qrc
+RESOURCES += res.qrc \
+    smileys/smileys.qrc
 
 GIT_VERSION = $$system(git rev-parse HEAD 2> /dev/null || echo "built without git")
 DEFINES += GIT_VERSION=\"\\\"$$quote($$GIT_VERSION)\\\"\"
@@ -70,6 +72,23 @@ contains(ENABLE_SYSTRAY_UNITY_BACKEND, YES) {
 	LIBS += -lgobject-2.0 -lappindicator -lgtk-x11-2.0
 }
 
+android {
+    ANDROID_TOOLCHAIN=/opt/android/toolchain-r9d-17/
+    INCLUDEPATH += $$ANDROID_TOOLCHAIN/include/
+    LIBS += -L$$ANDROID_TOOLCHAIN/lib
+
+    DISABLE_PLATFORM_EXT=YES
+    DISABLE_FILTER_AUDIO=YES
+
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+    contains(ANDROID_TARGET_ARCH,armeabi) {
+        ANDROID_EXTRA_LIBS = \
+			$$ANDROID_TOOLCHAIN/lib/libopenal.so \
+			$$ANDROID_TOOLCHAIN/lib/libsodium.so
+    }
+}
+
+
 contains(DISABLE_PLATFORM_EXT, YES) {
 
 } else {
@@ -91,7 +110,7 @@ contains(JENKINS,YES) {
 # Rules for Windows, Mac OSX, and Linux
 win32 {
     RC_FILE = windows/qtox.rc
-    LIBS += -L$$PWD/libs/lib -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lsodium -lvpx -lpthread
+	LIBS += -L$$PWD/libs/lib -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lsodium -lvpx -lpthread
     LIBS += -L$$PWD/libs/lib -lopencv_core249 -lopencv_highgui249 -lopencv_imgproc249 -lOpenAL32 -lopus
     LIBS += -lopengl32 -lole32 -loleaut32 -luuid -lvfw32 -lws2_32 -liphlpapi -lz
 
@@ -111,31 +130,38 @@ win32 {
         contains(DEFINES, QTOX_PLATFORM_EXT) { LIBS += -framework IOKit -framework CoreFoundation }
         contains(DEFINES, QTOX_FILTER_AUDIO) { LIBS += -lfilteraudio }
     } else {
-        # If we're building a package, static link libtox[core,av] and libsodium, since they are not provided by any package
-        contains(STATICPKG, YES) {
-            target.path = /usr/bin
-            INSTALLS += target
-            LIBS += -L$$PWD/libs/lib/ -lopus -lvpx -lopenal -Wl,-Bstatic -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lsodium -lopencv_highgui -lopencv_imgproc -lopencv_core -lz -Wl,-Bdynamic
-	    LIBS += -Wl,-Bstatic -ljpeg -ltiff -lpng -ljasper -lIlmImf -lIlmThread -lIex -ldc1394 -lraw1394 -lHalf -lz -llzma -ljbig
-            LIBS += -Wl,-Bdynamic -lv4l1 -lv4l2 -lavformat -lavcodec -lavutil -lswscale -lusb-1.0
+        android {
+            LIBS += -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns
+            LIBS += -lopencv_videoio -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc -lopencv_androidcamera
+            LIBS += -llibjpeg -llibwebp -llibpng -llibtiff -llibjasper -lIlmImf -lopencv_core
+            LIBS += -lopus -lvpx -lsodium -lopenal
         } else {
-            LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lvpx -lsodium -lopenal -lopencv_core -lopencv_highgui -lopencv_imgproc
-        }
-
-        contains(DEFINES, QTOX_PLATFORM_EXT) {
-            LIBS += -lX11 -lXss
-        }
-
-        contains(DEFINES, QTOX_FILTER_AUDIO) {
+            # If we're building a package, static link libtox[core,av] and libsodium, since they are not provided by any package
             contains(STATICPKG, YES) {
-                LIBS += -Wl,-Bstatic -lfilteraudio
+                target.path = /usr/bin
+                INSTALLS += target
+                LIBS += -L$$PWD/libs/lib/ -lopus -lvpx -lopenal -Wl,-Bstatic -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lsodium -lopencv_highgui -lopencv_imgproc -lopencv_core -lz -Wl,-Bdynamic
+                LIBS += -Wl,-Bstatic -ljpeg -ltiff -lpng -ljasper -lIlmImf -lIlmThread -lIex -ldc1394 -lraw1394 -lHalf -lz -llzma -ljbig
+                LIBS += -Wl,-Bdynamic -lv4l1 -lv4l2 -lavformat -lavcodec -lavutil -lswscale -lusb-1.0
             } else {
-                LIBS += -lfilteraudio
+                LIBS += -L$$PWD/libs/lib/ -ltoxcore -ltoxav -ltoxencryptsave -ltoxdns -lvpx -lsodium -lopenal -lopencv_core -lopencv_highgui -lopencv_imgproc
             }
-        }
 
-        contains(JENKINS, YES) {
-            LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxdns.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxcore.a ./libs/lib/libsodium.a ./libs/lib/libfilteraudio.a /usr/lib/libopencv_core.so /usr/lib/libopencv_highgui.so /usr/lib/libopencv_imgproc.so -lopenal -lX11 -lXss -s
+            contains(DEFINES, QTOX_PLATFORM_EXT) {
+                LIBS += -lX11 -lXss
+            }
+
+            contains(DEFINES, QTOX_FILTER_AUDIO) {
+                contains(STATICPKG, YES) {
+                    LIBS += -Wl,-Bstatic -lfilteraudio
+                } else {
+                    LIBS += -lfilteraudio
+                }
+            }
+
+            contains(JENKINS, YES) {
+                LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxdns.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxcore.a ./libs/lib/libsodium.a ./libs/lib/libfilteraudio.a /usr/lib/libopencv_core.so /usr/lib/libopencv_highgui.so /usr/lib/libopencv_imgproc.so -lopenal -lX11 -lXss -s
+            }
         }
     }
 }
@@ -173,17 +199,9 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/widget/friendlistwidget.h \
     src/widget/genericchatroomwidget.h \
     src/widget/form/genericchatform.h \
-    src/widget/tool/chatactions/chataction.h \
-    src/widget/chatareawidget.h \
-    src/filetransferinstance.h \
     src/corestructs.h \
     src/coredefines.h \
     src/coreav.h \
-    src/widget/tool/chatactions/messageaction.h \
-    src/widget/tool/chatactions/filetransferaction.h \
-    src/widget/tool/chatactions/systemmessageaction.h \
-    src/widget/tool/chatactions/actionaction.h \
-    src/widget/tool/chatactions/alertaction.h \
     src/widget/maskablepixmapwidget.h \
     src/video/videosource.h \
     src/video/cameraworker.h \
@@ -193,7 +211,6 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/misc/db/genericddinterface.h \
     src/misc/db/plaindb.h \
     src/misc/db/encrypteddb.h \
-    src/widget/form/inputpassworddialog.h \
     src/widget/form/setpassworddialog.h \
     src/widget/form/tabcompleter.h \
     src/video/videoframe.h \
@@ -204,11 +221,29 @@ HEADERS  += src/widget/form/addfriendform.h \
     src/widget/toxsave.h \
     src/autoupdate.h \
     src/misc/serialize.h \
+    src/chatlog/chatlog.h \
+    src/chatlog/chatline.h \
+    src/chatlog/chatlinecontent.h \
+    src/chatlog/chatlinecontentproxy.h \
+    src/chatlog/content/text.h \
+    src/chatlog/content/spinner.h \
+    src/chatlog/content/filetransferwidget.h \
+    src/chatlog/chatmessage.h \
+    src/chatlog/content/image.h \
+    src/chatlog/customtextdocument.h \
     src/widget/form/settings/advancedform.h \
     src/audio.h \
+    src/chatlog/content/notificationicon.h \
+    src/chatlog/content/timestamp.h \
+    src/chatlog/documentcache.h \
+    src/chatlog/pixmapcache.h \
     src/widget/callconfirmwidget.h \
     src/widget/systemtrayicon.h \
-    src/widget/systemtrayicon_private.h
+    src/widget/systemtrayicon_private.h \
+    src/nexus.h \
+    src/widget/gui.h \
+    src/widget/androidgui.h \
+    src/offlinemsgengine.h
 
 SOURCES += \
     src/widget/form/addfriendform.cpp \
@@ -226,6 +261,7 @@ SOURCES += \
     src/widget/groupwidget.cpp \
     src/widget/widget.cpp \
     src/core.cpp \
+    src/coreencryption.cpp \
     src/friend.cpp \
     src/friendlist.cpp \
     src/group.cpp \
@@ -245,15 +281,7 @@ SOURCES += \
     src/coreav.cpp \
     src/widget/genericchatroomwidget.cpp \
     src/widget/form/genericchatform.cpp \
-    src/widget/tool/chatactions/chataction.cpp \
-    src/widget/chatareawidget.cpp \
-    src/filetransferinstance.cpp \
     src/corestructs.cpp \
-    src/widget/tool/chatactions/messageaction.cpp \
-    src/widget/tool/chatactions/filetransferaction.cpp \
-    src/widget/tool/chatactions/systemmessageaction.cpp \
-    src/widget/tool/chatactions/actionaction.cpp \
-    src/widget/tool/chatactions/alertaction.cpp \
     src/widget/maskablepixmapwidget.cpp \
     src/video/cameraworker.cpp \
     src/widget/videosurface.cpp \
@@ -262,7 +290,6 @@ SOURCES += \
     src/misc/db/genericddinterface.cpp \
     src/misc/db/plaindb.cpp \
     src/misc/db/encrypteddb.cpp \
-    src/widget/form/inputpassworddialog.cpp \
     src/widget/form/setpassworddialog.cpp \
     src/video/netvideosource.cpp \
     src/widget/form/tabcompleter.cpp \
@@ -274,10 +301,28 @@ SOURCES += \
     src/widget/toxsave.cpp \    
     src/autoupdate.cpp \
     src/misc/serialize.cpp \
+    src/chatlog/chatlog.cpp \
+    src/chatlog/chatline.cpp \
+    src/chatlog/chatlinecontent.cpp \
+    src/chatlog/chatlinecontentproxy.cpp \
+    src/chatlog/content/text.cpp \
+    src/chatlog/content/spinner.cpp \
+    src/chatlog/content/filetransferwidget.cpp \
+    src/chatlog/chatmessage.cpp \
+    src/chatlog/content/image.cpp \
+    src/chatlog/customtextdocument.cpp\
     src/widget/form/settings/advancedform.cpp \
     src/audio.cpp \
+    src/chatlog/content/notificationicon.cpp \
+    src/chatlog/content/timestamp.cpp \
+    src/chatlog/documentcache.cpp \
+    src/chatlog/pixmapcache.cpp \
     src/widget/callconfirmwidget.cpp \
-    src/widget/systemtrayicon.cpp
+    src/widget/systemtrayicon.cpp \
+    src/nexus.cpp \
+    src/widget/gui.cpp \
+    src/widget/androidgui.cpp \
+    src/offlinemsgengine.cpp
 
 contains(DEFINES, QTOX_FILTER_AUDIO) {
     HEADERS += src/audiofilterer.h
@@ -289,4 +334,9 @@ contains(DEFINES, QTOX_PLATFORM_EXT) {
     SOURCES += src/platform/timer_osx.cpp \
                src/platform/timer_win.cpp \
                src/platform/timer_x11.cpp
+
+    HEADERS += src/platform/autorun.h
+    SOURCES += src/platform/autorun_win.cpp \
+               src/platform/autorun_xdg.cpp \
+               src/platform/autorun_osx.cpp
 }
