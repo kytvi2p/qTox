@@ -37,6 +37,7 @@
 #include "src/platform/timer.h"
 #include "systemtrayicon.h"
 #include "src/nexus.h"
+#include "src/widget/gui.h"
 #include "src/offlinemsgengine.h"
 #include <cassert>
 #include <QMessageBox>
@@ -54,6 +55,10 @@
 #include <QTimer>
 #include <QStyleFactory>
 #include <QTranslator>
+#include <QString>
+#include <QByteArray>
+#include <QImageReader>
+#include <QList>
 #include <tox/tox.h>
 
 #ifdef Q_OS_ANDROID
@@ -295,10 +300,7 @@ Widget* Widget::getInstance()
     assert(IS_ON_DESKTOP_GUI); // Widget must only be used on Desktop platforms
 
     if (!instance)
-    {
         instance = new Widget();
-        instance->init();
-    }
     return instance;
 }
 
@@ -344,7 +346,10 @@ QString Widget::getUsername()
 
 void Widget::onAvatarClicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this, tr("Choose a profile picture"), QDir::homePath());
+    QString filename = QFileDialog::getOpenFileName(this,
+        tr("Choose a profile picture"),
+        QDir::homePath(),
+        Nexus::getSupportedImageFilter());
     if (filename.isEmpty())
         return;
     QFile file(filename);
@@ -675,7 +680,9 @@ void Widget::onFriendStatusChanged(int friendId, Status status)
         case Status::Busy:
             fStatus = tr("busy", "contact status"); break;
         case Status::Offline:
-            fStatus = tr("offline", "contact status"); break;
+            fStatus = tr("offline", "contact status");
+            f->getChatForm()->setFriendTyping(false); // Hide the "is typing" message when a friend goes offline
+            break;
         default:
             fStatus = tr("online", "contact status"); break;
         }
@@ -856,11 +863,14 @@ void Widget::onGroupInviteReceived(int32_t friendId, uint8_t type, QByteArray in
 {
     if (type == TOX_GROUPCHAT_TYPE_TEXT || type == TOX_GROUPCHAT_TYPE_AV)
     {
-        int groupId = Nexus::getCore()->joinGroupchat(friendId, type, (uint8_t*)invite.data(), invite.length());
-        if (groupId < 0)
+        if (GUI::askQuestion(tr("Group invite", "popup title"), tr("%1 has invited you to a groupchat. Would you like to join?", "popup text").arg(Nexus::getCore()->getFriendUsername(friendId)), true, false))
         {
-            qWarning() << "Widget::onGroupInviteReceived: Unable to accept  group invite";
-            return;
+            int groupId = Nexus::getCore()->joinGroupchat(friendId, type, (uint8_t*)invite.data(), invite.length());
+            if (groupId < 0)
+            {
+                qWarning() << "Widget::onGroupInviteReceived: Unable to accept  group invite";
+                return;
+            }
         }
     }
     else
@@ -976,6 +986,7 @@ Group *Widget::createGroup(int groupId)
     newgroup->getGroupWidget()->updateStatusLight();
 
     Core* core = Nexus::getCore();
+    connect(settingsWidget, &SettingsWidget::compactToggled, newgroup->getGroupWidget(), &GenericChatroomWidget::onCompactChanged);
     connect(newgroup->getGroupWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*)));
     connect(newgroup->getGroupWidget(), SIGNAL(removeGroup(int)), this, SLOT(removeGroup(int)));
     connect(newgroup->getGroupWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), newgroup->getChatForm(), SLOT(focusInput()));

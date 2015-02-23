@@ -5,6 +5,7 @@
 #include "widget/gui.h"
 #include <QThread>
 #include <QDebug>
+#include <QImageReader>
 
 #ifdef Q_OS_ANDROID
 #include <src/widget/androidgui.h>
@@ -54,6 +55,11 @@ void Nexus::start()
     qRegisterMetaType<ToxFile::FileDirection>("ToxFile::FileDirection");
     qRegisterMetaType<Core::PasswordType>("Core::PasswordType");
 
+    // Create GUI
+#ifndef Q_OS_ANDROID
+    widget = Widget::getInstance();
+#endif
+
     // Create Core
     QString profilePath = Settings::getInstance().detectProfile();
     coreThread = new QThread(this);
@@ -67,7 +73,7 @@ void Nexus::start()
     androidgui = new AndroidGUI;
     androidgui->show();
 #else
-    widget = Widget::getInstance();
+    widget->init();
 #endif
     GUI::getInstance();
 
@@ -153,4 +159,12 @@ AndroidGUI* Nexus::getAndroidGUI()
 Widget* Nexus::getDesktopGUI()
 {
     return getInstance().widget;
+}
+
+QString Nexus::getSupportedImageFilter()
+{
+  QString res;
+  for (auto type : QImageReader::supportedImageFormats())
+    res += QString("*.%1 ").arg(QString(type));
+  return tr("Images (%1)", "filetype filter").arg(res.left(res.size()-1));
 }

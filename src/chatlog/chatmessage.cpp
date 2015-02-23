@@ -39,7 +39,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
 {
     ChatMessage::Ptr msg = ChatMessage::Ptr(new ChatMessage);
 
-    QString text = toHtmlChars(rawMessage);
+    QString text = rawMessage.toHtmlEscaped();
     QString senderText = sender;
 
     const QColor actionColor = QColor("#1818FF"); // has to match the color in innerStyle.css (div.action)
@@ -79,7 +79,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
 ChatMessage::Ptr ChatMessage::createChatInfoMessage(const QString &rawMessage, SystemMessageType type, const QDateTime &date)
 {
     ChatMessage::Ptr msg = ChatMessage::Ptr(new ChatMessage);
-    QString text = toHtmlChars(rawMessage);
+    QString text = rawMessage.toHtmlEscaped();
 
     QString img;
     switch(type)
@@ -101,7 +101,7 @@ ChatMessage::Ptr ChatMessage::createFileTransferMessage(const QString& sender, T
     ChatMessage::Ptr msg = ChatMessage::Ptr(new ChatMessage);
 
     msg->addColumn(new Text(sender, isMe ? Style::getFont(Style::BigBold) : Style::getFont(Style::Big), true), ColumnFormat(NAME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
-    msg->addColumn(new ChatLineContentProxy(new FileTransferWidget(0, file), 350, 0.6f), ColumnFormat(1.0, ColumnFormat::VariableSize));
+    msg->addColumn(new ChatLineContentProxy(new FileTransferWidget(0, file), 320, 0.6f), ColumnFormat(1.0, ColumnFormat::VariableSize));
     msg->addColumn(new Timestamp(date, Settings::getInstance().getTimestampFormat(), Style::getFont(Style::Big)), ColumnFormat(TIME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
 
     return msg;
@@ -215,17 +215,6 @@ QString ChatMessage::detectQuotes(const QString& str)
     }
 
     return quotedText;
-}
-
-QString ChatMessage::toHtmlChars(const QString &str)
-{
-    static QList<QPair<QString, QString>> replaceList = {{"&","&amp;"}, {">","&gt;"}, {"<","&lt;"}};
-    QString res = str;
-
-    for (auto &it : replaceList)
-        res = res.replace(it.first,it.second);
-
-    return res;
 }
 
 QString ChatMessage::wrapDiv(const QString &str, const QString &div)
