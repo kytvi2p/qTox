@@ -1,3 +1,230 @@
+qtox (0.0.0+git20150223.r2411-1) unstable; urgency=medium
+
+  [ Chloe ]
+  * Avatar Choosing Dialog
+  * Update widget.cpp
+  * Update widget.cpp
+
+  [ Zetok Zalbavar ]
+  * Rename 'Start automatically' → 'Autostart'
+
+  [ krepa098 ]
+  * fix issue #1161
+
+  [ Joseph Anania III ]
+  * Added initial :name: emoticon support and compatiblity with cylgom pack
+    for TwitterEmojiSVG and artwork fixes
+
+  [ krepa098 ]
+  * try fix #1165
+  * fix issue #1168
+  * fix issue #1163
+
+  [ Dubslow ]
+  * Ask before joining group Fixes #1101, closes #1177
+  * Refactor image filter as discussed
+
+  [ Chloe ]
+  * Fixed Markdown Error in Install.md
+
+  [ Joseph Anania III ]
+  * changed grinning faces to show more teeth and to be closer to Unicode's
+    examples
+
+  [ Dubslow ]
+  * Fix #1182
+
+  [ Joseph Anania III ]
+  * due to demand added TwitterEmojiSimple emoticon theme shares assets with
+    TwitterEmojiSVG doesn't replace ascii smiles :-)
+
+  [ BroncoTc ]
+  * Add Chinese translation
+  * edit the three config & source file
+  * Partial translated
+  * Work temply transmitted to Dennx to finish
+
+  [ Denny Dai ]
+  * Finish zh_CN translation
+
+  [ BroncoTc ]
+  * Beta version of Chinese language file
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ BroncoTc ]
+  * add spaces between language names
+
+  [ Zetok Zalbavar ]
+  * Update toolTip for Compact contact list
+
+  [ BroncoTc ]
+  * Checked by Qt Linguist
+  * Qt installed and lupdated
+
+  [ krepa098 ]
+  * use QString::toHtmlEscaped
+  * fix issue #1161 round 2!
+
+  [ BroncoTc ]
+  * Translation Added
+  * Translation finished
+
+  [ krepa098 ]
+  * fix issue #1181
+
+  [ TheLastProject ]
+  * Turn group invite warning into question. Fixes #1199
+
+  [ BroncoTc ]
+  * update zh lang
+  * fix translation problems
+
+  [ TheLastProject ]
+  * Add open directory option to completed file transfers
+  * Fix docname in dir.svg
+  * Update Dutch translation
+
+  [ Joseph Anania III ]
+  * Bug Fixed TwitterEmojiSimple
+  * removed leading directory from TwitterEmojiSimple
+
+  [ TheLastProject ]
+  * Clean up code
+
+  [ BroncoTc ]
+  * Update all the lang files
+  * Revert "Update all the lang files"
+
+  [ Dubslow ]
+  * New screenshot in README Any other screenshots are welcome
+
+  [ Zetok Zalbavar ]
+  * [INSTALL.md] Same build dependencies for Debian and Ubuntu
+
+  [ Dubslow ]
+  * Single line copy/pasted text
+  * Fix #1169
+  * Use filter_audio Makefile, bump sodium version May help with #1128 @novist
+    bootstrap.sh no longer calls install_libfilteraudio.sh, I'd like you to
+    fix Windows as necessary (I have no idea if the filter_audio Makefile
+    supports Windows or not). I'd like to remove install_libfilteraudio.sh if
+    possible.
+  * Major bug: audio filtering never actually worked We filtered the audio
+    after it was already processed by core, i.e. it was never used @mwuttke97
+    @tux3 @Dubslow pls
+
+  [ Serg ]
+  * fix missed math include
+
+  [ Dubslow ]
+  * Add experimental echo cancellation to qTox It compiles with modified
+    OpenAL (unchanged logic otherwise), but effectiveness needs testing (like
+    uTox)
+  * Add static OpenAL to Jenkins
+  * Fix spurious dependencies on non-unity Tox repo packages
+
+  [ TheLastProject ]
+  * Hide is typing status when friend disconnects
+
+  [ Joseph Anania III ]
+  * changed emoticon widget to show 24x24 emoticons
+
+  [ Dubslow ]
+  * Fix build issue with older OpenALs
+
+  [ Sean Qureshi ]
+  * Future
+
+  [ BroncoTc ]
+  * translate Warning text and small fixes
+
+  [ Sean ]
+  * How did both code reviewers miss this
+
+  [ tux3 ]
+  * Attempt at fixing #1187
+
+  [ Dubslow ]
+  * Added pic of compact contact list/groupchat
+
+  [ novist ]
+  * Updated windows/bootstrap.sh to build filter_audio using Makefile
+
+  [ TheLastProject ]
+  * Fix regression showing is typing too often
+
+  [ tux3 ]
+  * Fix #1104
+  * Install 64bit updates on Win64, not 32bit
+  * Fix warnings when ALC_LOOPBACK_CAPTURE_SAMPLES not defined
+  * Change windows update host
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * install_libfilteraudio.sh: Exit on error
+
+  [ Sandro Santilli ]
+  * Handle more errors
+  * Fix build of filter_audio on unix
+
+  [ tux3 ]
+  * Bootstrap from more nodes until we're connected
+  * Start StatusNotifier system tray backend
+  * Initial statusnotifier systray context menu support
+  * Create statusnotifier main icon via pixbuf
+  * Generate statusnotifier context menu icons
+  * Fix statusnotifier icon color conversion
+  * Fix warnings in statusnotifier
+  * Prioritize Unity sistray backend over StatusNotifier
+  * Create systray statusnotifier ctor icon properly
+  * statusnotifier: Handle middle clicks
+  * Don't compile statusnotifier if disabled
+  * SystemTrayIcon: Log what backend is used
+  * Fix warning when !QTOX_PLATFORM_EXT
+  * Android: Don't link with libsodium.so
+  * Android: add ./libs/lib to linker search path
+  * Android: Better search for libopenal.so
+  * Android: Catch Back key and exit
+  * Wait longer before trying new bootstrap nodes
+
+  [ TheLastProject ]
+  * Make call tooltips depend on status, grey out vol and mic settings when
+    not in a call
+  * Clicking the yellow button on an incoming call answers
+
+  [ tux3 ]
+  * Start new Material Design android GUI
+  * Don't build android files on desktop platforms
+  * Enable StatusNotifier by default on Linux
+  * Android: Don't build Desktop-only code
+
+  [ TheLastProject ]
+  * Update Dutch translation
+
+  [ Zetok Zalbavar ]
+  * [qtox.pro] add more INCLUDEPATH for GTK deps
+
+  [ tux3 ]
+  * Fix system tray icon on GNOME classic
+  * Enable Unity/Gnome systray backend by default
+
+  [ BroncoTc ]
+  * update zh translation
+  * Translated
+
+  [ tux3 ]
+  * Cherry pick part of #1259
+  * Only use StatusNotifier on KDE
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 23 Feb 2015 23:14:40 +0000
+
 qtox (0.0.0+git20150215.r2290-1) unstable; urgency=medium
 
   [ Dubslow ]
