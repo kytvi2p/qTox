@@ -29,6 +29,8 @@
 #include <QVariantAnimation>
 #include <QDebug>
 
+#include <math.h>
+
 FileTransferWidget::FileTransferWidget(QWidget *parent, ToxFile file)
     : QWidget(parent)
     , ui(new Ui::FileTransferWidget)
@@ -46,7 +48,6 @@ FileTransferWidget::FileTransferWidget(QWidget *parent, ToxFile file)
     ui->filenameLabel->setText(file.fileName);
     ui->progressBar->setValue(0);
     ui->fileSizeLabel->setText(getHumanReadableSize(file.filesize));
-    ui->progressLabel->setText(tr("Waiting to send...", "file transfer widget"));
     ui->etaLabel->setText("");
 
     backgroundColorAnimation = new QVariantAnimation(this);
@@ -77,7 +78,12 @@ FileTransferWidget::FileTransferWidget(QWidget *parent, ToxFile file)
 
     //preview
     if(fileInfo.direction == ToxFile::SENDING)
+    {
         showPreview(fileInfo.filePath);
+        ui->progressLabel->setText(tr("Waiting to send...", "file transfer widget"));
+    }
+    else
+        ui->progressLabel->setText(tr("Accept to receive this file", "file transfer widget"));
 
     setFixedHeight(78);
 }
@@ -323,6 +329,10 @@ void FileTransferWidget::onFileTransferFinished(ToxFile file)
     ui->topButton->setEnabled(openExtensions.contains(QFileInfo(file.fileName).suffix()));
     ui->topButton->show();
 
+    ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/dir.svg"));
+    ui->bottomButton->setObjectName("dir");
+    ui->bottomButton->show();
+
     // preview
     if(fileInfo.direction == ToxFile::RECEIVING)
         showPreview(fileInfo.filePath);
@@ -421,8 +431,14 @@ void FileTransferWidget::handleButton(QPushButton *btn)
 
     if(btn->objectName() == "ok")
     {
-        QDesktopServices::openUrl("file://" + fileInfo.filePath);
+        QDesktopServices::openUrl(QUrl("file://" + fileInfo.filePath, QUrl::TolerantMode));
     }
+    else if (btn->objectName() == "dir")
+    {
+        QString dirPath = QDir(QFileInfo(fileInfo.filePath).dir()).path();
+        QDesktopServices::openUrl(QUrl("file://" + dirPath, QUrl::TolerantMode));
+    }
+
 }
 
 void FileTransferWidget::showPreview(const QString &filename)

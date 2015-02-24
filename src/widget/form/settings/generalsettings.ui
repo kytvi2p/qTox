@@ -196,7 +196,7 @@ instead of system taskbar.</string>
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start qTox on operating system startup (current profile).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Start automatically</string>
+               <string>Autostart</string>
               </property>
              </widget>
             </item>
@@ -374,8 +374,7 @@ will be sent to them when they will appear online to you.</string>
           <item row="3" column="1">
            <widget class="QCheckBox" name="cbCompactLayout">
             <property name="toolTip">
-             <string comment="toolTip for compact layout setting">Your contact list will be shown in compact mode.
-qTox's restart needed.</string>
+             <string comment="toolTip for compact layout setting">Your contact list will be shown in compact mode.</string>
             </property>
             <property name="text">
              <string>Compact contact list</string>
