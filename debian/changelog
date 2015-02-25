@@ -1,3 +1,68 @@
+qtox (0.0.0+git20150225.r2453-1) unstable; urgency=medium
+
+  [ TheLastProject ]
+  * Allow user to open all transferred files, but warn for executable files
+  * Actually use yes/no question
+  * Remove unused variable
+  * Make askQuestion more flexible, defaulting to Yes/No
+  * Oops, default for file transfer message should be no
+  * Use blacklist for executables, explicitly run executables with QProcess to
+    work around KDE4.4 security measure which disallows running executables
+
+  [ novist ]
+  * Reworked IPC class:   * Simpler design   * Suport for named events   *
+    Support for checking if events were handled   * Support for sending events
+    to specific application instance
+  * Fixes #840
+  * Allow only main (IPC owner) instance to save global settings
+
+  [ agilob ]
+  * fix tux3/qtox #891
+
+  [ Sean ]
+  * Attempt to fix #1269 with macho weak linking
+
+  [ tux3 ]
+  * Only use StatusNotifier on KDE5
+
+  [ TheLastProject ]
+  * Make default friend request message contain nickname
+
+  [ tux3 ]
+  * Implement GTK systray icon backend
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Start implementing toxme.se support
+
+  [ tux3 ]
+  * Implementing creating a toxme address
+  * Implement deleting a toxme address
+  * Remove install_libfilteraudio.sh until it works properly
+  * Use GTK status icon on Gnome
+  * Compile toxme support
+  * Use Qt systray again on KDE4
+  * Update INSTALL.md for filter_audio
+  * Don't include appindicator for GTK backend
+  * Fix missing include for toxme
+  * Tell to install libappindicator in INSTALL.md
+
+  [ TheLastProject ]
+  * Update Dutch translation
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ tux3 ]
+  * Upload update FTP deployement scripts
+  * Disable systray unity backend by default
+  * Fix missing brace
+  * Don't build desktop resource files on android
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 25 Feb 2015 21:25:23 +0000
+
 qtox (0.0.0+git20150223.r2411-1) unstable; urgency=medium
 
   [ Chloe ]
