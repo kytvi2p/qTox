@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150225.r2453-1~trusty+1) trusty; urgency=medium
+
+  * Building for Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 25 Feb 2015 21:41:40 +0000
+
 qtox (0.0.0+git20150225.r2453-1) unstable; urgency=medium
 
   [ TheLastProject ]
@@ -62,12 +68,6 @@ qtox (0.0.0+git20150225.r2453-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 25 Feb 2015 21:25:23 +0000
-
-qtox (0.0.0+git20150223.r2411-1~trusty+1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 24 Feb 2015 01:37:57 +0000
 
 qtox (0.0.0+git20150223.r2411-1) unstable; urgency=medium
 
