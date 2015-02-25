@@ -20,6 +20,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
+#include <QFileInfo>
 #include "form/addfriendform.h"
 #include "form/settingswidget.h"
 #include "form/settings/identityform.h"
@@ -68,6 +69,8 @@ public:
     virtual void closeEvent(QCloseEvent *event);
     virtual void changeEvent(QEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
+
+    static void confirmExecutableOpen(const QFileInfo file);
 
     void clearAllReceipts();
     void reloadHistory();
@@ -170,6 +173,6 @@ private:
     bool eventIcon;
 };
 
-void toxActivateEventHandler(const QByteArray& data);
+bool toxActivateEventHandler(const QByteArray& data);
 
 #endif // WIDGET_H
