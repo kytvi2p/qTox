@@ -1,3 +1,36 @@
+qtox (0.0.0+git20150228.r2466-1) unstable; urgency=medium
+
+  [ agilob ]
+  * closes again tux3/qtox #988
+
+  [ TheLastProject ]
+  * Add image preview on mouseover
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 28 Feb 2015 20:04:14 +0000
+
+qtox (0.0.0+git20150227.r2462-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * [qtox.pro] fix building with support for libappindicator
+
+  [ agilob ]
+  * closes tux3/qtox #1289
+  * +comment
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ agilob ]
+  * qlabels will not support richtext, plaintext only
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 28 Feb 2015 00:43:09 +0000
+
 qtox (0.0.0+git20150225.r2453-1ubuntu1) utopic; urgency=medium
 
   * Building for Utopic
