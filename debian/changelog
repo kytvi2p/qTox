@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150228.r2466-1ubuntu1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 01 Mar 2015 01:48:07 +0000
+
 qtox (0.0.0+git20150228.r2466-1) unstable; urgency=medium
 
   [ agilob ]
@@ -30,12 +36,6 @@ qtox (0.0.0+git20150227.r2462-1) unstable; urgency=medium
   * New git upstream snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 28 Feb 2015 00:43:09 +0000
-
-qtox (0.0.0+git20150225.r2453-1ubuntu1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 25 Feb 2015 21:40:26 +0000
 
 qtox (0.0.0+git20150225.r2453-1) unstable; urgency=medium
 
