@@ -29,10 +29,17 @@
 #include <QFile>
 #include <QFontDatabase>
 #include <QMutexLocker>
+#include <QProcess>
+#include <opencv2/core/core_c.h>
 
 #include <sodium.h>
 
 #include "toxme.h"
+
+#include <unistd.h>
+
+#define EXIT_UPDATE_MACX 218 //We track our state using unique exit codes when debugging
+#define EXIT_UPDATE_MACX_FAIL 216
 
 #ifdef LOG_TO_FILE
 static QtMessageHandler dflt;
@@ -56,12 +63,24 @@ void myMessageHandler(QtMsgType type, const QMessageLogContext& ctxt, const QStr
 }
 #endif
 
+int opencvErrorHandler(int status, const char* func_name, const char* err_msg,
+                   const char* file_name, int line, void*)
+{
+    qWarning() << "OpenCV: ERROR ("<<status<<") in "
+               <<file_name<<":"<<line<<":"<<func_name<<": "<<err_msg;
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationName("qTox");
     a.setOrganizationName("Tox");
     a.setApplicationVersion("\nGit commit: " + QString(GIT_VERSION));
+    
+#ifdef HIGH_DPI
+    a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+#endif
 
     // Process arguments
     QCommandLineParser parser;
@@ -106,7 +125,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        fprintf(stderr, "Couldn't open log file!!!\n");
+        fprintf(stderr, "Couldn't open log file!\n");
         delete logFile;
         logFile = nullptr;
     }
@@ -118,6 +137,64 @@ int main(int argc, char *argv[])
 
     qDebug() << "built on: " << __TIME__ << __DATE__ << "(" << TIMESTAMP << ")";
     qDebug() << "commit: " << GIT_VERSION << "\n";
+
+    cvSetErrMode(CV_ErrModeParent);
+    cvRedirectError(opencvErrorHandler);
+
+#ifdef Q_OS_MACX
+    if (qApp->applicationDirPath() != "/Applications/qtox.app/Contents/MacOS") {
+        qDebug() << "OS X: Not in Applications folder";
+
+        QMessageBox AskInstall;
+        AskInstall.setIcon(QMessageBox::Question);
+        AskInstall.setWindowModality(Qt::ApplicationModal);
+        AskInstall.setText("Move to Applications folder?");
+        AskInstall.setInformativeText("I can move myself to the Applications folder, keeping your downloads folder less cluttered.\r\n");
+        AskInstall.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
+        AskInstall.setDefaultButton(QMessageBox::Yes);
+
+        int AskInstallAttempt = AskInstall.exec(); //Actually ask the user
+
+        if (AskInstallAttempt == QMessageBox::Yes) {
+            QProcess *sudoprocess = new QProcess;
+            QProcess *qtoxprocess = new QProcess;
+
+            QString bindir = qApp->applicationDirPath();
+            QString appdir = bindir;
+            appdir.chop(15);
+            QString sudo = bindir + "/qtox_sudo rsync -avzhpltK " + appdir + " /Applications";
+            QString qtox = "open /Applications/qtox.app";
+
+            QString appdir_noqtox = appdir;
+            appdir_noqtox.chop(8);
+
+            if ((appdir_noqtox + "qtox.app") != appdir) //quick safety check
+            {
+                qDebug() << "OS X: Attmepted to delete non qTox directory!";
+                return EXIT_UPDATE_MACX_FAIL;
+            }
+
+            QDir old_app(appdir);
+
+            sudoprocess->start(sudo); //Where the magic actually happens, safety checks ^
+            sudoprocess->waitForFinished();
+
+            if (old_app.removeRecursively()) { //We've just deleted the running program
+                qDebug() << "OS X: Cleaned up old directory";
+            } else {
+                qDebug() << "OS X: This should never happen, the directory failed to delete";
+            }
+
+            if (fork() != 0) { //Forking is required otherwise it won't actually cleanly launch
+                return EXIT_UPDATE_MACX;
+            }
+
+            qtoxprocess->start(qtox);
+
+            return 0; //Actually kills it
+        }
+    }
+#endif
 
     // Install Unicode 6.1 supporting font
     QFontDatabase::addApplicationFont("://DejaVuSans.ttf");
