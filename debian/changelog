@@ -1,3 +1,55 @@
+qtox (0.0.0+git20150306.r2501-1) unstable; urgency=medium
+
+  [ novist ]
+  * Delayed tray icon creation to timer event. Added null checks around usage
+    of tray icon object.
+
+  [ agilob ]
+  * keyboard shortcut to change current chat
+  * clearing chatarea
+
+  [ baloo79 ]
+  * Update i18n.pri (Hungarian translation)
+  * Update res.qrc (Hungarian translation)
+  * Hungarian translation added
+  * Update generalform.cpp (for Hungarian translation)
+
+  [ minj ]
+  * tweak some Lithuanian translations
+
+  [ TheLastProject ]
+  * Fix images with spaces or other non-HTML characters breaking the preview
+
+  [ Sean ]
+  * High DPI scaling
+
+  [ tux3 ]
+  * Cherry-pick from #1323
+
+  [ tux3 ]
+  * Catch OpenCV errors
+
+  [ Domen Skamlic ]
+  * Update README.md
+
+  [ TheLastProject ]
+  * Resize images. Fixes #1204
+
+  [ tux3 ]
+  * Change OpenCV error mode
+
+  [ Domen Skamlic ]
+  * Added Slovenian translation.
+  * Some minimal fixes
+
+  [ TheLastProject ]
+  * Fix yet another regression by using padding-less bigger icons
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 07 Mar 2015 20:23:18 +0000
+
 qtox (0.0.0+git20150228.r2466-1) unstable; urgency=medium
 
   [ agilob ]
