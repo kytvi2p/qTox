@@ -1,3 +1,16 @@
+qtox (0.0.0+git20150308.r2505-1) unstable; urgency=medium
+
+  [ kushagra ]
+  * solves issue 1309
+
+  [ TheLastProject ]
+  * Use QImage scaling and base64 encoding for sharper previews
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 09 Mar 2015 00:48:06 +0000
+
 qtox (0.0.0+git20150306.r2501-1) unstable; urgency=medium
 
   [ novist ]
