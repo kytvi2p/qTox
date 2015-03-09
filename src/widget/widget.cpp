@@ -114,46 +114,6 @@ void Widget::init()
     statusBusy->setIcon(QIcon(":img/status/dot_busy.png"));
     connect(statusBusy, SIGNAL(triggered()), this, SLOT(setStatusBusy()));
 
-    if (QSystemTrayIcon::isSystemTrayAvailable())
-    {
-        icon = new SystemTrayIcon;
-        updateTrayIcon();
-        trayMenu = new QMenu;
-
-        actionQuit = new QAction(tr("&Quit"), this);
-        connect(actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
-
-        trayMenu->addAction(statusOnline);
-        trayMenu->addAction(statusAway);
-        trayMenu->addAction(statusBusy);
-        trayMenu->addSeparator();
-        trayMenu->addAction(actionQuit);
-        icon->setContextMenu(trayMenu);
-
-        connect(icon,
-                SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-                this,
-                SLOT(onIconClick(QSystemTrayIcon::ActivationReason)));
-
-        icon->show();
-        icon->hide();
-
-        if (Settings::getInstance().getShowSystemTray())
-        {
-            icon->show();
-            if (Settings::getInstance().getAutostartInTray() == false)
-                this->show();
-        }
-        else
-            this->show();
-    }
-    else
-    {
-        qWarning() << "Widget: No system tray detected!";
-        icon = nullptr;
-        this->show();
-    }
-
     ui->statusbar->hide();
     ui->menubar->hide();
 
@@ -232,6 +192,7 @@ void Widget::init()
     connect(addFriendForm, SIGNAL(friendRequested(QString, QString)), this, SIGNAL(friendRequested(QString, QString)));
     connect(timer, &QTimer::timeout, this, &Widget::onUserAwayCheck);
     connect(timer, &QTimer::timeout, this, &Widget::onEventIconTick);
+    connect(timer, &QTimer::timeout, this, &Widget::onTryCreateTrayIcon);
     connect(offlineMsgTimer, &QTimer::timeout, this, &Widget::processOfflineMsgs);
 
     addFriendForm->show(*ui);
@@ -240,6 +201,8 @@ void Widget::init()
     if (Settings::getInstance().getCheckUpdates())
         AutoUpdater::checkUpdatesAsyncInteractive();
 #endif
+    if (!Settings::getInstance().getShowSystemTray())
+        show();
 }
 
 void Widget::setTranslation()
@@ -281,7 +244,8 @@ Widget::~Widget()
 {
     qDebug() << "Widget: Deleting Widget";
     AutoUpdater::abortUpdates();
-    icon->hide();
+    if (icon)
+        icon->hide();
     hideMainForms();
     delete settingsWidget;
     delete addFriendForm;
@@ -450,19 +414,19 @@ void Widget::onStatusSet(Status status)
     {
     case Status::Online:
         ui->statusButton->setProperty("status" ,"online");
-        ui->statusButton->setIcon(QIcon(":img/status/dot_online.png"));
+        ui->statusButton->setIcon(QIcon(":img/status/dot_online_2x.png"));
         break;
     case Status::Away:
         ui->statusButton->setProperty("status" ,"away");
-        ui->statusButton->setIcon(QIcon(":img/status/dot_idle.png"));
+        ui->statusButton->setIcon(QIcon(":img/status/dot_idle_2x.png"));
         break;
     case Status::Busy:
         ui->statusButton->setProperty("status" ,"busy");
-        ui->statusButton->setIcon(QIcon(":img/status/dot_busy.png"));
+        ui->statusButton->setIcon(QIcon(":img/status/dot_busy_2x.png"));
         break;
     case Status::Offline:
         ui->statusButton->setProperty("status" ,"offline");
-        ui->statusButton->setIcon(QIcon(":img/status/dot_away.png"));
+        ui->statusButton->setIcon(QIcon(":img/status/dot_away_2x.png"));
         break;
     }
     updateTrayIcon();
@@ -746,6 +710,7 @@ void Widget::onFriendUsernameChanged(int friendId, const QString& username)
 
 void Widget::onChatroomWidgetClicked(GenericChatroomWidget *widget)
 {
+    qDebug() << "active chat";
     hideMainForms();
     widget->setChatForm(*ui);
     if (activeChatroomWidget != nullptr)
@@ -1094,6 +1059,52 @@ void Widget::onEventIconTick()
     }
 }
 
+void Widget::onTryCreateTrayIcon()
+{
+    static int32_t tries = 15;
+    if (!icon && tries--)
+    {
+        if (QSystemTrayIcon::isSystemTrayAvailable())
+        {
+            icon = new SystemTrayIcon;
+            updateTrayIcon();
+            trayMenu = new QMenu;
+
+            actionQuit = new QAction(tr("&Quit"), this);
+            connect(actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+            trayMenu->addAction(statusOnline);
+            trayMenu->addAction(statusAway);
+            trayMenu->addAction(statusBusy);
+            trayMenu->addSeparator();
+            trayMenu->addAction(actionQuit);
+            icon->setContextMenu(trayMenu);
+
+            connect(icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+                    this, SLOT(onIconClick(QSystemTrayIcon::ActivationReason)));
+
+            if (Settings::getInstance().getShowSystemTray())
+            {
+                icon->show();
+                setHidden(Settings::getInstance().getAutostartInTray());
+            }
+            else
+                show();
+        }
+        else if (!isVisible())
+            show();
+    }
+    else
+    {
+        disconnect(timer, &QTimer::timeout, this, &Widget::onTryCreateTrayIcon);
+        if (!icon)
+        {
+            qWarning() << "Widget: No system tray detected!";
+            show();
+        }
+    }
+}
+
 void Widget::setStatusOnline()
 {
     Nexus::getCore()->setStatus(Status::Online);
@@ -1137,8 +1148,10 @@ void Widget::onFriendTypingChanged(int friendId, bool isTyping)
     f->getChatForm()->setFriendTyping(isTyping);
 }
 
-void Widget::onSetShowSystemTray(bool newValue){
-    icon->setVisible(newValue);
+void Widget::onSetShowSystemTray(bool newValue)
+{
+    if (icon)
+        icon->setVisible(newValue);
 }
 
 void Widget::saveWindowGeometry()
@@ -1196,4 +1209,15 @@ void Widget::reloadTheme()
 
     for (Group* g : GroupList::getAllGroups())
         g->getGroupWidget()->reloadTheme();
+}
+
+void Widget::nextContact()
+{
+    // dont know how to get current/previous/next contact from friendlistwidget
+    qDebug() << "next contact";
+}
+
+void Widget::previousContact()
+{
+    qDebug() << "previous contact";
 }
