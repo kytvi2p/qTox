@@ -6,6 +6,7 @@ Standards-Version: 3.9.6
 Homepage: http://utoxisfinished.info/
 Build-Depends: debhelper (>= 9),
  dh-exec,
+ dh-apparmor,
  libappindicator-dev,
  libopenal-dev,
  libopencv-dev,
@@ -26,6 +27,7 @@ Vcs-Browser: http://killyourtv.i2p/gitweb/?p=qTox.git;a=shortlog
 Package: qtox
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: apparmor
 Description: Tox client
  Tox is a decentralized and encrypted replacement for Skype, supporting
  chats, audio, and video calls.
