@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150311.r2522-1~utopic+1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 11 Mar 2015 23:49:48 +0000
+
 qtox (0.0.0+git20150311.r2522-1) unstable; urgency=medium
 
   [ Ovidiu Sabou ]
@@ -37,12 +43,6 @@ qtox (0.0.0+git20150311.r2522-1) unstable; urgency=medium
   * Add apparmor profile in complain mode
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 11 Mar 2015 21:46:14 +0000
-
-qtox (0.0.0+git20150308.r2505-1ubuntu1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 09 Mar 2015 02:06:40 +0000
 
 qtox (0.0.0+git20150308.r2505-1) unstable; urgency=medium
 
