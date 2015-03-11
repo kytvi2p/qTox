@@ -7,3 +7,8 @@ export QT_SELECT := qt5
 
 override_dh_strip:
 	dh_strip --dbg-package=qtox-dbg
+
+override_dh_install:
+	dh_install --fail-missing
+	cp debian/apparmor/usr.bin.qtox debian/qtox/etc/apparmor.d
+	dh_apparmor --profile=usr.bin.qtox -pqtox
