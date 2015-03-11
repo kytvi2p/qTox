@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150311.r2522-1ubuntu1) vivid; urgency=medium
+
+  * Building for Vivid
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 11 Mar 2015 23:48:40 +0000
+
 qtox (0.0.0+git20150311.r2522-1) unstable; urgency=medium
 
   [ Ovidiu Sabou ]
