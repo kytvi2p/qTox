@@ -1,3 +1,20 @@
+qtox (0.0.0+git20150312.r2532-1) unstable; urgency=medium
+
+  [ novist ]
+  * Window icon is set same as tray icon Removed use of "qtox" theme icon as
+    it is no longer relevant
+
+  [ Dubslow ]
+  * remove duplicate code
+  * Slightly better error message
+  * Autofocus name edit in profileform fixes #1364
+  * Attempted fix for #1352
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Mar 2015 23:16:10 +0000
+
 qtox (0.0.0+git20150311.r2526-1) unstable; urgency=medium
 
   [ krepa098 ]
