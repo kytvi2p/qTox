@@ -412,6 +412,7 @@ void Widget::onAddClicked()
     hideMainForms();
     addFriendForm->show(*ui);
     setWindowTitle(tr("Add friend"));
+    activeChatroomWidget = nullptr;
 }
 
 void Widget::onGroupClicked()
@@ -679,7 +680,6 @@ void Widget::onFriendUsernameChanged(int friendId, const QString& username)
 
 void Widget::onChatroomWidgetClicked(GenericChatroomWidget *widget)
 {
-    qDebug() << "active chat";
     hideMainForms();
     widget->setChatForm(*ui);
     if (activeChatroomWidget != nullptr)
@@ -705,7 +705,7 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
     HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, isAction ? "/me " + message : message,
                                                f->getToxID().publicKey, timestamp, true);
 
-    f->setEventFlag(static_cast<GenericChatroomWidget*>(f->getFriendWidget()) != activeChatroomWidget);
+    f->setEventFlag(f->getFriendWidget() != activeChatroomWidget);
     newMessageAlert(f->getFriendWidget());
     f->getFriendWidget()->updateStatusLight();
 }
