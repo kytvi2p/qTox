@@ -1,3 +1,81 @@
+qtox (0.0.0+git20150314.r2555-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Add missing comment for #1367
+
+  [ dbuday ]
+  * Added croatian translation to qTox
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Davor ]
+  * Update i18n.pri
+  * Update res.qrc
+  * Update generalform.cpp
+
+  [ Flakebi ]
+  * Disable call buttons in a lonely groupchat
+  * Reset activeChatroomWidget when switching to addFriendForm
+
+  [ agilob ]
+  * UI fixes in general form:
+
+  [ Flakebi ]
+  * Add askQuestion with custom buttons
+  * Rename dialog buttons
+  * Align file bubbles better
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Mar 2015 22:31:39 +0000
+
+qtox (0.0.0+git20150313.r2534-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * Mark which peers are playing, styling is open to suggestions closes #757
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 13 Mar 2015 22:53:26 +0000
+
+qtox (0.0.0+git20150312.r2532-1) unstable; urgency=medium
+
+  [ novist ]
+  * Window icon is set same as tray icon Removed use of "qtox" theme icon as
+    it is no longer relevant
+
+  [ Dubslow ]
+  * remove duplicate code
+  * Slightly better error message
+  * Autofocus name edit in profileform fixes #1364
+  * Attempted fix for #1352
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Mar 2015 23:16:10 +0000
+
+qtox (0.0.0+git20150311.r2526-1) unstable; urgency=medium
+
+  [ krepa098 ]
+  * Text: Tooltips (issue #1238)
+  * use QUrl::fromLocalFile (fix #1305)
+
+  [ Dubslow ]
+  * Filter audio checkbox has effect mid-call
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * Update apparmor profile
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Mar 2015 02:52:34 +0000
+
 qtox (0.0.0+git20150311.r2522-1ubuntu1) vivid; urgency=medium
 
   * Building for Vivid
