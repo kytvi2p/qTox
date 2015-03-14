@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150314.r2555-1~utopic+1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Mar 2015 22:43:18 +0000
+
 qtox (0.0.0+git20150314.r2555-1) unstable; urgency=medium
 
   [ Zetok Zalbavar ]
@@ -75,12 +81,6 @@ qtox (0.0.0+git20150311.r2526-1) unstable; urgency=medium
   * Update apparmor profile
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Mar 2015 02:52:34 +0000
-
-qtox (0.0.0+git20150311.r2522-1~utopic+1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 11 Mar 2015 23:49:48 +0000
 
 qtox (0.0.0+git20150311.r2522-1) unstable; urgency=medium
 
