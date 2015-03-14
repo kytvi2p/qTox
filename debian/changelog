@@ -1,3 +1,36 @@
+qtox (0.0.0+git20150314.r2555-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Add missing comment for #1367
+
+  [ dbuday ]
+  * Added croatian translation to qTox
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Davor ]
+  * Update i18n.pri
+  * Update res.qrc
+  * Update generalform.cpp
+
+  [ Flakebi ]
+  * Disable call buttons in a lonely groupchat
+  * Reset activeChatroomWidget when switching to addFriendForm
+
+  [ agilob ]
+  * UI fixes in general form:
+
+  [ Flakebi ]
+  * Add askQuestion with custom buttons
+  * Rename dialog buttons
+  * Align file bubbles better
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Mar 2015 22:31:39 +0000
+
 qtox (0.0.0+git20150313.r2534-1) unstable; urgency=medium
 
   [ Dubslow ]
