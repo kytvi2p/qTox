@@ -1,4 +1,4 @@
-qtox (0.0.0+git20150316.r2584-1) unstable; urgency=medium
+qtox (0.0.0+git20150317.r2589-1) unstable; urgency=medium
 
   [ agilob ]
   * qrcode support by html tooltip
@@ -46,6 +46,16 @@ qtox (0.0.0+git20150316.r2584-1) unstable; urgency=medium
 
   [ sudden6 ]
   * fix  #1394
+
+  [ agilob ]
+  * closes tux3/qtox #1399
+  * disable css interitance in setpassworddialog
+
+  [ Dubslow ]
+  * Fix qr label wordwrap
+
+  [ isn0gud ]
+  * add friend on enter key pressed #1404
 
   [ Kill Your TV ]
   * New upstream git snapshot
