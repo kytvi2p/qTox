@@ -4,23 +4,24 @@ Section: net
 Priority: optional
 Standards-Version: 3.9.6
 Homepage: http://utoxisfinished.info/
-Build-Depends: debhelper (>= 9),
- dh-exec,
- dh-apparmor,
- libappindicator-dev,
- libopenal-dev,
- libopencv-dev,
- libqt5opengl5-dev,
- libqt5svg5-dev,
- libtoxav-dev (>= 0.0.0+20141129.r2982),
- libtoxcore-dev (>= 0.0.0+20140925.1),
- libtoxencryptsave-dev,
- libtoxdns-dev,
- libfilteraudio-dev (>= 0.0.0+git20150211),
- qt5-qmake,
- qttools5-dev-tools,
- qtbase5-dev,
- libxss-dev
+Build-Depends: debhelper (>= 9)
+ ,dh-apparmor
+ ,dh-exec
+ ,,libappindicator-dev
+ ,libfilteraudio-dev (>= 0.0.0+git20150211)
+ ,libopenal-dev
+ ,libopencv-dev
+ ,libqrencode-dev
+ ,libqt5opengl5-dev
+ ,libqt5svg5-dev
+ ,libtoxav-dev (>= 0.0.0+20141129.r2982)
+ ,libtoxcore-dev (>= 0.0.0+20140925.1)
+ ,libtoxdns-dev
+ ,libtoxencryptsave-dev
+ ,libxss-dev
+ ,qt5-qmake
+ ,qtbase5-dev
+ ,qttools5-dev-tools
 Vcs-Git: git://killyourtv.i2p/git/qTox.git
 Vcs-Browser: http://killyourtv.i2p/gitweb/?p=qTox.git;a=shortlog
 
