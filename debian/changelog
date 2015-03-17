@@ -1,3 +1,67 @@
+qtox (0.0.0+git20150317.r2589-1) unstable; urgency=medium
+
+  [ agilob ]
+  * qrcode support by html tooltip
+  * I am not sure about this commit, someone check it please
+  * updated simple_make
+  * tox URI and updated install.md
+  * allow saving qrcode as file (src only, no UI)
+  * install.md dependency
+
+  [ novist ]
+  * PNG images replaced with SVG Closes #1050
+
+  [ agilob ]
+  * s/qrcode/qrencode/
+  * s/=>/>=/
+
+  [ PKEv ]
+  * #1379 correct
+
+  [ agilob ]
+  * qrcode always visible, button to save
+  * copy image to clipboard
+
+  [ kushagra ]
+  * Resize notification only if theres lot of text
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Missing svgs
+
+  [ agilob ]
+  * rm qrcodewindow
+
+  [ Dubslow ]
+  * Cleanup QR PR Fix coding style, #include "" -> #include <> Remove tooltip
+    Move "tox:" addition out of qr-related code
+  * Less agressive tooltip
+  * Check for writability for Qr saves
+  * Add -lqrencode to JENKINS
+
+  [ PKEv ]
+  * Update Russian translation
+
+  [ sudden6 ]
+  * fix  #1394
+
+  [ agilob ]
+  * closes tux3/qtox #1399
+  * disable css interitance in setpassworddialog
+
+  [ Dubslow ]
+  * Fix qr label wordwrap
+
+  [ isn0gud ]
+  * add friend on enter key pressed #1404
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 17 Mar 2015 15:59:14 +0000
+
 qtox (0.0.0+git20150314.r2555-1ubuntu1) vivid; urgency=medium
 
   * Building for Vivid

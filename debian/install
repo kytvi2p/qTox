@@ -1,4 +1,4 @@
 #!/usr/bin/dh-exec
 qtox usr/bin
-debian/qtox.desktop usr/share/applications
-img/icon.png => usr/share/pixmaps/qtox.png
+debian/qtox.desktop usr/share/applications/
+img/icons/qtox-*.png usr/share/pixmaps/
