@@ -1,3 +1,24 @@
+qtox (0.0.0+git20150318.r2597-1) unstable; urgency=medium
+
+  [ TheLastProject ]
+  * Fix #1204
+  * Oops, forgot about groups
+
+  [ kushagra ]
+  * fixes #1412
+  * fixes #1091
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ kushagra ]
+  * fixed display of contact_dark.svg
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 18 Mar 2015 19:20:44 +0000
+
 qtox (0.0.0+git20150317.r2589-1ubuntu1) vivid; urgency=medium
 
   * Building for Vivid
