@@ -1,3 +1,18 @@
+qtox (0.0.0+git20150319.r2600-1) unstable; urgency=medium
+
+  [ novist ]
+  * IPC improvements
+
+  [ sudden6 ]
+  * Add some error handling in attempt to fix #1240 This should prevent the
+    application from crashing, but there is still no way to tell there is no
+    webcam attached.
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 19 Mar 2015 20:11:03 +0000
+
 qtox (0.0.0+git20150318.r2597-1~utopic+1) utopic; urgency=medium
 
   * Building for Utopic
