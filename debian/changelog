@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150321.r2610-1ubuntu1) vivid; urgency=medium
+
+  * Building for Vivid
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 22 Mar 2015 01:32:46 +0000
+
 qtox (0.0.0+git20150321.r2610-1) unstable; urgency=medium
 
   [ Dubslow ]
@@ -20,12 +26,6 @@ qtox (0.0.0+git20150320.r2609-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Mar 2015 00:33:21 +0000
-
-qtox (0.0.0+git20150319.r2600-1ubuntu1) vivid; urgency=medium
-
-  * Building for Vivid
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 19 Mar 2015 23:49:33 +0000
 
 qtox (0.0.0+git20150319.r2600-1) unstable; urgency=medium
 
