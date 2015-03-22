@@ -1,3 +1,26 @@
+qtox (0.0.0+git20150321.r2610-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * Fix minor memleak
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Mar 2015 21:44:09 +0000
+
+qtox (0.0.0+git20150320.r2609-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * Correct for Maximized window
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Mar 2015 00:33:21 +0000
+
 qtox (0.0.0+git20150319.r2600-1~utopic+1) utopic; urgency=medium
 
   * Building for Utopic
