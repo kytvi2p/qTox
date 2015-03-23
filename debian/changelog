@@ -1,3 +1,22 @@
+qtox (0.0.0+git20150322.r2615-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * #1441 correct
+
+  [ Rohil Surana ]
+  * Corrected a spelling mistake
+
+  [ Jookia ]
+  * Added option to disable notification sounds.
+
+  [ PKEv ]
+  * Correct #1448
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 23 Mar 2015 19:15:55 +0000
+
 qtox (0.0.0+git20150321.r2610-1) unstable; urgency=medium
 
   [ Dubslow ]
