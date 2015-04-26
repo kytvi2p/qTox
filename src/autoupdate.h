@@ -21,9 +21,10 @@
 #include <QString>
 #include <QList>
 #include <sodium.h>
+#include <atomic>
 
-/// For now we only support auto updates on Windows, although extending it is not a technical issue.
-/// Linux and Mac users are expected to use their package managers or update manually through official channels.
+/// For now we only support auto updates on Windows and OS X, although extending it is not a technical issue.
+/// Linux users are expected to use their package managers or update manually through official channels.
 #ifdef Q_OS_WIN
 #define AUTOUPDATE_ENABLED 1
 #elif defined(Q_OS_OSX)
@@ -78,15 +79,18 @@ public:
     /// Will try to download an update, if successful returns true and qTox will apply it after a restart
     /// Will try to follow qTox's proxy settings, may block and processEvents
     static bool downloadUpdate();
-    /// Returns true if an update is downloaded and ready to be installed
-    /// If so, call installLocalUpdate. If not, call downloadUpdate.
-    /// This only checks that we downloaded an update and didn't stop in the middle, not that every file is still valid
+    /// Returns true if an update is downloaded and ready to be installed,
+    /// if so, call installLocalUpdate.
+    /// If an update was partially downloaded, the function will resume asynchronously and return false
     static bool isLocalUpdateReady();
     /// Launches the qTox updater to try to install the local update and exits immediately
     /// Will not check that the update actually exists, use isLocalUpdateReady first for that
     /// The qTox updater will restart us after the update is done
     /// Note: If we fail to start the qTox updater, we will delete the update and exit
     [[ noreturn ]] static void installLocalUpdate();
+    /// Aborting will make some functions try to return early
+    /// Call before qTox exits to avoid the updater running in the background
+    static void abortUpdates();
 
 protected:
     /// Parses and validates a flist file. Returns an empty list on error
@@ -118,6 +122,8 @@ private:
     static const QString filesURI; ///< URI of the actual files of the latest version
     static const QString updaterBin; ///< Path to the qtox-updater binary
     static unsigned char key[];
+    static bool abortFlag; ///< If true, try to abort everything.
+    static std::atomic_bool isDownloadingUpdate; ///< We'll pretend there's no new update available if we're already updating
 };
 
 #endif // AUTOUPDATE_H

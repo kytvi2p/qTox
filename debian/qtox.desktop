@@ -2,7 +2,7 @@
 Name=qTox
 Comment=Desktop Client for Tox
 Exec=qtox
-Icon=qtox
+Icon=qtox-64x64.png
 StartupNotify=true
 Terminal=false
 Type=Application

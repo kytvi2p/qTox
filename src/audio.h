@@ -34,7 +34,9 @@ class QString;
 class QByteArray;
 class QTimer;
 class QThread;
+class QMutex;
 struct Tox;
+class AudioFilterer;
 
 class Audio : QObject
 {
@@ -52,12 +54,21 @@ public:
     static void closeInput(); ///< Close an input device, please don't use unless everyone's unsuscribed
     static void closeOutput(); ///< Close an output device
 
+    static bool isInputReady(); ///< Returns true if the input device is open and suscribed to
+    static bool isOutputClosed(); ///< Returns true if the output device is open
+
     static void playMono16Sound(const QByteArray& data); ///< Play a 44100Hz mono 16bit PCM sound
+    static bool tryCaptureSamples(uint8_t* buf, int framesize); ///< Does nothing and return false on failure
 
     /// May be called from any thread, will always queue a call to playGroupAudio
     /// The first and last argument are ignored, but allow direct compatibility with toxcore
     static void playGroupAudioQueued(Tox*, int group, int peer, const int16_t* data,
                         unsigned samples, uint8_t channels, unsigned sample_rate, void*);
+
+#ifdef QTOX_FILTER_AUDIO
+    static void getEchoesToFilter(AudioFilterer* filter, int framesize);
+    // is a null op #ifndef ALC_LOOPBACK_CAPTURE_SAMPLES
+#endif
 
 public slots:
     /// Must be called from the audio thread, plays a group call's received audio
@@ -66,17 +77,20 @@ public slots:
 
 public:
     static QThread* audioThread;
-    static ALCdevice* alOutDev, *alInDev;
     static ALCcontext* alContext;
     static ALuint alMainSource;
+    static float outputVolume;
 
 private:
     explicit Audio()=default;
+    ~Audio();
     static void playAudioBuffer(ALuint alSource, const int16_t *data, int samples, unsigned channels, int sampleRate);
 
 private:
     static Audio* instance;
     static std::atomic<int> userCount;
+    static ALCdevice* alOutDev, *alInDev;
+    static QMutex* audioInLock, *audioOutLock;
 };
 
 #endif // AUDIO_H

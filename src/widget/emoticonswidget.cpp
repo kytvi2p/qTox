@@ -40,8 +40,8 @@ EmoticonsWidget::EmoticonsWidget(QWidget *parent) :
 
     layout.addWidget(pageButtonsContainer);
 
-    const int maxCols = 5;
-    const int maxRows = 3;
+    const int maxCols = 8;
+    const int maxRows = 8;
     const int itemsPerPage = maxRows * maxCols;
 
     const QList<QStringList>& emoticons = SmileyPack::getInstance().getEmoticons();
@@ -81,7 +81,7 @@ EmoticonsWidget::EmoticonsWidget(QWidget *parent) :
     for (const QStringList& set : emoticons)
     {
         QPushButton* button = new QPushButton;
-        button->setIcon(SmileyPack::getInstance().getAsIcon(set[0]));
+        button->setIcon(SmileyPack::getInstance().getAsIcon(set[0]).pixmap(QSize(24,24)));
         button->setToolTip(set.join(" "));
         button->setProperty("sequence", set[0]);
         button->setCursor(Qt::PointingHandCursor);

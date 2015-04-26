@@ -18,17 +18,16 @@
 #include "friendlist.h"
 #include "widget/friendwidget.h"
 #include "widget/form/chatform.h"
-#include "widget/widget.h"
-#include "src/core.h"
+#include "widget/gui.h"
+#include "src/core/core.h"
 #include "src/misc/settings.h"
 
-Friend::Friend(int FriendId, const ToxID &UserId)
-    : friendId(FriendId)
+Friend::Friend(uint32_t FriendId, const ToxID &UserId)
+    : userName{Core::getInstance()->getPeerName(UserId)},
+      userID{UserId}, friendId{FriendId}
 {
     hasNewEvents = 0;
     friendStatus = Status::Offline;
-    userID = UserId;
-    userName = Core::getInstance()->getPeerName(UserId);
     if (userName.size() == 0)
         userName = UserId.publicKey;
 
@@ -44,6 +43,15 @@ Friend::~Friend()
     delete widget;
 }
 
+void Friend::loadHistory()
+{
+    if (Settings::getInstance().getEnableLogging())
+    {
+        chatForm->loadHistory(QDateTime::currentDateTime().addDays(-7), true);
+        widget->historyLoaded = true;
+    }
+}
+
 void Friend::setName(QString name)
 {
     userName = name;
@@ -53,7 +61,9 @@ void Friend::setName(QString name)
         chatForm->setName(name);
 
         if (widget->isActive())
-            Widget::getInstance()->setWindowTitle(name);
+            GUI::setWindowTitle(name);
+        
+        emit displayedNameChanged(getFriendWidget(), getStatus(), hasNewEvents);
     }
 }
 
@@ -66,7 +76,9 @@ void Friend::setAlias(QString name)
     chatForm->setName(dispName);
 
     if (widget->isActive())
-            Widget::getInstance()->setWindowTitle(dispName);
+            GUI::setWindowTitle(dispName);
+    
+    emit displayedNameChanged(getFriendWidget(), getStatus(), hasNewEvents);
 }
 
 void Friend::setStatusMessage(QString message)
@@ -79,6 +91,7 @@ QString Friend::getDisplayedName() const
 {
     if (userAlias.size() == 0)
         return userName;
+
     return userAlias;
 }
 
@@ -87,7 +100,7 @@ const ToxID &Friend::getToxID() const
     return userID;
 }
 
-int Friend::getFriendID() const
+uint32_t Friend::getFriendID() const
 {
     return friendId;
 }

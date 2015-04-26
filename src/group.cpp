@@ -19,8 +19,8 @@
 #include "widget/form/groupchatform.h"
 #include "friendlist.h"
 #include "friend.h"
-#include "core.h"
-#include "widget/widget.h"
+#include "src/core/core.h"
+#include "widget/gui.h"
 #include <QDebug>
 #include <QTimer>
 
@@ -72,7 +72,6 @@ void Group::updatePeer(int peerId, QString name)
     QString toxid = id.publicKey;
     peers[peerId] = name;
     toxids[toxid] = name;
-
     Friend *f = FriendList::findFriend(id);
     if (f)
     {
@@ -90,22 +89,22 @@ void Group::setName(const QString& name)
     chatForm->setName(name);
 
     if (widget->isActive())
-            Widget::getInstance()->setWindowTitle(name);
+            GUI::setWindowTitle(name);
 }
 
 void Group::regeneratePeerList()
 {
-    QList<QString> peerLst = Core::getInstance()->getGroupPeerNames(groupId);
-    peers.clear();
+    peers = Core::getInstance()->getGroupPeerNames(groupId);
     toxids.clear();
-    nPeers = peerLst.size();
-    for (int i = 0; i < peerLst.size(); i++)
+    nPeers = peers.size();
+    for (int i = 0; i < nPeers; i++)
     {
         ToxID id = Core::getInstance()->getGroupPeerToxID(groupId, i);
-        QString toxid = id.publicKey;
-        peers[i] = peerLst.at(i);
-        toxids[toxid] = peerLst.at(i);
+        if (id.isMine())
+            selfPeerNum = i;
 
+        QString toxid = id.publicKey;
+        toxids[toxid] = peers[i];
         Friend *f = FriendList::findFriend(id);
         if (f)
         {
@@ -145,7 +144,12 @@ GroupWidget *Group::getGroupWidget()
 
 QStringList Group::getPeerList() const
 {
-    return peers.values();
+    return peers;
+}
+
+bool Group::isSelfPeerNumber(int num) const
+{
+    return num == selfPeerNum;
 }
 
 void Group::setEventFlag(int f)
@@ -174,9 +178,7 @@ QString Group::resolveToxID(const ToxID &id) const
     auto it = toxids.find(key);
 
     if (it != toxids.end())
-    {
         return *it;
-    }
 
     return QString();
 }

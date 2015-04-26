@@ -19,7 +19,7 @@
    was greatly simplified for use in qTox. */
 
 #include "tabcompleter.h"
-#include "src/core.h"
+#include "src/core/core.h"
 #include "src/group.h"
 #include "src/widget/tool/chattextedit.h"
 #include <QRegExp>
@@ -28,7 +28,8 @@
 const QString TabCompleter::nickSuffix = QString(": ");
 
 TabCompleter::TabCompleter(ChatTextEdit* msgEdit, Group* group)
-    : QObject(msgEdit), msgEdit(msgEdit), group(group), enabled(false)
+    : QObject{msgEdit}, msgEdit{msgEdit}, group{group},
+      enabled{false}, lastCompletionLength{0}
 {
 }
 
@@ -53,8 +54,10 @@ void TabCompleter::buildCompletionList()
     QRegExp regex(QString("^[-_\\[\\]{}|`^.\\\\]*").append(QRegExp::escape(tabAbbrev)), Qt::CaseInsensitive);
 
     for (auto name : group->getPeerList())
+    {
         if (regex.indexIn(name) > -1)
             completionMap[name.toLower()] = name;
+    }
 
     nextCompletion = completionMap.begin();
     lastCompletionLength = tabAbbrev.length();
@@ -63,16 +66,20 @@ void TabCompleter::buildCompletionList()
 
 void TabCompleter::complete()
 {
-    if (!enabled) {
+    if (!enabled)
+    {
         buildCompletionList();
         enabled = true;
     }
 
-    if (nextCompletion != completionMap.end()) {
+    if (nextCompletion != completionMap.end())
+    {
         // clear previous completion
-        for (int i = 0; i < lastCompletionLength; i++) {
-            msgEdit->keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace, Qt::NoModifier));
-        }
+        auto cur = msgEdit->textCursor();
+        cur.setPosition(cur.selectionEnd());
+        msgEdit->setTextCursor(cur);
+        for (int i = 0; i < lastCompletionLength; i++)
+            msgEdit->textCursor().deletePreviousChar();
 
         // insert completion
         msgEdit->insertPlainText(*nextCompletion);
@@ -82,19 +89,21 @@ void TabCompleter::complete()
         nextCompletion++;
 
         // we're completing the first word of the line
-        if (msgEdit->textCursor().position() == lastCompletionLength) {
+        if (msgEdit->textCursor().position() == lastCompletionLength)
+        {
             msgEdit->insertPlainText(nickSuffix);
             lastCompletionLength += nickSuffix.length();
         }
     }
-    else { // we're at the end of the list -> start over again
-        if (!completionMap.isEmpty()) {
+    else
+    { // we're at the end of the list -> start over again
+        if (!completionMap.isEmpty())
+        {
             nextCompletion = completionMap.begin();
             complete();
         }
     }
 }
-
 
 void TabCompleter::reset()
 {

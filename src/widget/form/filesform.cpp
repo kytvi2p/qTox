@@ -16,10 +16,11 @@
 
 #include "filesform.h"
 #include "ui_mainwindow.h"
+#include "src/widget/widget.h"
 #include <QFileInfo>
 #include <QUrl>
 #include <QDebug>
-#include <QDesktopServices>
+#include <QPainter>
 
 FilesForm::FilesForm()
     : QObject()
@@ -60,14 +61,14 @@ void FilesForm::show(Ui::MainWindow& ui)
 
 void FilesForm::onFileDownloadComplete(const QString& path)
 {
-    ListWidgetItem* tmp = new ListWidgetItem(QIcon(":/ui/acceptFileButton/default.png"), QFileInfo(path).fileName());
+    ListWidgetItem* tmp = new ListWidgetItem(QIcon(":/ui/fileTransferWidget/fileDone.svg"), QFileInfo(path).fileName());
     tmp->path = path;
     recvd->addItem(tmp);
 }
 
 void FilesForm::onFileUploadComplete(const QString& path)
 {
-    ListWidgetItem* tmp = new ListWidgetItem(QIcon(":/ui/acceptFileButton/default.png"), QFileInfo(path).fileName());
+    ListWidgetItem* tmp = new ListWidgetItem(QIcon(":/ui/fileTransferWidget/fileDone.svg"), QFileInfo(path).fileName());
     tmp->path = path;
     sent->addItem(tmp);
 }
@@ -80,7 +81,6 @@ void FilesForm::onFileUploadComplete(const QString& path)
 void FilesForm::onFileActivated(QListWidgetItem* item)
 {
     ListWidgetItem* tmp = dynamic_cast<ListWidgetItem*> (item);
-    QUrl url = QUrl::fromLocalFile(tmp->path);
-    qDebug() << "Opening '" << url << "'";
-    QDesktopServices::openUrl(url);
+
+    Widget::confirmExecutableOpen(QFileInfo(tmp->path));
 }

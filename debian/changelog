@@ -1,3 +1,1556 @@
+qtox (0.0.0+git20150322.r2615-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * #1441 correct
+
+  [ Rohil Surana ]
+  * Corrected a spelling mistake
+
+  [ Jookia ]
+  * Added option to disable notification sounds.
+
+  [ PKEv ]
+  * Correct #1448
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 23 Mar 2015 19:15:55 +0000
+
+qtox (0.0.0+git20150321.r2610-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * Fix minor memleak
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Mar 2015 21:44:09 +0000
+
+qtox (0.0.0+git20150320.r2609-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * Correct for Maximized window
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Mar 2015 00:33:21 +0000
+
+qtox (0.0.0+git20150319.r2600-1) unstable; urgency=medium
+
+  [ novist ]
+  * IPC improvements
+
+  [ sudden6 ]
+  * Add some error handling in attempt to fix #1240 This should prevent the
+    application from crashing, but there is still no way to tell there is no
+    webcam attached.
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 19 Mar 2015 20:11:03 +0000
+
+qtox (0.0.0+git20150318.r2597-1) unstable; urgency=medium
+
+  [ TheLastProject ]
+  * Fix #1204
+  * Oops, forgot about groups
+
+  [ kushagra ]
+  * fixes #1412
+  * fixes #1091
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ kushagra ]
+  * fixed display of contact_dark.svg
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 18 Mar 2015 19:20:44 +0000
+
+qtox (0.0.0+git20150317.r2589-1) unstable; urgency=medium
+
+  [ agilob ]
+  * qrcode support by html tooltip
+  * I am not sure about this commit, someone check it please
+  * updated simple_make
+  * tox URI and updated install.md
+  * allow saving qrcode as file (src only, no UI)
+  * install.md dependency
+
+  [ novist ]
+  * PNG images replaced with SVG Closes #1050
+
+  [ agilob ]
+  * s/qrcode/qrencode/
+  * s/=>/>=/
+
+  [ PKEv ]
+  * #1379 correct
+
+  [ agilob ]
+  * qrcode always visible, button to save
+  * copy image to clipboard
+
+  [ kushagra ]
+  * Resize notification only if theres lot of text
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Missing svgs
+
+  [ agilob ]
+  * rm qrcodewindow
+
+  [ Dubslow ]
+  * Cleanup QR PR Fix coding style, #include "" -> #include <> Remove tooltip
+    Move "tox:" addition out of qr-related code
+  * Less agressive tooltip
+  * Check for writability for Qr saves
+  * Add -lqrencode to JENKINS
+
+  [ PKEv ]
+  * Update Russian translation
+
+  [ sudden6 ]
+  * fix  #1394
+
+  [ agilob ]
+  * closes tux3/qtox #1399
+  * disable css interitance in setpassworddialog
+
+  [ Dubslow ]
+  * Fix qr label wordwrap
+
+  [ isn0gud ]
+  * add friend on enter key pressed #1404
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 17 Mar 2015 15:59:14 +0000
+
+qtox (0.0.0+git20150314.r2555-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Add missing comment for #1367
+
+  [ dbuday ]
+  * Added croatian translation to qTox
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Davor ]
+  * Update i18n.pri
+  * Update res.qrc
+  * Update generalform.cpp
+
+  [ Flakebi ]
+  * Disable call buttons in a lonely groupchat
+  * Reset activeChatroomWidget when switching to addFriendForm
+
+  [ agilob ]
+  * UI fixes in general form:
+
+  [ Flakebi ]
+  * Add askQuestion with custom buttons
+  * Rename dialog buttons
+  * Align file bubbles better
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Mar 2015 22:31:39 +0000
+
+qtox (0.0.0+git20150313.r2534-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * Mark which peers are playing, styling is open to suggestions closes #757
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 13 Mar 2015 22:53:26 +0000
+
+qtox (0.0.0+git20150312.r2532-1) unstable; urgency=medium
+
+  [ novist ]
+  * Window icon is set same as tray icon Removed use of "qtox" theme icon as
+    it is no longer relevant
+
+  [ Dubslow ]
+  * remove duplicate code
+  * Slightly better error message
+  * Autofocus name edit in profileform fixes #1364
+  * Attempted fix for #1352
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Mar 2015 23:16:10 +0000
+
+qtox (0.0.0+git20150311.r2526-1) unstable; urgency=medium
+
+  [ krepa098 ]
+  * Text: Tooltips (issue #1238)
+  * use QUrl::fromLocalFile (fix #1305)
+
+  [ Dubslow ]
+  * Filter audio checkbox has effect mid-call
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * Update apparmor profile
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Mar 2015 02:52:34 +0000
+
+qtox (0.0.0+git20150311.r2522-1) unstable; urgency=medium
+
+  [ Ovidiu Sabou ]
+  * Move the identity settings tab into its own dedicated profile page
+  * Refresh the available profiles when the profile page is shown. Fix regression for #1012
+  * Set a header to be consistent and to have the profile page remain open when switching profiles
+  * Fix a crash bug when closing the application
+  * Refresh the profile list when the new id is available in the core
+  * Silence warning
+
+  [ Dubslow ]
+  * Tidying new profile form Fixing up Widget code for simplicity and
+    consistency, add picture to form heading
+
+  [ Flakebi ]
+  * Allow writing messages in a lonely groupchat
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ novist ]
+  * Support for theming qTox tray and window icons
+
+  [ agilob ]
+  * probably closes tux3/qtox#1330
+  * prevent segfault ;_; repaint only after changing alias
+
+  [ Flakebi ]
+  * Inline funtion calls
+
+  [ Dubslow ]
+  * Rename widget/form/settings/identitysettings.ui to
+    widget/form/profileform.ui
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+  * Add apparmor profile in complain mode
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 11 Mar 2015 21:46:14 +0000
+
+qtox (0.0.0+git20150308.r2505-1) unstable; urgency=medium
+
+  [ kushagra ]
+  * solves issue 1309
+
+  [ TheLastProject ]
+  * Use QImage scaling and base64 encoding for sharper previews
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 09 Mar 2015 00:48:06 +0000
+
+qtox (0.0.0+git20150306.r2501-1) unstable; urgency=medium
+
+  [ novist ]
+  * Delayed tray icon creation to timer event. Added null checks around usage
+    of tray icon object.
+
+  [ agilob ]
+  * keyboard shortcut to change current chat
+  * clearing chatarea
+
+  [ baloo79 ]
+  * Update i18n.pri (Hungarian translation)
+  * Update res.qrc (Hungarian translation)
+  * Hungarian translation added
+  * Update generalform.cpp (for Hungarian translation)
+
+  [ minj ]
+  * tweak some Lithuanian translations
+
+  [ TheLastProject ]
+  * Fix images with spaces or other non-HTML characters breaking the preview
+
+  [ Sean ]
+  * High DPI scaling
+
+  [ tux3 ]
+  * Cherry-pick from #1323
+
+  [ tux3 ]
+  * Catch OpenCV errors
+
+  [ Domen Skamlic ]
+  * Update README.md
+
+  [ TheLastProject ]
+  * Resize images. Fixes #1204
+
+  [ tux3 ]
+  * Change OpenCV error mode
+
+  [ Domen Skamlic ]
+  * Added Slovenian translation.
+  * Some minimal fixes
+
+  [ TheLastProject ]
+  * Fix yet another regression by using padding-less bigger icons
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 07 Mar 2015 20:23:18 +0000
+
+qtox (0.0.0+git20150228.r2466-1) unstable; urgency=medium
+
+  [ agilob ]
+  * closes again tux3/qtox #988
+
+  [ TheLastProject ]
+  * Add image preview on mouseover
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 28 Feb 2015 20:04:14 +0000
+
+qtox (0.0.0+git20150227.r2462-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * [qtox.pro] fix building with support for libappindicator
+
+  [ agilob ]
+  * closes tux3/qtox #1289
+  * +comment
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ agilob ]
+  * qlabels will not support richtext, plaintext only
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 28 Feb 2015 00:43:09 +0000
+
+qtox (0.0.0+git20150225.r2453-1) unstable; urgency=medium
+
+  [ TheLastProject ]
+  * Allow user to open all transferred files, but warn for executable files
+  * Actually use yes/no question
+  * Remove unused variable
+  * Make askQuestion more flexible, defaulting to Yes/No
+  * Oops, default for file transfer message should be no
+  * Use blacklist for executables, explicitly run executables with QProcess to
+    work around KDE4.4 security measure which disallows running executables
+
+  [ novist ]
+  * Reworked IPC class:   * Simpler design   * Suport for named events   *
+    Support for checking if events were handled   * Support for sending events
+    to specific application instance
+  * Fixes #840
+  * Allow only main (IPC owner) instance to save global settings
+
+  [ agilob ]
+  * fix tux3/qtox #891
+
+  [ Sean ]
+  * Attempt to fix #1269 with macho weak linking
+
+  [ tux3 ]
+  * Only use StatusNotifier on KDE5
+
+  [ TheLastProject ]
+  * Make default friend request message contain nickname
+
+  [ tux3 ]
+  * Implement GTK systray icon backend
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Start implementing toxme.se support
+
+  [ tux3 ]
+  * Implementing creating a toxme address
+  * Implement deleting a toxme address
+  * Remove install_libfilteraudio.sh until it works properly
+  * Use GTK status icon on Gnome
+  * Compile toxme support
+  * Use Qt systray again on KDE4
+  * Update INSTALL.md for filter_audio
+  * Don't include appindicator for GTK backend
+  * Fix missing include for toxme
+  * Tell to install libappindicator in INSTALL.md
+
+  [ TheLastProject ]
+  * Update Dutch translation
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ tux3 ]
+  * Upload update FTP deployement scripts
+  * Disable systray unity backend by default
+  * Fix missing brace
+  * Don't build desktop resource files on android
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 25 Feb 2015 21:25:23 +0000
+
+qtox (0.0.0+git20150223.r2411-1) unstable; urgency=medium
+
+  [ Chloe ]
+  * Avatar Choosing Dialog
+  * Update widget.cpp
+  * Update widget.cpp
+
+  [ Zetok Zalbavar ]
+  * Rename 'Start automatically' → 'Autostart'
+
+  [ krepa098 ]
+  * fix issue #1161
+
+  [ Joseph Anania III ]
+  * Added initial :name: emoticon support and compatiblity with cylgom pack
+    for TwitterEmojiSVG and artwork fixes
+
+  [ krepa098 ]
+  * try fix #1165
+  * fix issue #1168
+  * fix issue #1163
+
+  [ Dubslow ]
+  * Ask before joining group Fixes #1101, closes #1177
+  * Refactor image filter as discussed
+
+  [ Chloe ]
+  * Fixed Markdown Error in Install.md
+
+  [ Joseph Anania III ]
+  * changed grinning faces to show more teeth and to be closer to Unicode's
+    examples
+
+  [ Dubslow ]
+  * Fix #1182
+
+  [ Joseph Anania III ]
+  * due to demand added TwitterEmojiSimple emoticon theme shares assets with
+    TwitterEmojiSVG doesn't replace ascii smiles :-)
+
+  [ BroncoTc ]
+  * Add Chinese translation
+  * edit the three config & source file
+  * Partial translated
+  * Work temply transmitted to Dennx to finish
+
+  [ Denny Dai ]
+  * Finish zh_CN translation
+
+  [ BroncoTc ]
+  * Beta version of Chinese language file
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ BroncoTc ]
+  * add spaces between language names
+
+  [ Zetok Zalbavar ]
+  * Update toolTip for Compact contact list
+
+  [ BroncoTc ]
+  * Checked by Qt Linguist
+  * Qt installed and lupdated
+
+  [ krepa098 ]
+  * use QString::toHtmlEscaped
+  * fix issue #1161 round 2!
+
+  [ BroncoTc ]
+  * Translation Added
+  * Translation finished
+
+  [ krepa098 ]
+  * fix issue #1181
+
+  [ TheLastProject ]
+  * Turn group invite warning into question. Fixes #1199
+
+  [ BroncoTc ]
+  * update zh lang
+  * fix translation problems
+
+  [ TheLastProject ]
+  * Add open directory option to completed file transfers
+  * Fix docname in dir.svg
+  * Update Dutch translation
+
+  [ Joseph Anania III ]
+  * Bug Fixed TwitterEmojiSimple
+  * removed leading directory from TwitterEmojiSimple
+
+  [ TheLastProject ]
+  * Clean up code
+
+  [ BroncoTc ]
+  * Update all the lang files
+  * Revert "Update all the lang files"
+
+  [ Dubslow ]
+  * New screenshot in README Any other screenshots are welcome
+
+  [ Zetok Zalbavar ]
+  * [INSTALL.md] Same build dependencies for Debian and Ubuntu
+
+  [ Dubslow ]
+  * Single line copy/pasted text
+  * Fix #1169
+  * Use filter_audio Makefile, bump sodium version May help with #1128 @novist
+    bootstrap.sh no longer calls install_libfilteraudio.sh, I'd like you to
+    fix Windows as necessary (I have no idea if the filter_audio Makefile
+    supports Windows or not). I'd like to remove install_libfilteraudio.sh if
+    possible.
+  * Major bug: audio filtering never actually worked We filtered the audio
+    after it was already processed by core, i.e. it was never used @mwuttke97
+    @tux3 @Dubslow pls
+
+  [ Serg ]
+  * fix missed math include
+
+  [ Dubslow ]
+  * Add experimental echo cancellation to qTox It compiles with modified
+    OpenAL (unchanged logic otherwise), but effectiveness needs testing (like
+    uTox)
+  * Add static OpenAL to Jenkins
+  * Fix spurious dependencies on non-unity Tox repo packages
+
+  [ TheLastProject ]
+  * Hide is typing status when friend disconnects
+
+  [ Joseph Anania III ]
+  * changed emoticon widget to show 24x24 emoticons
+
+  [ Dubslow ]
+  * Fix build issue with older OpenALs
+
+  [ Sean Qureshi ]
+  * Future
+
+  [ BroncoTc ]
+  * translate Warning text and small fixes
+
+  [ Sean ]
+  * How did both code reviewers miss this
+
+  [ tux3 ]
+  * Attempt at fixing #1187
+
+  [ Dubslow ]
+  * Added pic of compact contact list/groupchat
+
+  [ novist ]
+  * Updated windows/bootstrap.sh to build filter_audio using Makefile
+
+  [ TheLastProject ]
+  * Fix regression showing is typing too often
+
+  [ tux3 ]
+  * Fix #1104
+  * Install 64bit updates on Win64, not 32bit
+  * Fix warnings when ALC_LOOPBACK_CAPTURE_SAMPLES not defined
+  * Change windows update host
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * install_libfilteraudio.sh: Exit on error
+
+  [ Sandro Santilli ]
+  * Handle more errors
+  * Fix build of filter_audio on unix
+
+  [ tux3 ]
+  * Bootstrap from more nodes until we're connected
+  * Start StatusNotifier system tray backend
+  * Initial statusnotifier systray context menu support
+  * Create statusnotifier main icon via pixbuf
+  * Generate statusnotifier context menu icons
+  * Fix statusnotifier icon color conversion
+  * Fix warnings in statusnotifier
+  * Prioritize Unity sistray backend over StatusNotifier
+  * Create systray statusnotifier ctor icon properly
+  * statusnotifier: Handle middle clicks
+  * Don't compile statusnotifier if disabled
+  * SystemTrayIcon: Log what backend is used
+  * Fix warning when !QTOX_PLATFORM_EXT
+  * Android: Don't link with libsodium.so
+  * Android: add ./libs/lib to linker search path
+  * Android: Better search for libopenal.so
+  * Android: Catch Back key and exit
+  * Wait longer before trying new bootstrap nodes
+
+  [ TheLastProject ]
+  * Make call tooltips depend on status, grey out vol and mic settings when
+    not in a call
+  * Clicking the yellow button on an incoming call answers
+
+  [ tux3 ]
+  * Start new Material Design android GUI
+  * Don't build android files on desktop platforms
+  * Enable StatusNotifier by default on Linux
+  * Android: Don't build Desktop-only code
+
+  [ TheLastProject ]
+  * Update Dutch translation
+
+  [ Zetok Zalbavar ]
+  * [qtox.pro] add more INCLUDEPATH for GTK deps
+
+  [ tux3 ]
+  * Fix system tray icon on GNOME classic
+  * Enable Unity/Gnome systray backend by default
+
+  [ BroncoTc ]
+  * update zh translation
+  * Translated
+
+  [ tux3 ]
+  * Cherry pick part of #1259
+  * Only use StatusNotifier on KDE
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 23 Feb 2015 23:14:40 +0000
+
+qtox (0.0.0+git20150215.r2290-1) unstable; urgency=medium
+
+  [ Dubslow ]
+  * Make Dutch selectable translation
+
+  [ krepa098 ]
+  * replaced QMarginsF by QMargins
+  * Text: color property
+  * refactoring & dark-theme awareness
+  * redo layout on Settings::emojiFontChanged
+
+  [ Dubslow ]
+  * Remove QMarginsF, reduce to Qt 5.2
+
+  [ krepa098 ]
+  * FTW: Always show the checkmark after a successful transfer
+  * fix issue #14
+
+  [ Dubslow ]
+  * Fix compile error
+  * Fix clang warnings It complained about row being used uninitialized,
+    though it was a spurious warning
+  * Fix #1154
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 15 Feb 2015 22:17:13 +0000
+
+qtox (0.0.0+git20150214.r2278-1) unstable; urgency=medium
+
+  [ krepa098 ]
+  * initial commit
+  * progress
+  * progress
+  * progress
+  * bye bye base64 emoticons
+  * (c)
+  * artwork
+  * progress
+  * filetransferwidget: first steps
+  * hooked up filetransferwidget
+  * more work on filetransferwidget
+  * ui tweaks
+  * removed ChatLine vAlignCol
+  * don't depend on valid cursur
+  * revisited selection
+  * changed color of selGraphItem
+  * margins, update selection rect during resize
+  * filetransferwidget: added open (browse?) button, fixed layout
+  * chatline: fixed bbox height calculation
+  * filetransferwidget.ui: reverted margins. chatlinecontentproxy: calculate
+    firstLineVOffset
+  * cleanup
+  * Text: use ascent rather than height
+  * adjusted Image, Spinner, ChatLineContentProxy vOffset
+  * renamed firstLineVOffset to getAscent
+  * Text: selection use fuzzy hit
+  * Text: detect anchors
+  * filling the gaps
+  * Text: toHtmlChars
+  * innerStyle, groupchats
+  * filetransferwidget layout changes
+  * fix selection
+  * chatlinecontentproxy: scaling behaviour
+  * filetransferwidget: use CroppingLabel
+  * chatlog: save chat log
+  * chatline: set row and col number
+  * chatlog: Don't accept drops
+  * styled chatlog, cleanup
+  * respect time format
+  * disabled group joined/left messages
+  * don't use DesignMetrics
+  * don't set cache mode
+
+  [ apprb ]
+  * honouring aliases in the loaded history
+
+  [ krepa098 ]
+  * fixup merge
+  * fixed anchors
+  * quoting support, toHtmlChars, fixes
+  * fixed history
+  * refactoring, fixes
+  * fix no visible line case
+  * check "use emoticons"
+  * cleanup
+  * ChatLine: cell spacing
+  * use resolveToxID
+  * fixed eliding (ie. invisible nicknames)
+  * cleanup
+  * filetransferwidget: fixed pause button, ETA, font size, resource usage
+  * ChatLine/ChatMessage: use shared_ptr
+  * cleanup
+  * Moved the context menu to GenericChatForm
+  * ChatLog: Autoscroll while selecting
+  * refactoring
+  * ChatLog: insertChatlineAtBottom, refactoring
+  * history fixes
+  * cleanup
+  * changed output of ChatLog::toPlainText
+  * history: require markAsSent
+  * ChatLog::insertChatlineOnTop: overload taking a list
+  * hopefully less noticeably partial updates
+  * history: fixed regression
+  * refactoring
+  * change previousId on action
+  * fixed first message not getting displayed properly
+  * cache innerStyle as it gets used frequently
+  * renamed deltaRepos to deltaY
+  * FileTransferWidget: limit browse to pics and archives
+  * qrc: added missing browse_path.png
+  * cleanup
+  * error symbol
+  * speed up ChatLine::moveBy
+  * [test] use std::vector rather than QVector
+  * plain svg
+  * [test] use BspTreeIndex (might be slower?)
+  * optimized ChatLog::getContentFromPos
+  * Revert "[test] use BspTreeIndex (might be slower?)"
+  * faster scrolling, more cheating
+  * moved history loading to FriendWidget::setAsActiveChatroom()
+  * towards better scrolling
+  * cleanup
+  * Text: copy image keys
+  * cleanup
+  * moved typing notifications to ChatLog
+  * tweaks, colorize the blue * in /me
+  * FileTransferWidget: fixed autoaccept
+  * cleanup
+  * tweaked FileTransferWidget min size
+  * FileTransferWidget: use baseName instead of completeBaseName + tweaked autoAccept
+  * cleanup
+  * cleanup
+  * fixed chatlog not scrolling to bottom after resize
+  * Don't stick to bottom if the user scrolls while the worker is still running
+  * comments
+  * More pleasant multi-line selection, refactoring
+  * refactoring
+  * tweaked ChatLog::getSelectedText
+  * FileTransferWidget::acceptTransfer: Regression - check whether the path is NOT writable
+  * refactoring, reverted ChatLog::getVisibleRect
+  * refactoring
+  * don't forget to reposition the typingNotification on insertChatline*
+  * createChatInfoMessage: increase icon size from 16 to 20 px
+  * FileTransferWidget: calculate mean
+  * "%user is typing..." -> "%user ..."
+  * update typing notification on resize
+  * extended spinner class
+  * ChatMessage::createTypingNotification, resized images to 18x18, new
+    (spinning) notification icon
+  * updated error/info.png
+
+  [ Dubslow ]
+  * minor code cleanup
+
+  [ krepa098 ]
+  * fixed potential null deref. & memory leak
+  * nice!
+  * cleanup
+  * Text: Do not rely on QTextCursor for selection
+  * removed selectAll()
+  * double-click selection
+  * Text: extractSanitizedText, hookup double-click selection
+  * NotificationIcon
+  * renamed get/setRowIndex to get/setRow
+  * cleanup
+  * fix divide by zero
+  * show 2 decimals starting from MiB
+  * typo
+  * cleanup
+  * ChatLog: busy-screen during resize
+  * Added Timestamp class, moved output generation while saving to
+    GenericChatForm and changed the generated layout
+  * ChatMessage::createChatInfoMessage: use toHtmlChars
+  * use html <center> instead of ColumnFormat::Center
+  * [HiDPI] ChatLog: replaced all .png by .svg, FTW custom paintEvent This
+    does not enable HiDPI support!
+  * cleanup previous commit
+  * specify background brush
+  * reposition busy notification *after* resize
+  * fix regression: chatlog didn't scroll to bottom on startup
+  * ChatLog::selectAll, refactoring of actions (issue #808)
+  * make use of EmojiFontPointSize (fix #1026)
+  * fix showEvent calling centerOn
+  * FileTransferWidget: visual tweaks
+  * Moved status messages back to the left
+  * use QSize instead of QSizeF, cleanup
+  * set ChatLine::isVisible to true
+  * Speed-up rendering
+  * ChatLineContent: removed boundingSceneRect()
+  * renamed ChatLine::boundingSceneRect to ChatLine::sceneBoundingRect
+  * comparators should be public
+  * change ChatLine::isVisible to false, rename Text::isVisible to
+    Text::keepInMemory
+  * tweaks
+  * fix a render artifact
+  * revert to "[user] is typing"
+  * optimizations and tweaks
+  * fixup! Merge branch 'master' into chatlog_v3_1
+  * tweaked ChatLog::getSelectedText
+  * selection rect: change color on focus-in/out, action cleanup
+  * change color for precise selection on focus-in/out
+  * fixup! Merge branch 'master' into chatlog_v3_1
+  * use QPainter::setClipRect
+  * ChatLog: don't start the resize worker if the width doesn't change
+  * set the correct wrap mode
+  * fix crash on exit
+  * add svg to CONFIG (link against the svg module)
+  * fix bbox calculation
+  * cleanup
+  * FTW: circular buttons [feedback wanted]
+  * FTW: color animation
+  * FTW: don't display "Location not writable" if path is empty
+  * Spinner: lowered rotational speed
+  * faster, synchronized spinners
+  * cleanup
+  * Spinner: fade in
+  * cleanup
+  * FTW: Replaced QPropertyAnimation by QVariantAnimation
+  * FTW: Use KeepAspectRatioByExpanding
+  * FTW: Don't fire an animation if start- and endcolor are the same
+  * FTW: Slightly increased height
+  * fix actions not triggering reliably + ctrl+insert shortcut on linux
+  * do not change clipboard content if selected text is null
+  * Merge branch 'master' into chatlog_v3_1
+  * Text: documentLayout()->update()
+  * add timestamp to copied text (issue #4)
+  * clear previous id on action (issue #7)
+  * Fix ownership problem (issue #8)
+  * add copy to selection buffer (middle mouse-button issue #6)
+  * copy: handle pending messages
+  * tweaked layout calculation
+  * ownership (again)
+  * refactoring
+  * revised issue #6
+  * fix issue #10
+  * copy/paste changed format (issue #11)
+  * Text anchors: use PointingHandCursor
+
+  [ TheLastProject ]
+  * Add Dutch translation
+
+  [ krepa098 ]
+  * fix crash in Text::hoverMoveEvent
+  * reverse history entries as they are no longer reversed in
+    ChatLog::insertChatlineOnTop
+  * do not trigger repaint if invisible
+
+  [ Bruno Kühnen Meneguello ]
+  * Updated portuguese translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+  * Add qtopengl as dependency in INSTALL.md
+
+  [ Dubslow ]
+  * Refactor OfflineMsgEngine, fix potential segfault (@apprb take note
+    please)
+  * Minor cleanup
+
+  [ krepa098 ]
+  * mockup (WIP)
+  * Revert "FTW: circular buttons [feedback wanted]"
+  * finished work on FTW
+  * FTW: 1px spacing instead of 2px
+  * display "unconfirmed" on new file transfer requests
+
+  [ Dubslow ]
+  * Fix #1158
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Feb 2015 23:46:46 +0000
+
+qtox (0.0.0+git20150211.r2060-1) unstable; urgency=medium
+
+  [ Joseph Anania III ]
+  * Added Twitter emoji SVGs with copyright notice and my emoticons.xml file
+    this brings color emoji support to qtox
+  * Updated res.qrc file to add TwitterEmojiSVG emoticon files minor fixup to
+    emoticons.xml
+  * added emoticons.xml to res.qrc for the TwitterEmojiSVG theme
+  * Set Emoticon Widget input to 8x8 instead of 5x3 for larger emoticon sets
+  * Set TwitteEmojiSVG as the default emoticon theme
+
+  [ Zetok Zalbavar ]
+  * Add libqt5svg5-dev to Debian dependencies
+
+  [ apprb ]
+  * fix #513
+
+  [ Joseph Anania III ]
+  * Split smileys to seperate qrc file and added it to qtox.pro
+
+  [ Dubslow ]
+  * Fix smileys.qrc, remove duplicates
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Dubslow ]
+  * Fix #1129
+  * Fix #1131
+
+  [ Dubslow ]
+  * Minor translation things in the ui files
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 12 Feb 2015 01:07:54 +0000
+
+qtox (0.0.0+git20150207.r2041-1) unstable; urgency=medium
+
+  [ apprb ]
+  * proper encrypted history loading
+  * encrypted history: class constructor: refacroring
+  * Fixes
+
+  [ dubslow ]
+  * move encryption to separate file for sanity
+  * core encryption file is basically complete, I need to verify privacy tab
+  * incremental
+  * Incremental work, starting to take shape
+  * Ah, much cleaner
+  * Added change pw buttons; encryption is very nearly done. @apprb there is
+    one question and one TODO that you should look over in privacyform.cpp, as
+    well as a TODO in historykeeper.cpp Also both the encryption settings box
+    and the pw dialog lineedits should probably be in a QGridLayout... but I
+    don't really want to do that by hand :P
+
+  [ Dubslow ]
+  * Clarification
+  * fix copyright statement, update comment
+  * Fix not setting tox null after cleanup also reordered functions for super
+    extra safety
+
+  [ apprb ]
+  * history: encrypted <-> plain convertion
+  * small code unification
+
+  [ Dubslow ]
+  * finishing touches
+
+  [ apprb ]
+  * plain db encryption
+
+  [ Dubslow ]
+  * just remove clearing password in dtor which is only called on exit solves
+    the bug found by apprb
+  * turns out the password code saving Configuration was useless anyways would
+    have avoided the bug I just "fixed"
+  * warn only once on unecrypted file with encryption set
+  * Fix threading issue with startup pw popup The GUI is slow to update after
+    accepting a password, but a cursory ten minute investigation didn't yield
+    why I inserted a processEvents() call before ready = true; at the end of
+    Core::start, but that didn't help. Define the total time between the
+    password dialog disappearing and the UI updating with your own status is
+    T: Then my debug statement indicated that this processEvents call happened
+    around 1/3T, raising two questions: 1) What the hell is happening between
+    0 and 1/3 T? Decryption doesn't take that long... Note that bad passwords
+    are immediately rejected with a new dialog, so I highly doubt it's the
+    decryption cpu time 2) The remaining 2/3rds: processEvents has been called
+    after the avatar and username signals, yet they don't update in the UI
+    till time T when everything updates after bootstrapping...
+  * remove files that I shouldn't have added in the first place
+  * tweak to popup questions
+  * fix change profiles button
+  * Move privacy tab settings to per-profile settings file This may lose the
+    current settings in the tab, but currently only keep history is enabled
+    anyways
+  * word wrap the privacy tab string
+
+  [ apprb ]
+  * password strength meter
+
+  [ Dubslow ]
+  * refactor/fix switching profile with separate settings
+  * minor tweaks
+  * check for non-existent file
+  * more file open checking
+  * when loading, try using main password for history
+  * fix clearing duplicate passwords fixes dubslow/qTox#2
+  * fix loading an encrypted chat log failing
+  * fix bug with "use other password" It's more trouble than it's worth to
+    shallow copy; changed to deep copy with STL
+  * Improve dialogs around unencrypting history, per zetok's suggestions
+  * Ignore empty history files on start This fixes an esoteric issue of
+    enabling chat log encryption and then restarting before adding any
+    messages
+  * Slightly more useful initial password dialogs
+  * Fix profile settings issue from command line, default unencrypt history is Cancel
+  * Fix segfault, minor cleanup
+  * Fix bug with initial password dialogs accepting empty passwords
+  * Confirm decrypt data, various ui/txt tweaks
+  * oops, fortunately this wasn't a bug yet...
+  * Fix the segfault fix
+  * Fix two minor bugs
+  * Fix threading issue while widget's killing itself
+  * fix button typo, closes dubslow/qTox#7
+  * write settings *after* changing them... closes dubslow/qTox#3
+  * Hacky fix to cancelling a switch to an encrypted profile closing It's
+    either this or some fairly major refactoring, which is preferable, but
+    I've got another even bigger refactoring in mind, and fixing this will be
+    rolled into that. Closes dubslow/qTox#4
+  * Potential fix for history issues, both dubslow/qTox#5 and dubslow/qTox#6
+  * Fix SPE
+
+  [ novist ]
+  * Use svg for taskbar/tray icons
+
+  [ Dubslow ]
+  * When enabling history encryption, check for and use previously-ignored
+    encrypted history Should close dubslow/qTox#5 and close dubslow/qTox#6
+    Note that the GUI isn't updated with the ignored history, that's a TODO
+  * Fix the previous todo
+  * Code cleanup
+  * Reword opening password dialog per srkunze's suggestion
+
+  [ novist ]
+  * Tray icon notification of new messages
+
+  [ Dubslow ]
+  * chat logs -> chat history, miscellaneous rewordings
+  * More descriptive dialog text
+  * Add svg to dependencies
+  * Implement hack to make closing the history dialog not disable history Also
+    word wrap the extra long text
+  * Tweak re-enabling old history popups
+
+  [ Zetok Zalbavar ]
+  * Add Qt svg module to dependencies in INSTALL.md
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Try to prevent nullptr dereference of icon
+  * Check icon for nullity in Widget
+  * Initial android support
+
+  [ tux3/mlkj ]
+  * Initial Android support
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Sascha Brendel ]
+  * Added German translation for new Encryption-Dialogs and -forms
+
+  [ tux3/mlkj ]
+  * Use GUI instead of Widget for common GUI tasks
+
+  [ Sascha Brendel ]
+  * Added svg-Support
+
+  [ novist ]
+  * Fixed busy and invisible taskbar icons Updated other status icons Removed
+    duplicate status icons from ui/statusButton
+
+  [ Sascha Brendel ]
+  * removed whitespace
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Cleanup before returning from main
+
+  [ Sascha Brendel ]
+  * Added pacman qt5-svg support.
+  * Added yum qt5-qtsvg support.
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Assert that Widget isn't used on Android
+
+  [ Zetok Zalbavar ]
+  * Change warning message to less confusing one
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix #1099
+  * Fix typo in regexp
+
+  [ Dubslow ]
+  * Cleanup 331baa74474b27e18671d4a38a4847cf17e2e179
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix screenshot in README.md
+
+  [ Dubslow ]
+  * Fix newlines in German translation
+
+  [ Zetok Zalbavar ]
+  * [README.md] Add link pointing to ways of contributing
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * First draft of the Android GUI
+
+  [ Sascha Brendel ]
+  * Added German translation for new Encryption-Dialogs and -forms
+  * Added svg-Support
+
+  [ novist ]
+  * Fixed busy and invisible taskbar icons Updated other status icons Removed
+    duplicate status icons from ui/statusButton
+
+  [ Sascha Brendel ]
+  * removed whitespace
+  * Added pacman qt5-svg support.
+  * Added yum qt5-qtsvg support.
+
+  [ Zetok Zalbavar ]
+  * Change warning message to less confusing one
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix screenshot in README.md
+
+  [ Dubslow ]
+  * Fix newlines in German translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Add input method hints to some fields
+
+  [ apprb ]
+  * Offline messaging refactoring: Separated class for this purpose + more
+    reliable resenging
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Disable systray icon on KDE 5
+
+  [ Kill Your TV ]
+  * New git upstream snapshot
+  * Add build-dep on libqt5svg5-dev
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 08 Feb 2015 03:23:14 +0000
+
+qtox (0.0.0+git20150201.r1933-1) unstable; urgency=medium
+
+  [ Christoffer Sterner ]
+  * Added sudo to yum install
+
+  [ Sascha Brendel ]
+  * Updated German translation
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update for toxcore API break
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Some tweaks for tooltips in settings
+  * Update Polish translation
+
+  [ Christoffer Sterner ]
+  * Add support for playback audio slider setting
+  * Playback audio slider support non-group call
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows installer: Fix x64 install path
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 02 Feb 2015 02:41:47 +0000
+
+qtox (0.0.0+git20150201.r1918-1) unstable; urgency=medium
+
+  [ Ansa89 ]
+  * Italian traslation: update
+
+  [ Zetok Zalbavar ]
+  * Add tooltips in settings
+
+  [ Christoffer Sterner ]
+  * Fix keypad enter not sending message
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix spurious quitting when dialog closed and in tray
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 31 Jan 2015 23:53:43 +0000
+
+qtox (0.0.0+git20150130.r1911-1) unstable; urgency=medium
+
+  [ Сухарик ]
+  * fix greentext, take 2
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Exit if nonnexistant profile passed to -P
+  * Change -P command line option to -p
+
+  [ Tux3/Mlkj ]
+  * Implement SystemTrayIcon with Qt backend and Unity stub
+  * Fix tr warning in CallConfirmWidget
+
+  [ Dubslow ]
+  * Fix #1064
+
+  [ Tux3/Mlkj ]
+  * Implement SystemTrayIcon Unity backend
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix some SystemTrayIcon issues with Qt backend
+  * Show systray icon by default on linux too
+  * Allow coloring multi-level quotes
+
+  [ kushagra ]
+  * issue 960
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * CppCheck, some video perf improvements
+  * Fix some systray issues on windows
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 31 Jan 2015 00:14:35 +0000
+
+qtox (0.0.0+git20150128.r1895-1) unstable; urgency=medium
+
+  [ novist ]
+  * General settings UI cleanup
+  * Separate setting to show window on new message (without focusing window)
+    Setting to always notify on messages in group chats (like normal chats)
+    Check for mentioned name only triggers if name is not in the middle of
+    other word
+
+  [ Lednerb ]
+  * Fixed translation errors.
+  * Added tox1-protocol prompt.
+
+  [ Dubslow ]
+  * Move "Make Tox portable" to advanced settings tab
+  * Fix most of the things suhr mentioned also added colons a buncha places
+    translation->language save files in->save to moved emoticon size after
+    smiley pack Ignoring the excellent point raised by zer0-One for now
+  * Simplify regex
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Use Yes/No, not Ok/No when asking questions
+
+  [ Dubslow ]
+  * In groupchats, check for sanitized name as well Fixes #952
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Save camera video res in settings
+  * Fix some memory leaks and fix #1038
+  * Fix possible crashes on exit, add debug info
+  * Prevent possible deadlock on exit
+  * Fix #681
+  * Fix #1037
+  * Fix #1040
+  * Fix #1039
+  * Pixel-perfect spacing of chat form buttons
+  * Implement new call confirm widget logic
+  * Stylized CallConfirmedWidget, placeholder buttons
+  * Show call confirm under video if appropriate
+  * CallConfirmWidget: don't overflow to the right
+  * CallConfirmWidget: track anchor's position
+  * Add real buttons for CallConfirmWidget
+  * Change some signal connections to new style
+  * Change OS X download link to jenkins
+  * Don't call auto-updates unstable anymore
+  * Create volButtonDisabled.png
+
+  [ agilob ]
+  * closes tux3/qtox#850
+  * undo double polishing in chatform
+  * fixed memory leaks
+  * arrow up to paste previous message
+  * removed unused code
+  * added comment to explain this spaghetti
+  * dont clear msg everytime
+
+  [ Tux3/Mlkj ]
+  * Update outdated autoupdate comments
+
+  [ Dubslow ]
+  * Make greentext pickier > must be the first character (i.e. leading
+    whitespace disables greentext) > must be followed by a "word" character,
+    with an optional space (sorry zetok, but this is much more intuitive) >
+    followed by two+ spaces doesn't count Fixes #945
+
+  [ novist ]
+  * Fixed showing window when clicking tray icon / shortcut and window is
+    minimized Double-clicking tray icon shows window Middle-clicking tray icon
+    hides window
+
+  [ agilob ]
+  * fixing problem with +1 lines in msg edit
+
+  [ Dubslow ]
+  * Make compact contact layout dynamically changeable There was some various
+    minor incidental cleanups as well
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix rounding for non-square CallConfirmWidget
+  * Windows updater: Improve reliability
+  * Auto-update: Better resuming support, lockfree-threading
+
+  [ agilob ]
+  * adding volButtonDisabled to rsc
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Use YYYY-MM-DD date format in logs, fixes #1060
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 28 Jan 2015 12:55:28 +0000
+
+qtox (0.0.0+git20150121.r1841-1) unstable; urgency=medium
+
+  [ novist ]
+  * Fixed warning in timer_win.cpp
+  * Including only required opencv headers. Workaround for opencv bug where
+    partial builds would lack certain headers but opencv.hpp includes them
+    anyway resulting in a build error.
+  * Added windows/bootstrap.sh which downloads and compiles all qtox
+    dependencies Fixed install_libfilteraudio.sh to work on windows
+    bootstrap.bat now invokes sh bootstrap.sh (for convenience) Updated
+    INSTALL.md to reflect simplified bootstrapping procedure
+  * Updated linked libs for win32:   * Removed libs that were not used   *
+    Reordered few libs to make mingw happy   * Updated version of opencv libs
+    to 249
+
+  [ Zetok Zalbavar ]
+  * Re-word 'Compact layout' → 'Compact contact list'
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix tux3-dev.tox.im links in README
+  * Check that dropped files are readable&non-sequential
+  * Update french translation
+
+  [ saneki ]
+  * Context menu style fix for chat title
+
+  [ Dubslow ]
+  * minor reword (I meant to apply this with the relevant merge commit, but
+    forgot to "git add"... life is hard)
+  * Typing notifications disappear automagically Fixes #984
+  * Fix #967
+  * check -P option for invalid profiles closes #977
+  * correct static lib extension on *nix
+
+  [ Zetok Zalbavar ]
+  * Remove unnecesary word
+  * Update Polish translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 22 Jan 2015 00:37:24 +0000
+
+qtox (0.0.0+git20150115.r1820-1) unstable; urgency=medium
+
+  [ lumirayz ]
+  * added a compact layout for the friends list
+  * make the code style more consistent
+  * fix more consistency issues
+
+  [ Olexandr Nesterenko ]
+  * Update Ukrainian translation
+
+  [ agilob ]
+  * closes tux3/qtox#988
+
+  [ Bruno Kühnen Meneguello ]
+  * Add Portuguese translation
+
+  [ minj ]
+  * add lt.ts
+  * translate into Lithuanian
+
+  [ Lednerb ]
+  * Fixed translation bug.
+
+  [ Ildar Akhmetgaleev ]
+  * Defining link color in chat area css
+
+  [ derMart ]
+  * fix videosurface flipping buffers
+  * 0x0 resolution removed better camera initializing in av settings
+  * refactoring audio device initialization in av setting to prevent opening
+    devices twice
+
+  [ Lednerb ]
+  * Added German translations
+
+  [ Zetok Zalbavar ]
+  * Small spelling fix
+
+  [ derMart ]
+  * fix incompatibility of MSAA (SampleBuffers) and SingleBuffer mode in
+    VideoSurface
+  * fix missing showEvent in AVForm
+  * fix resetting AVForm resolution combobox index to get change signal always
+    fired during init
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 16 Jan 2015 09:04:29 +0000
+
+qtox (0.0.0+git20150105.r1795-1) unstable; urgency=medium
+
+  [ zero-one ]
+  * Alphabetizes groupchat user list (fixes #701)
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ apprb ]
+  * more userfriendly history load dialog
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 06 Jan 2015 12:25:43 +0000
+
+qtox (0.0.0+git20150104.r1788-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Filter outgoing audio, not incoming
+  * Fix #909
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 05 Jan 2015 13:17:26 +0000
+
+qtox (0.0.0+git20150104.r1785-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Ask user to fallback to tox1 if needed
+
+  [ Zetok Zalbavar ]
+  * Some wording improvements
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 04 Jan 2015 21:27:19 +0000
+
+qtox (0.0.0+git20150104.r1782-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Update windows build server IP
+  * Fix windows builds: Link with filter_audio
+  * Filter incoming audio, not sent audio
+
+  [ novist ]
+  * Added typing notification support and enabled by default
+  * Fixed text copying from chat windows Tiny formatting fix (space after if)
+
+  [ Nokta-strigo ]
+  * Contacts changing status to offline and having new events are not moved to
+    the bottom of the list. (see issue #740)
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Thread safe, encapsulated audio
+  * Fix some ChatForm debug spam
+  * Conform with toxav API change
+  * Fix some audio bugs
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 04 Jan 2015 19:33:58 +0000
+
+qtox (0.0.0+git20141231.r1769-1) unstable; urgency=medium
+
+  [ novist ]
+  * Removed explanations from tray menu
+
+  [ Théo Bueno ]
+  * update nodes list
+
+  [ Toxicop ]
+  * Update Deutsch translation
+
+  [ apprb ]
+  * fix #963
+  * tiny polishing
+  * messages splitting fix
+  * renaming: Direct Connect -> None
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Update INSTALL.md
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 01 Jan 2015 02:33:45 +0000
+
 qtox (0.0.0+git20141217.r1753-1~debu7+1) stable; urgency=medium
 
   * Backport to Wheezy

@@ -19,9 +19,9 @@
 
 #include <QWidget>
 #include <QHash>
-#include "src/corestructs.h"
+#include "src/core/corestructs.h"
 
-class QLayout;
+class QVBoxLayout;
 class QGridLayout;
 class QPixmap;
 
@@ -29,19 +29,19 @@ class FriendListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FriendListWidget(QWidget *parent = 0);
-
-    QLayout* getGroupLayout();
-    QLayout* getFriendLayout(Status s);
-    void moveWidget(QWidget *w, Status s);
+    explicit FriendListWidget(QWidget *parent = 0, bool groupchatPosition = true);
+    QVBoxLayout* getGroupLayout();
+    QVBoxLayout* getFriendLayout(Status s);
 
 signals:
 
 public slots:
+    void onGroupchatPositionChanged(bool top);
+    void moveWidget(QWidget *w, Status s);
 
 private:
-    QHash<int, QLayout*> layouts;
-    QLayout *groupLayout;
+    QHash<int, QVBoxLayout*> layouts;
+    QVBoxLayout *groupLayout;
     QGridLayout *mainLayout;
 };
 

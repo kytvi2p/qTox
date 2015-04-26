@@ -1,0 +1,71 @@
+# Last Modified: Wed  11 Mar 2015 21:56:33
+# vim:syntax=apparmor et ts=8 sw=4
+#include <tunables/global>
+
+/usr/bin/qtox flags=(complain) {
+  #include <abstractions/base>
+  #include <abstractions/audio>
+  #include <abstractions/gnome>
+  #include <abstractions/kde>
+  #include <abstractions/nameservice>
+  #include <abstractions/X>
+  #include <abstractions/freedesktop.org>
+  #include <abstractions/fonts>
+  #include <abstractions/video>
+  #include <abstractions/dbus-session-strict>
+  #include <abstractions/private-files-strict>
+
+  network inet  stream,
+  network inet6 stream,
+  network inet  dgram,
+  network inet6 dgram,
+
+  /usr/bin/qtox mr,
+  /usr/share/emoticons/ r,
+  /usr/share/emoticons/** r,
+  /usr/share/icons/** r,
+  deny /usr/share/icons/** k,
+  /etc/udev/udev.conf r,
+
+  owner /dev/shm/pulse-shm-* mr,
+  /etc/asound.conf r,
+  /dev/ r,
+  /dev/snd/* mr,
+  /sys/** r,
+
+  # Being able to read /run/udev/data doesn't seem to be required
+  # but if it's not denied here the logs will be spammed.
+  deny /run/udev/data/** r,
+
+  # video
+  /dev/bus/usb/ mr,
+  /dev/bus/usb/** mr,
+  /dev/nvidia[0-9]* rwm,
+  /dev/nvidiactl rwm,
+  /dev/video[0-9]* rwm,
+  owner @{HOME}/.nv/** rwkl,
+  @{PROC}/driver/nvidia/* r,
+  /sys/devices/pci*/*/usb[0-9]*/** r,
+  /sys/devices/**/video4linux/video[0-9]*/dev r,
+  /usr/share/nvidia/** r,
+  @{PROC}/modules   r,
+  /usr/bin/nvidia-modprobe rix,
+
+  @{PROC}/[0-9]*/cmdline        r,
+  @{PROC}/[0-9]*/status         r,
+
+  # WTF is it trying to do this for?
+  deny @{HOME}/.kde{,4}/share/config/kdeglobals rk,
+
+  deny /usr/local/share/** r,
+
+  owner @{HOME}/   r,
+  owner @{HOME}/** rw,
+  owner @{HOME}/.config/tox/ rw,
+  owner @{HOME}/.config/tox/** rwk,
+
+  owner /tmp/** rwkm,
+
+  # Site-specific additions and overrides. See local/README for details.
+  #include <local/usr.bin.qtox>
+}

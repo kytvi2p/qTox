@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../res.qrc">
-    <normaloff>:/img/icon.png</normaloff>:/img/icon.png</iconset>
+    <normaloff>:/img/icons/qtox.svg</normaloff>:/img/icons/qtox.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -855,6 +855,9 @@ QSplitter:handle{
                    <bold>true</bold>
                   </font>
                  </property>
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
                  <property name="text">
                   <string>Your name</string>
                  </property>
@@ -1033,8 +1036,8 @@ QSplitter:handle{
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>284</width>
-             <height>399</height>
+             <width>285</width>
+             <height>381</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5"/>
@@ -1102,7 +1105,13 @@ QSplitter:handle{
              </property>
              <property name="icon">
               <iconset resource="../res.qrc">
-               <normaloff>:/img/add.png</normaloff>:/img/add.png</iconset>
+               <normaloff>:/img/add.svg</normaloff>:/img/add.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>15</width>
+               <height>15</height>
+              </size>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -1137,7 +1146,13 @@ QSplitter:handle{
              </property>
              <property name="icon">
               <iconset resource="../res.qrc">
-               <normaloff>:/img/group_button.png</normaloff>:/img/group_button.png</iconset>
+               <normaloff>:/img/group.svg</normaloff>:/img/group.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>15</width>
+               <height>15</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -1169,7 +1184,13 @@ QSplitter:handle{
              </property>
              <property name="icon">
               <iconset resource="../res.qrc">
-               <normaloff>:/img/transfer.png</normaloff>:/img/transfer.png</iconset>
+               <normaloff>:/img/transfer.svg</normaloff>:/img/transfer.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>15</width>
+               <height>15</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -1201,7 +1222,13 @@ QSplitter:handle{
              </property>
              <property name="icon">
               <iconset resource="../res.qrc">
-               <normaloff>:/img/settings.png</normaloff>:/img/settings.png</iconset>
+               <normaloff>:/img/settings.svg</normaloff>:/img/settings.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>15</width>
+               <height>15</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -1775,7 +1802,7 @@ QSplitter:handle{
      <x>0</x>
      <y>0</y>
      <width>775</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

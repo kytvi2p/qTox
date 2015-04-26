@@ -30,6 +30,7 @@ AdvancedForm::AdvancedForm() :
     bodyUI->dbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     bodyUI->dbLabel->setOpenExternalLinks(true);
 
+    bodyUI->cbMakeToxPortable->setChecked(Settings::getInstance().getMakeToxPortable());
     bodyUI->syncTypeComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     bodyUI->syncTypeComboBox->addItems({tr("FULL - very safe, slowest (recommended)"),
                                         tr("NORMAL - almost as safe as FULL, about 20% faster than FULL"),
@@ -38,13 +39,25 @@ AdvancedForm::AdvancedForm() :
     int index = 2 - static_cast<int>(Settings::getInstance().getDbSyncType());
     bodyUI->syncTypeComboBox->setCurrentIndex(index);
 
+    connect(bodyUI->cbMakeToxPortable, &QCheckBox::stateChanged, this, &AdvancedForm::onMakeToxPortableUpdated);
     connect(bodyUI->syncTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onDbSyncTypeUpdated()));
     connect(bodyUI->resetButton, SIGNAL(clicked()), this, SLOT(resetToDefault()));
+
+    for (QComboBox* cb : findChildren<QComboBox*>())
+    {
+            cb->installEventFilter(this);
+            cb->setFocusPolicy(Qt::StrongFocus);
+    }
 }
 
 AdvancedForm::~AdvancedForm()
 {
     delete bodyUI;
+}
+
+void AdvancedForm::onMakeToxPortableUpdated()
+{
+    Settings::getInstance().setMakeToxPortable(bodyUI->cbMakeToxPortable->isChecked());
 }
 
 void AdvancedForm::onDbSyncTypeUpdated()
@@ -59,4 +72,15 @@ void AdvancedForm::resetToDefault()
     int index = 2 - static_cast<int>(Db::syncType::stFull);
     bodyUI->syncTypeComboBox->setCurrentIndex(index);
     onDbSyncTypeUpdated();
+}
+
+bool AdvancedForm::eventFilter(QObject *o, QEvent *e)
+{
+    if ((e->type() == QEvent::Wheel) &&
+         (qobject_cast<QComboBox*>(o) || qobject_cast<QAbstractSpinBox*>(o) ))
+    {
+        e->ignore();
+        return true;
+    }
+    return QWidget::eventFilter(o, e);
 }

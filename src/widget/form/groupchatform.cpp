@@ -21,7 +21,7 @@
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/croppinglabel.h"
 #include "src/widget/maskablepixmapwidget.h"
-#include "src/core.h"
+#include "src/core/core.h"
 #include "src/misc/style.h"
 #include <QPushButton>
 #include <QMimeData>
@@ -29,6 +29,7 @@
 #include "src/historykeeper.h"
 #include "src/misc/flowlayout.h"
 #include <QDebug>
+#include <QTimer>
 
 GroupChatForm::GroupChatForm(Group* chatGroup)
     : group(chatGroup), inCall{false}
@@ -57,15 +58,20 @@ GroupChatForm::GroupChatForm(Group* chatGroup)
     nusersLabel->setText(GroupChatForm::tr("%1 users in chat","Number of users in chat").arg(group->getPeersCount()));
     nusersLabel->setObjectName("statusLabel");
 
-    avatar->setPixmap(QPixmap(":/img/group_dark.png"), Qt::transparent);
+    avatar->setPixmap(Style::scaleSvgImage(":/img/group_dark.svg", avatar->width(), avatar->height()), Qt::transparent);
 
     msgEdit->setObjectName("group");
 
     namesListLayout = new FlowLayout(0,5,0);
     QStringList names(group->getPeerList());
+    
     for (const QString& name : names)
-        namesListLayout->addWidget(new QLabel(name));
-
+    {
+        QLabel *l = new QLabel(name);
+        l->setTextFormat(Qt::PlainText);
+        namesListLayout->addWidget(l);
+    }
+    
     headTextLayout->addWidget(nusersLabel);
     headTextLayout->addLayout(namesListLayout);
     headTextLayout->addStretch();
@@ -92,14 +98,27 @@ void GroupChatForm::onSendTriggered()
     if (msg.isEmpty())
         return;
 
+    msgEdit->setLastMessage(msg);
     msgEdit->clear();
 
-    if (msg.startsWith("/me "))
+    if (group->getPeersCount() != 1)
     {
-        msg = msg.right(msg.length() - 4);
-        emit sendAction(group->getGroupId(), msg);
-    } else {
-        emit sendMessage(group->getGroupId(), msg);
+        if (msg.startsWith("/me "))
+        {
+            msg = msg.right(msg.length() - 4);
+            emit sendAction(group->getGroupId(), msg);
+        }
+        else
+        {
+            emit sendMessage(group->getGroupId(), msg);
+        }
+    }
+    else
+    {
+        if (msg.startsWith("/me "))
+            addSelfMessage(msg.right(msg.length() - 4), true, QDateTime::currentDateTime(), true);
+        else
+            addSelfMessage(msg, false, QDateTime::currentDateTime(), true);
     }
 }
 
@@ -114,18 +133,62 @@ void GroupChatForm::onUserListChanged()
         delete child->widget();
         delete child;
     }
+    peerLabels.clear();
 
-    QStringList names(group->getPeerList());
+    // the list needs peers in peernumber order, nameLayout needs alphabetical
+    QMap<QString, QLabel*> orderizer;
+
+    // first traverse in peer number order, storing the QLabels as necessary
+    QStringList names = group->getPeerList();
     unsigned nNames = names.size();
     for (unsigned i=0; i<nNames; ++i)
     {
-        QString nameStr = names[i];
-        if (i!=nNames-1)
-            nameStr+=", ";
-        QLabel* nameLabel = new QLabel(nameStr);
-        nameLabel->setObjectName("peersLabel");
-        namesListLayout->addWidget(nameLabel);
+        peerLabels.append(new QLabel(names[i]));
+        peerLabels[i]->setTextFormat(Qt::PlainText);
+        orderizer[names[i]] = peerLabels[i];
+        if (group->isSelfPeerNumber(i))
+            peerLabels[i]->setStyleSheet("QLabel {color : green;}");
     }
+    // now alphabetize and add to layout
+    names.sort(Qt::CaseInsensitive);
+    for (unsigned i=0; i<nNames; ++i)
+    {
+        QLabel* label = orderizer[names[i]];
+        if (i != nNames - 1)
+            label->setText(label->text() + ", ");
+
+        namesListLayout->addWidget(label);
+    }
+
+    // Enable or disable call button
+    if (group->getPeersCount() != 1)
+    {
+        callButton->setEnabled(true);
+        callButton->setObjectName("green");
+        callButton->style()->polish(callButton);
+        callButton->setToolTip(tr("Start audio call"));
+    }
+    else
+    {
+        callButton->setEnabled(false);
+        callButton->setObjectName("grey");
+        callButton->style()->polish(callButton);
+        callButton->setToolTip("");
+    }
+}
+
+void GroupChatForm::peerAudioPlaying(int peer)
+{
+    peerLabels[peer]->setStyleSheet("QLabel {color : red;}");
+    if (!peerAudioTimers[peer])
+    {
+        peerAudioTimers[peer] = new QTimer(this);
+        peerAudioTimers[peer]->setSingleShot(true);
+        connect(peerAudioTimers[peer], &QTimer::timeout, [=]{this->peerLabels[peer]->setStyleSheet("");
+                                                             delete this->peerAudioTimers[peer];
+                                                             this->peerAudioTimers[peer] = nullptr;});
+    }
+    peerAudioTimers[peer]->start(500);
 }
 
 void GroupChatForm::dragEnterEvent(QDragEnterEvent *ev)
@@ -151,11 +214,13 @@ void GroupChatForm::onMicMuteToggle()
         {
             Core::getInstance()->enableGroupCallMic(group->getGroupId());
             micButton->setObjectName("green");
+            micButton->setToolTip(tr("Mute microphone"));
         }
         else
         {
             Core::getInstance()->disableGroupCallMic(group->getGroupId());
             micButton->setObjectName("red");
+            micButton->setToolTip(tr("Unmute microphone"));
         }
 
         Style::repolish(micButton);
@@ -170,11 +235,13 @@ void GroupChatForm::onVolMuteToggle()
         {
             Core::getInstance()->enableGroupCallVol(group->getGroupId());
             volButton->setObjectName("green");
+            volButton->setToolTip(tr("Mute call"));
         }
         else
         {
             Core::getInstance()->disableGroupCallVol(group->getGroupId());
             volButton->setObjectName("red");
+            volButton->setToolTip(tr("Unmute call"));
         }
 
         Style::repolish(volButton);
@@ -190,6 +257,13 @@ void GroupChatForm::onCallClicked()
         audioOutputFlag = true;
         callButton->setObjectName("red");
         callButton->style()->polish(callButton);
+        callButton->setToolTip(tr("End audio call"));
+        micButton->setObjectName("green");
+        micButton->style()->polish(micButton);
+        micButton->setToolTip(tr("Mute microphone"));
+        volButton->setObjectName("green");
+        volButton->style()->polish(volButton);
+        volButton->setToolTip(tr("Mute call"));
         inCall = true;
     }
     else
@@ -197,12 +271,15 @@ void GroupChatForm::onCallClicked()
         Core::getInstance()->leaveGroupCall(group->getGroupId());
         audioInputFlag = false;
         audioOutputFlag = false;
-        micButton->setObjectName("green");
-        micButton->style()->polish(micButton);
-        volButton->setObjectName("green");
-        volButton->style()->polish(volButton);
         callButton->setObjectName("green");
         callButton->style()->polish(callButton);
+        callButton->setToolTip(tr("Start audio call"));
+        micButton->setObjectName("grey");
+        micButton->style()->polish(micButton);
+        micButton->setToolTip("");
+        volButton->setObjectName("grey");
+        volButton->style()->polish(volButton);
+        volButton->setToolTip("");
         inCall = false;
     }
 }

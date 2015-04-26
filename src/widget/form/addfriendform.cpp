@@ -19,12 +19,15 @@
 #include <QFont>
 #include <QMessageBox>
 #include <QErrorMessage>
+#include <QClipboard>
 #include <tox/tox.h>
 #include "ui_mainwindow.h"
-#include "src/core.h"
+#include "src/nexus.h"
+#include "src/core/core.h"
 #include "src/misc/cdata.h"
 #include "src/toxdns.h"
 #include "src/misc/settings.h"
+#include "src/widget/gui.h"
 
 AddFriendForm::AddFriendForm()
 {
@@ -37,7 +40,6 @@ AddFriendForm::AddFriendForm()
     toxIdLabel.setText(tr("Tox ID","Tox ID of the person you're sending a friend request to"));
     messageLabel.setText(tr("Message","The message you send in friend requests"));
     sendButton.setText(tr("Send friend request"));
-    message.setPlaceholderText(tr("Tox me maybe?","Default message in friend requests if the field is left blank. Write something appropriate!"));
 
     main->setLayout(&layout);
     layout.addWidget(&toxIdLabel);
@@ -49,7 +51,9 @@ AddFriendForm::AddFriendForm()
     head->setLayout(&headLayout);
     headLayout.addWidget(&headLabel);
 
+    connect(&toxId,&QLineEdit::returnPressed, this, &AddFriendForm::onSendTriggered);
     connect(&sendButton, SIGNAL(clicked()), this, SLOT(onSendTriggered()));
+    connect(Nexus::getCore(), &Core::usernameSet, this, &AddFriendForm::onUsernameSet);
 }
 
 AddFriendForm::~AddFriendForm()
@@ -64,6 +68,8 @@ void AddFriendForm::show(Ui::MainWindow &ui)
     ui.mainHead->layout()->addWidget(head);
     main->show();
     head->show();
+    setIdFromClipboard();
+    toxId.setFocus();
 }
 
 QString AddFriendForm::getMessage() const
@@ -72,34 +78,36 @@ QString AddFriendForm::getMessage() const
     return !msg.isEmpty() ? msg : message.placeholderText();
 }
 
-void AddFriendForm::showWarning(const QString &message) const
+void AddFriendForm::onUsernameSet(const QString& username)
 {
-    QMessageBox warning(main);
-    warning.setWindowTitle("Tox");
-    warning.setText(message);
-    warning.setIcon(QMessageBox::Warning);
-    warning.exec();
+    message.setPlaceholderText(tr("%1 here! Tox me maybe?","Default message in friend requests if the field is left blank. Write something appropriate!").arg(username));
 }
 
 void AddFriendForm::onSendTriggered()
 {
     QString id = toxId.text().trimmed();
 
-    if (id.isEmpty()) {
-        showWarning(tr("Please fill in a valid Tox ID","Tox ID of the friend you're sending a friend request to"));
-    } else if (ToxID::isToxId(id)) {
+    if (id.isEmpty())
+    {
+        GUI::showWarning(tr("Couldn't add friend"), tr("Please fill in a valid Tox ID","Tox ID of the friend you're sending a friend request to"));
+    }
+    else if (ToxID::isToxId(id))
+    {
         if (id.toUpper() == Core::getInstance()->getSelfId().toString().toUpper())
-            showWarning(tr("You can't add yourself as a friend!","When trying to add your own Tox ID as friend"));
+            GUI::showWarning(tr("Couldn't add friend"), tr("You can't add yourself as a friend!","When trying to add your own Tox ID as friend"));
         else
             emit friendRequested(id, getMessage());
+
         this->toxId.clear();
         this->message.clear();
-    } else {
-        if (Settings::getInstance().getUseProxy())
+    }
+    else
+    {
+        if (Settings::getInstance().getProxyType() != ProxyType::ptNone)
         {
             QMessageBox::StandardButton btn = QMessageBox::warning(main, "qTox", tr("qTox needs to use the Tox DNS, but can't do it through a proxy.\n\
-Ignore the proxy and connect to the Internet directly?"), QMessageBox::Ok|QMessageBox::No, QMessageBox::No);
-            if (btn != QMessageBox::Ok)
+Ignore the proxy and connect to the Internet directly?"), QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+            if (btn != QMessageBox::Yes)
                 return;
         }
 
@@ -107,12 +115,23 @@ Ignore the proxy and connect to the Internet directly?"), QMessageBox::Ok|QMessa
 
         if (toxId.toString().isEmpty())
         {
-            showWarning(tr("This Tox ID does not exist","DNS error"));
+            GUI::showWarning(tr("Couldn't add friend"), tr("This Tox ID does not exist","DNS error"));
             return;
         }
 
         emit friendRequested(toxId.toString(), getMessage());
         this->toxId.clear();
         this->message.clear();
+    }
+}
+
+void AddFriendForm::setIdFromClipboard()
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    QString id = clipboard->text().trimmed();
+    if (Core::getInstance()->isReady() && !id.isEmpty() && ToxID::isToxId(id))
+    {
+        if (!ToxID::fromString(id).isMine())
+            toxId.setText(id);
     }
 }

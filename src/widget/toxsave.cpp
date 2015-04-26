@@ -15,28 +15,23 @@
 */
 
 #include "toxsave.h"
-#include "widget.h"
-#include "src/core.h"
+#include "gui.h"
+#include "src/core/core.h"
 #include "src/misc/settings.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 
-void toxSaveEventHandler(const QByteArray& eventData)
+bool toxSaveEventHandler(const QByteArray& eventData)
 {
     if (!eventData.endsWith(".tox"))
-        return;
+        return false;
 
     handleToxSave(eventData);
+    return true;
 }
 
-static bool checkContinue(const QString& title, const QString& msg)
-{
-    QMessageBox::StandardButton resp = QMessageBox::question(Widget::getInstance(), title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    return resp == QMessageBox::Yes;
-}
-
-void handleToxSave(const QString& path)
+bool handleToxSave(const QString& path)
 {
     Core* core = Core::getInstance();
 
@@ -47,32 +42,30 @@ void handleToxSave(const QString& path)
     }
 
     while (!core->isReady())
-    {
         qApp->processEvents();
-    }
 
     QFileInfo info(path);
     if (!info.exists())
-        return;
+        return false;
 
     QString profile = info.completeBaseName();
 
     if (info.suffix() != "tox")
     {
-        QMessageBox::warning(Widget::getInstance(),
-                             QObject::tr("Ignoring non-Tox file", "popup title"),
-                             QObject::tr("Warning: you've chosen a file that is not a Tox save file; ignoring.", "popup text"));
-        return;
+        GUI::showWarning(QObject::tr("Ignoring non-Tox file", "popup title"),
+                         QObject::tr("Warning: you've chosen a file that is not a Tox save file; ignoring.", "popup text"));
+        return false;
     }
 
     QString profilePath = QDir(Settings::getSettingsDirPath()).filePath(profile + Core::TOX_EXT);
 
-    if (QFileInfo(profilePath).exists() && !checkContinue(QObject::tr("Profile already exists", "import confirm title"),
+    if (QFileInfo(profilePath).exists() && !GUI::askQuestion(QObject::tr("Profile already exists", "import confirm title"),
             QObject::tr("A profile named \"%1\" already exists. Do you want to erase it?", "import confirm text").arg(profile)))
-        return;
+        return false;
 
     QFile::copy(path, profilePath);
     // no good way to update the ui from here... maybe we need a Widget:refreshUi() function...
     // such a thing would simplify other code as well I believe
-    QMessageBox::information(Widget::getInstance(), QObject::tr("Profile imported"), QObject::tr("%1.tox was successfully imported").arg(profile));
+    GUI::showInfo(QObject::tr("Profile imported"), QObject::tr("%1.tox was successfully imported").arg(profile));
+    return true;
 }

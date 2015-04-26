@@ -5,13 +5,20 @@ TRANSLATIONS = translations/es.ts \
                translations/de.ts \
                translations/fi.ts \
                translations/fr.ts \
+               translations/hr.ts \
+               translations/hu.ts \
                translations/it.ts \
+               translations/nl.ts \
+               translations/lt.ts \
                translations/mannol.ts \
                translations/pirate.ts \
                translations/pl.ts \
                translations/ru.ts \
+               translations/sl.ts \
                translations/sv.ts \
-               translations/uk.ts
+               translations/uk.ts \
+               translations/zh.ts \
+               translations/pt.ts
 
 #rules to generate ts
 isEmpty(QMAKE_LUPDATE) {

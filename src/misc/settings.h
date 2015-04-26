@@ -24,12 +24,17 @@
 struct ToxID;
 namespace Db { enum class syncType; }
 
+enum ProxyType {ptNone, ptSOCKS5, ptHTTP};
+
 class Settings : public QObject
 {
     Q_OBJECT
 public:
     static Settings& getInstance();
-    static void resetInstance();
+    void switchProfile(const QString& profile);
+    QString detectProfile();
+    QList<QString> searchProfiles();
+    QString askProfiles();
     ~Settings() = default;
 
     void executeSettingsDialog(QWidget* parent);
@@ -53,33 +58,37 @@ public:
     bool getMakeToxPortable() const;
     void setMakeToxPortable(bool newValue);
 
+    bool getAutorun() const;
+    void setAutorun(bool newValue);
+
     bool getAutostartInTray() const;
     void setAutostartInTray(bool newValue);
-    
+
     bool getCloseToTray() const;
     void setCloseToTray(bool newValue);
-    
+
     bool getMinimizeToTray() const;
     void setMinimizeToTray(bool newValue);
 
     bool getLightTrayIcon() const;
     void setLightTrayIcon(bool newValue);
-    
+
     QString getStyle() const;
     void setStyle(const QString& newValue);
 
     bool getShowSystemTray() const;
     void setShowSystemTray(const bool& newValue);
-    
+
     bool getUseEmoticons() const;
     void setUseEmoticons(bool newValue);
 
     QString getCurrentProfile() const;
+    uint32_t getCurrentProfileId() const;
     void setCurrentProfile(QString profile);
 
     QString getTranslation() const;
     void setTranslation(QString newValue);
-    
+
     void setAutoSaveEnabled(bool newValue);
     bool getAutoSaveEnabled() const;
 
@@ -89,8 +98,8 @@ public:
     QString getProxyAddr() const;
     void setProxyAddr(const QString& newValue);
 
-    bool getUseProxy() const;
-    void setUseProxy(bool newValue);
+    ProxyType getProxyType() const;
+    void setProxyType(int newValue);
 
     int getProxyPort() const;
     void setProxyPort(int newValue);
@@ -113,8 +122,17 @@ public:
     bool getCheckUpdates() const;
     void setCheckUpdates(bool newValue);
 
+    bool getShowWindow() const;
+    void setShowWindow(bool newValue);
+
     bool getShowInFront() const;
     void setShowInFront(bool newValue);
+
+    bool getNotifySound() const;
+    void setNotifySound(bool newValue);
+
+    bool getGroupAlwaysNotify() const;
+    void setGroupAlwaysNotify(bool newValue);
 
     QPixmap getSavedAvatar(const QString& ownerId);
     void saveAvatar(QPixmap& pic, const QString& ownerId);
@@ -130,6 +148,9 @@ public:
 
     bool getFilterAudio() const;
     void setFilterAudio(bool newValue);
+
+    QSize getCamVideoRes() const;
+    void setCamVideoRes(QSize newValue);
 
     // Assume all widgets have unique names
     // Don't use it to save every single thing you want to save, use it
@@ -184,8 +205,11 @@ public:
     int getSecondColumnHandlePosFromRight() const;
     void setSecondColumnHandlePosFromRight(const int pos);
 
-    const QString &getTimestampFormat() const;
-    void setTimestampFormat(const QString &format);
+    const QString& getTimestampFormat() const;
+    void setTimestampFormat(const QString& format);
+
+    const QString& getDateFormat() const;
+    void setDateFormat(const QString& format);
 
     bool isMinimizeOnCloseEnabled() const;
     void setMinimizeOnClose(bool newValue);
@@ -221,10 +245,19 @@ public:
     bool getFauxOfflineMessaging() const;
     void setFauxOfflineMessaging(bool value);
 
+    bool getCompactLayout() const;
+    void setCompactLayout(bool compact);
+
+    bool getGroupchatPosition() const;
+    void setGroupchatPosition(bool value);
+
 public:
-    void save(bool writeFriends = true);
-    void save(QString path, bool writeFriends = true);
+    void save(bool writePersonal = true);
+    void save(QString path, bool writePersonal = true);
     void load();
+
+private:
+    static QString genRandomProfileName();
 
 private:
     static Settings* settings;
@@ -232,6 +265,9 @@ private:
     Settings();
     Settings(Settings &settings) = delete;
     Settings& operator=(const Settings&) = delete;
+    static uint32_t makeProfileId(const QString& profile);
+    void saveGlobal(QString path);
+    void savePersonal(QString path);
 
     static const QString FILENAME;
     static const QString OLDFILENAME;
@@ -244,6 +280,8 @@ private:
     bool dontShowDhtDialog;
 
     bool fauxOfflineMessaging;
+    bool compactLayout;
+    bool groupchatPosition;
     bool enableIPv6;
     QString translation;
     static bool makeToxPortable;
@@ -253,25 +291,29 @@ private:
     bool lightTrayIcon;
     bool useEmoticons;
     bool checkUpdates;
+    bool showWindow;
     bool showInFront;
+    bool notifySound;
+    bool groupAlwaysNotify;
 
     bool forceTCP;
 
-    bool useProxy;
+    ProxyType proxyType;
     QString proxyAddr;
     int proxyPort;
 
     QString currentProfile;
+    uint32_t currentProfileId;
 
     bool enableLogging;
     bool encryptLogs;
-    bool encryptTox;
+    bool encryptTox = false;
 
     int autoAwayTime;
 
     QHash<QString, QByteArray> widgetSettings;
     QHash<QString, QString> autoAccept;
-    bool autoSaveEnabled;    
+    bool autoSaveEnabled;
     QString globalAutoAcceptDir;
 
     // GUI
@@ -292,6 +334,7 @@ private:
     int firstColumnHandlePos;
     int secondColumnHandlePosFromRight;
     QString timestampFormat;
+    QString dateFormat;
     bool statusChangeNotificationEnabled;
 
     // Privacy
@@ -302,6 +345,9 @@ private:
     QString inDev;
     QString outDev;
     bool filterAudio;
+
+    // Video
+    QSize camVideoRes;
 
     struct friendProp
     {
@@ -320,7 +366,7 @@ signals:
     void logStorageOptsChanged();
     void smileyPackChanged();
     void emojiFontChanged();
-    void timestampFormatChanged();
+    void compactLayoutChanged();
 };
 
 #endif // SETTINGS_HPP

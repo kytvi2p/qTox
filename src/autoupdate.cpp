@@ -19,6 +19,7 @@
 #include "src/misc/serialize.h"
 #include "src/misc/settings.h"
 #include "src/widget/widget.h"
+#include "src/widget/gui.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QCoreApplication>
@@ -34,9 +35,13 @@
 #endif
 
 #ifdef Q_OS_WIN
+#ifdef Q_OS_WIN64
+const QString AutoUpdater::platform = "win64";
+#else
 const QString AutoUpdater::platform = "win32";
+#endif
 const QString AutoUpdater::updaterBin = "qtox-updater.exe";
-const QString AutoUpdater::updateServer = "https://s3.amazonaws.com/qtox-updater";
+const QString AutoUpdater::updateServer = "https://tux3-dev.tox.im";
 
 unsigned char AutoUpdater::key[crypto_sign_PUBLICKEYBYTES] =
 {
@@ -64,9 +69,14 @@ unsigned char AutoUpdater::key[crypto_sign_PUBLICKEYBYTES];
 const QString AutoUpdater::checkURI = AutoUpdater::updateServer+"/qtox/"+AutoUpdater::platform+"/version";
 const QString AutoUpdater::flistURI = AutoUpdater::updateServer+"/qtox/"+AutoUpdater::platform+"/flist";
 const QString AutoUpdater::filesURI = AutoUpdater::updateServer+"/qtox/"+AutoUpdater::platform+"/files/";
+bool AutoUpdater::abortFlag{false};
+std::atomic_bool AutoUpdater::isDownloadingUpdate{false};
 
 bool AutoUpdater::isUpdateAvailable()
 {
+    if (isDownloadingUpdate)
+        return false;
+
     VersionInfo newVersion = getUpdateVersion();
     if (newVersion.timestamp <= TIMESTAMP
             || newVersion.versionString.isEmpty() || newVersion.versionString == GIT_VERSION)
@@ -251,7 +261,11 @@ AutoUpdater::UpdateFile AutoUpdater::getUpdateFile(UpdateFileMeta fileMeta)
     QNetworkAccessManager *manager = new QNetworkAccessManager;
     QNetworkReply* reply = manager->get(QNetworkRequest(QUrl(filesURI+fileMeta.id)));
     while (!reply->isFinished())
+    {
+        if (abortFlag)
+            return file;
         qApp->processEvents();
+    }
 
     if (reply->error() != QNetworkReply::NoError)
     {
@@ -275,23 +289,33 @@ bool AutoUpdater::downloadUpdate()
     if (platform.isEmpty())
         return false;
 
+    bool expectFalse = false;
+    if (!isDownloadingUpdate.compare_exchange_strong(expectFalse,true))
+        return false;
+
     // Get a list of files to update
     QByteArray newFlistData = getUpdateFlist();
     QList<UpdateFileMeta> newFlist = parseFlist(newFlistData);
     QList<UpdateFileMeta> diff = genUpdateDiff(newFlist);
+
+    if (abortFlag)
+    {
+        isDownloadingUpdate = false;
+        return false;
+    }
 
     qDebug() << "AutoUpdater: Need to update "<<diff.size()<<" files";
 
     // Create an empty directory to download updates into
     QString updateDirStr = Settings::getInstance().getSettingsDirPath() + "/update/";
     QDir updateDir(updateDirStr);
-    if (updateDir.exists())
-        updateDir.removeRecursively();
-    QDir().mkdir(updateDirStr);
+    if (!updateDir.exists())
+        QDir().mkdir(updateDirStr);
     updateDir = QDir(updateDirStr);
     if (!updateDir.exists())
     {
         qWarning() << "AutoUpdater::downloadUpdate: Can't create update directory, aborting...";
+        isDownloadingUpdate = false;
         return false;
     }
 
@@ -300,6 +324,7 @@ bool AutoUpdater::downloadUpdate()
     if (!newFlistFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
         qWarning() << "AutoUpdater::downloadUpdate: Can't save new flist file, aborting...";
+        isDownloadingUpdate = false;
         return false;
     }
     newFlistFile.write(newFlistData);
@@ -308,6 +333,21 @@ bool AutoUpdater::downloadUpdate()
     // Download and write each new file
     for (UpdateFileMeta fileMeta : diff)
     {
+        if (abortFlag)
+        {
+            isDownloadingUpdate = false;
+            return false;
+        }
+
+        // Skip files we already have
+        QFile fileFile(updateDirStr+fileMeta.installpath);
+        if (fileFile.open(QIODevice::ReadOnly) && fileFile.size() == (qint64)fileMeta.size)
+        {
+            qDebug() << "AutoUpdater: Skipping already downloaded file  '"+fileMeta.installpath+"'";
+            fileFile.close();
+            continue;
+        }
+
         qDebug() << "AutoUpdater: Downloading '"+fileMeta.installpath+"' ...";
 
         // Create subdirs if necessary
@@ -317,9 +357,15 @@ bool AutoUpdater::downloadUpdate()
 
         // Download
         UpdateFile file = getUpdateFile(fileMeta);
+        if (abortFlag)
+        {
+            isDownloadingUpdate = false;
+            return false;
+        }
         if (file.data.isNull())
         {
             qWarning() << "AutoUpdater::downloadUpdate: Error downloading a file, aborting...";
+            isDownloadingUpdate = false;
             return false;
         }
 
@@ -328,20 +374,24 @@ bool AutoUpdater::downloadUpdate()
                                         file.data.size(), key) != 0)
         {
             qCritical() << "AutoUpdater: downloadUpdate: RECEIVED FORGED FILE, aborting...";
+            isDownloadingUpdate = false;
             return false;
         }
 
         // Save
-        QFile fileFile(updateDirStr+fileMeta.installpath);
         if (!fileFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
         {
             qWarning() << "AutoUpdater::downloadUpdate: Can't save new update file, aborting...";
+            isDownloadingUpdate = false;
             return false;
         }
         fileFile.write(file.data);
         fileFile.close();
     }
 
+    qDebug() << "AutoUpdater::downloadUpdate: The update is ready, it'll be installed on the next restart";
+
+    isDownloadingUpdate = false;
     return true;
 }
 
@@ -351,13 +401,16 @@ bool AutoUpdater::isLocalUpdateReady()
     if (platform.isEmpty())
         return false;
 
+    if (isDownloadingUpdate)
+        return false;
+
     // Check that there's an update dir in the first place, valid or not
     QString updateDirStr = Settings::getInstance().getSettingsDirPath() + "/update/";
     QDir updateDir(updateDirStr);
     if (!updateDir.exists())
         return false;
 
-    // Check that we have a flist and that every file on the diff exists
+    // Check that we have a flist and generate a diff
     QFile updateFlistFile(updateDirStr+"flist");
     if (!updateFlistFile.open(QIODevice::ReadOnly))
         return false;
@@ -367,9 +420,16 @@ bool AutoUpdater::isLocalUpdateReady()
     QList<UpdateFileMeta> updateFlist = parseFlist(updateFlistData);
     QList<UpdateFileMeta> diff = genUpdateDiff(updateFlist);
 
+    // Check that we have every file
     for (UpdateFileMeta fileMeta : diff)
+    {
         if (!QFile::exists(updateDirStr+fileMeta.installpath))
             return false;
+
+        QFile f(updateDirStr+fileMeta.installpath);
+        if (f.size() != (int64_t)fileMeta.size)
+            return false;
+    }
 
     return true;
 }
@@ -419,6 +479,9 @@ fail:
 
 void AutoUpdater::checkUpdatesAsyncInteractive()
 {
+    if (isDownloadingUpdate)
+        return;
+
     QtConcurrent::run(&AutoUpdater::checkUpdatesAsyncInteractiveWorker);
 }
 
@@ -427,9 +490,20 @@ void AutoUpdater::checkUpdatesAsyncInteractiveWorker()
     if (!isUpdateAvailable())
         return;
 
-    if (Widget::getInstance()->askMsgboxQuestion(QObject::tr("Update", "The title of a message box"),
-        QObject::tr("An update is available, do you want to download it now?\nIt will be installed when qTox restarts.")))
+    // If there's already an update dir, resume updating, otherwise ask the user
+    QString updateDirStr = Settings::getInstance().getSettingsDirPath() + "/update/";
+    QDir updateDir(updateDirStr);
+
+    if ((updateDir.exists() && QFile(updateDirStr+"flist").exists())
+            || GUI::askQuestion(QObject::tr("Update", "The title of a message box"),
+        QObject::tr("An update is available, do you want to download it now?\nIt will be installed when qTox restarts."), true, false))
     {
         downloadUpdate();
     }
+}
+
+void AutoUpdater::abortUpdates()
+{
+    abortFlag = true;
+    isDownloadingUpdate = false;
 }

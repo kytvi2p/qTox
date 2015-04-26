@@ -20,16 +20,17 @@ qTox is a powerful Tox client that tries to follow the Tox design guidelines whi
 
 This client runs on Windows, Linux and Mac natively.<br/>
 
-<a href="http://207.12.89.155:8080/job/qTox-win64-nsis/lastSuccessfulBuild/artifact/setup-qtox64.exe">Windows 64 bit download</a><br/>
-<a href="http://207.12.89.155:8080/job/qTox-win32-nsis/lastSuccessfulBuild/artifact/setup-qtox32.exe">Windows 32 bit download (for older hardware)</a><br/>
-<a href="https://dist-build.tox.im/qtox.dmg">Mac OS X download </a><br/>
+
+<a href="https://tux3-dev.tox.im/jenkins/job/qTox-win64-nsis/lastSuccessfulBuild/artifact/setup-qtox64.exe">Windows 64 bit download</a><br/>
+<a href="https://tux3-dev.tox.im/jenkins/job/qTox-win32-nsis/lastSuccessfulBuild/artifact/setup-qtox32.exe">Windows 32 bit download (for older hardware)</a><br/>
+<a href="https://jenkins.libtoxcore.so/job/qTox%20OS%20X/lastSuccessfulBuild/artifact/qtox.dmg">Mac OS X download </a><br/>
 <a href="https://jenkins.libtoxcore.so/job/qTox-linux-amd64/lastSuccessfulBuild/artifact/qt/qtox.xz">Linux binary download</a><br/>
-<a href="https://jenkins.libtoxcore.so/user/tux3/my-views/view/qTox/job/qTox-Linux-pkg/lastSuccessfulBuild/artifact/">Linux packages</a><br/>
+<a href="https://jenkins.libtoxcore.so/job/qTox-Linux-pkg/lastSuccessfulBuild/artifact/">Linux packages</a><br/>
 
 <h3>Screenshots</h3>
 <h5>Note: The screenshots may not always be up to date, but they should give a good idea of the general look and features</h5>
-<img src="https://wiki.tox.im/images/5/5d/ToxGUI_tux3.png"/>
-<img src="https://i.imgur.com/0XWcqBc.jpg"/>
+<img src="http://i.imgur.com/hwGmDeK.png"/>
+<img src="http://i.imgur.com/tmX8z9s.png"/>
 
 ##Documentation:
 
@@ -37,6 +38,7 @@ This client runs on Windows, Linux and Mac natively.<br/>
 
 ##Developer overview:
 
-[GitStats](http://207.12.89.155/index.html)<br/>
+[Contributing](https://github.com/tux3/qTox/wiki#contributing)<br/>
+[GitStats](https://tux3-dev.tox.im/)<br/>
 [Mac & Linux jenkins](https://jenkins.libtoxcore.so/user/tux3/my-views/view/qTox/)<br/>
-[Windows jenkins](http://207.12.89.155:8080)<br/>
+[Windows jenkins](https://tux3-dev.tox.im/jenkins)<br/>

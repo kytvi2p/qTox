@@ -33,7 +33,7 @@ public:
 private slots:
     void onEnableIPv6Updated();
     void onTranslationUpdated();
-    void onMakeToxPortableUpdated();
+    void onAutorunUpdated();
     void onSetShowSystemTray();
     void onSetAutostartInTray();
     void onSetCloseToTray();
@@ -46,6 +46,7 @@ private slots:
     void onEmoticonSizeChanged();
     void onStyleSelected(QString style);  
     void onTimestampSelected(int index);
+    void onDateFormatSelected(int index);
     void onSetStatusChange();
     void onAutoAwayChanged();
     void onUseEmoticonsChange();
@@ -54,14 +55,22 @@ private slots:
     void onAutoAcceptFileChange();
     void onAutoSaveDirChange();
     void onCheckUpdateChanged();
+    void onShowWindowChanged();
     void onSetShowInFront();
+    void onSetNotifySound();
+    void onSetGroupAlwaysNotify();
     void onFauxOfflineMessaging();
+    void onCompactLayout();
+    void onGroupchatPositionChanged();
     void onThemeColorChanged(int);
 
 private:
     Ui::GeneralSettings *bodyUI;
     void reloadSmiles();
     SettingsWidget *parent;
+
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
 };
 
 #endif

@@ -31,8 +31,12 @@ class AdvancedForm : public GenericForm
 public:
     AdvancedForm();
     virtual ~AdvancedForm();
+    
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
 
 private slots:
+    void onMakeToxPortableUpdated();
     void onDbSyncTypeUpdated();
     void resetToDefault();
 

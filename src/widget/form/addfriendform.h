@@ -38,13 +38,14 @@ public:
 signals:
     void friendRequested(const QString& friendAddress, const QString& message);
 
-protected:
-    void showWarning(const QString& message) const;
+public slots:
+    void onUsernameSet(const QString& userName);
 
 private slots:
     void onSendTriggered();
 
 private:
+    void setIdFromClipboard();
     QLabel headLabel, toxIdLabel, messageLabel;
     QPushButton sendButton;
     QLineEdit toxId;

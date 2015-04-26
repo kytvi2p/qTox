@@ -16,10 +16,7 @@
 
 #include "style.h"
 #include "settings.h"
-
-#include "src/widget/widget.h"
-#include "ui_mainwindow.h"
-#include "src/widget/genericchatroomwidget.h"
+#include "src/widget/gui.h"
 
 #include <QFile>
 #include <QDebug>
@@ -28,6 +25,8 @@
 #include <QWidget>
 #include <QStyle>
 #include <QFontInfo>
+#include <QSvgRenderer>
+#include <QPainter>
 
 // helper functions
 QFont appFont(int pixelSize, int weight)
@@ -198,11 +197,19 @@ void Style::setThemeColor(QColor color)
     dict["@themeMediumDark"] = getColor(ThemeMediumDark).name();
     dict["@themeMedium"] = getColor(ThemeMedium).name();
     dict["@themeLight"] = getColor(ThemeLight).name();
-
-    applyTheme();
 }
 
 void Style::applyTheme()
 {
-    Widget::getInstance()->reloadTheme();
+    GUI::reloadTheme();
+}
+
+QPixmap Style::scaleSvgImage(const QString& path, uint32_t width, uint32_t height)
+{
+    QSvgRenderer render(path);
+    QPixmap pixmap(width, height);
+    pixmap.fill(QColor(0, 0, 0, 0));
+    QPainter painter(&pixmap);
+    render.render(&painter, pixmap.rect());
+    return pixmap;
 }

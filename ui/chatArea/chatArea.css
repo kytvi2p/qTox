@@ -1,10 +1,10 @@
 QTextEdit
 {
     background: white;
-    color: back;
+    color: black;
 }
 
-QTextBrowser
+QGraphicsView 
 {
-	border: none;
+    border: none;
 }

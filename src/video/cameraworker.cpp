@@ -29,14 +29,22 @@ CameraWorker::CameraWorker(int index)
     qRegisterMetaType<QList<QSize>>();
 }
 
+CameraWorker::~CameraWorker()
+{
+    if (clock)
+        delete clock;
+}
+
 void CameraWorker::onStart()
 {
-    clock = new QTimer(this);
-    clock->setSingleShot(false);
-    clock->setInterval(1000/60);
+    if (!clock)
+    {
+        clock = new QTimer(this);
+        clock->setSingleShot(false);
+        clock->setInterval(1000/60);
 
-    connect(clock, &QTimer::timeout, this, &CameraWorker::doWork);
-
+        connect(clock, &QTimer::timeout, this, &CameraWorker::doWork);
+    }
     emit started();
 }
 
@@ -112,7 +120,7 @@ void CameraWorker::_probeResolutions()
 
             //qDebug() << "PROBING:" << res << " got " << w << h;
 
-            if (!resolutions.contains(QSize(w,h)))
+            if (w>0 && h>0 && !resolutions.contains(QSize(w,h)))
                 resolutions.append(QSize(w,h));
         }
 
@@ -140,7 +148,21 @@ void CameraWorker::subscribe()
         if (!cam.isOpened())
         {
             queue.clear();
-            cam.open(camIndex);
+            bool bSuccess = false;
+
+            try
+            {
+                bSuccess = cam.open(camIndex);
+            }
+            catch( cv::Exception& e )
+            {
+                qDebug() << "CameraWorker:" << "OpenCV exception caught: " << e.what();
+            }
+
+            if(!bSuccess)
+            {
+                qDebug() << "CameraWorker: Could not open camera";
+            }
             applyProps(); // restore props
         }
     }
@@ -160,7 +182,20 @@ void CameraWorker::doWork()
     if (!cam.isOpened())
         return;
 
-    if (!cam.read(frame))
+    bool bSuccess = false;
+
+    try
+    {
+            bSuccess = cam.read(frame);
+    }
+    catch( cv::Exception& e )
+    {
+        qDebug() << "CameraWorker:" << "OpenCV exception caught: " << e.what();;
+        this->clock->stop(); // prevent log spamming
+        qDebug() << "CameraWorker: stopped clock";
+    }
+
+    if (!bSuccess)
     {
         qDebug() << "CameraWorker: Cannot read frame";
         return;

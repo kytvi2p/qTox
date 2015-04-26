@@ -24,7 +24,6 @@
 class Camera;
 class GenericForm;
 class GeneralForm;
-class IdentityForm;
 class PrivacyForm;
 class AVForm;
 class QLabel;
@@ -42,15 +41,16 @@ public:
     void show(Ui::MainWindow &ui);
     void setBodyHeadStyle(QString style);
 
+signals:
+    void setShowSystemTray(bool newValue);
+    void compactToggled(bool compact);
+    void groupchatPositionToggled(bool groupchatPosition);
+
 private slots:
     void onTabChanged(int);
 
-signals:
-    void setShowSystemTray(bool newValue);
-
 private:
-    QWidget *head, *body; // keep the others private
-    IdentityForm *ifrm;
+    QWidget *head, *body;
     QTabWidget *settingsWidgets;
     QLabel *nameLabel, *imgLabel;
 };
