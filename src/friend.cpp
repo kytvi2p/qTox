@@ -19,10 +19,10 @@
 #include "widget/friendwidget.h"
 #include "widget/form/chatform.h"
 #include "widget/gui.h"
-#include "src/core.h"
+#include "src/core/core.h"
 #include "src/misc/settings.h"
 
-Friend::Friend(int FriendId, const ToxID &UserId)
+Friend::Friend(uint32_t FriendId, const ToxID &UserId)
     : userName{Core::getInstance()->getPeerName(UserId)},
       userID{UserId}, friendId{FriendId}
 {
@@ -35,17 +35,21 @@ Friend::Friend(int FriendId, const ToxID &UserId)
 
     widget = new FriendWidget(friendId, getDisplayedName());
     chatForm = new ChatForm(this);
-    if (Settings::getInstance().getEnableLogging())
-    {
-        chatForm->loadHistory(QDateTime::currentDateTime().addDays(-7), true);
-        widget->historyLoaded = true;
-    }
 }
 
 Friend::~Friend()
 {
     delete chatForm;
     delete widget;
+}
+
+void Friend::loadHistory()
+{
+    if (Settings::getInstance().getEnableLogging())
+    {
+        chatForm->loadHistory(QDateTime::currentDateTime().addDays(-7), true);
+        widget->historyLoaded = true;
+    }
 }
 
 void Friend::setName(QString name)
@@ -58,6 +62,8 @@ void Friend::setName(QString name)
 
         if (widget->isActive())
             GUI::setWindowTitle(name);
+        
+        emit displayedNameChanged(getFriendWidget(), getStatus(), hasNewEvents);
     }
 }
 
@@ -71,6 +77,8 @@ void Friend::setAlias(QString name)
 
     if (widget->isActive())
             GUI::setWindowTitle(dispName);
+    
+    emit displayedNameChanged(getFriendWidget(), getStatus(), hasNewEvents);
 }
 
 void Friend::setStatusMessage(QString message)
@@ -83,6 +91,7 @@ QString Friend::getDisplayedName() const
 {
     if (userAlias.size() == 0)
         return userName;
+
     return userAlias;
 }
 
@@ -91,7 +100,7 @@ const ToxID &Friend::getToxID() const
     return userID;
 }
 
-int Friend::getFriendID() const
+uint32_t Friend::getFriendID() const
 {
     return friendId;
 }
