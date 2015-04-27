@@ -17,19 +17,24 @@
 #ifndef FRIEND_H
 #define FRIEND_H
 
+#include <QObject>
 #include <QString>
-#include "corestructs.h"
+#include "src/core/corestructs.h"
 
 struct FriendWidget;
 class ChatForm;
 
-struct Friend
+class Friend : public QObject
 {
+    Q_OBJECT
 public:
-    Friend(int FriendId, const ToxID &UserId);
+    Friend(uint32_t FriendId, const ToxID &UserId);
     Friend(const Friend& other)=delete;
     ~Friend();
     Friend& operator=(const Friend& other)=delete;
+
+    /// Loads the friend's chat history if enabled
+    void loadHistory();
 
     void setName(QString name);
     void setAlias(QString name);
@@ -41,7 +46,7 @@ public:
     int getEventFlag() const;
 
     const ToxID &getToxID() const;
-    int getFriendID() const;
+    uint32_t getFriendID() const;
 
     void setStatus(Status s);
     Status getStatus() const;
@@ -49,10 +54,13 @@ public:
     ChatForm *getChatForm();
     FriendWidget *getFriendWidget();
 
+signals:
+    void displayedNameChanged(FriendWidget* widget, Status s, int hasNewEvents);
+
 private:
     QString userAlias, userName;
     ToxID userID;
-    int friendId;
+    uint32_t friendId;
     int hasNewEvents;
     Status friendStatus;
 
