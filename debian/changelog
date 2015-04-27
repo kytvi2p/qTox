@@ -1,3 +1,185 @@
+qtox (0.0.0+git20150426.r2712-1) stable; urgency=medium
+
+  [ zero-one ]
+  * Adds functionality for sorting FriendWidgets alphabetically in the friends
+    list. Widgets are sorted upon being added to the friends list in the first
+    place, and re-sorted if a user changes their name, or if a user is given
+    an alias.
+  * Merges Away, Busy, and Online friend list layouts into a single layout.
+    Also comments out the debug output in FriendListWidget::getFriendLayout()
+    because hitting the default return statement is no longer anomalous
+    behavior.
+  * Adds a configuration option allowing users to choose whether they want
+    groupchats placed at the top of the friends list, or below the online
+    contacts.
+  * grammar correction
+
+  [ agilob ]
+  * closes tux3/qtox#1368 - settings to change dateformat
+  * text in the label dateformat
+  * generalsettings: time and date format from qlocale
+
+  [ PKEv ]
+  * Update translation profile widget
+
+  [ agilob ]
+  * long time format
+  * iso date
+
+  [ zero-one ]
+  * style fixes to conform to Allman style
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ zero-one ]
+  * Settings singleton no longer emits signal when groupchat position changes
+
+  [ Dubslow ]
+  * Style fixes
+  * Change default datetime formats (d/m m/d agnostic), style fixes, removed
+    unnecessary signals
+
+  [ Yuri ]
+  * Fixed bash shebangs to use /usr/bin/env for better compatibility
+
+  [ kushagra ]
+  * proper splitting in friends chat,fixes #1375
+
+  [ Rohil Surana ]
+  * Set focus to toxId Line edit on add friend window
+
+  [ PKEv ]
+  * System menu translation
+
+  [ Rohil Surana ]
+  * On add friend clicked pastes Tox Id from clipboard if there is one
+
+  [ Dubslow ]
+  * Possibly fix an old segfault that may or may not be a problem
+
+  [ Rohil Surana ]
+  * Typing indicator shows up once typing is resumed
+
+  [ quatrox ]
+  * Make qTox build again
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Rohil Surana ]
+  * Added add friend on window on first start
+
+  [ PKEv ]
+  * correct after CppCheck
+
+  [ tux3 ]
+  * Initial porting to the new Tox API
+
+  [ Zetok Zalbavar ]
+  * Some code style fixes
+
+  [ tux3 ]
+  * Properly initialize tox_options
+  * Port profile encryption support to new API
+  * Fix profile reloading during switch
+  * Fix GUI refresh when creating new profile
+  * Fix Core::getSaltFromFile's error checking
+  * Fix history-destroying use after free in Core::getSaltFromFile
+  * Cleanup old commented-out code
+  * Refactor Core
+  * Port file transfers to the new API
+  * Fix nullptr dereference in IPC::isCurrentOwner
+
+  [ Zetok Zalbavar ]
+  * Code style improvements
+
+  [ tux3 ]
+  * Correctly separate received actions from messages
+  * Profile locking
+  * Fix possible profile corruption
+  * Update lock when renaming profile
+  * qtox.ini shouldn't overwrite our current profile
+  * Allow to start multiple instances with -p
+  * Correctly rename and lock imported profiles
+  * Assert profile locks before writing
+  * Show Tox ID instead of blank names
+
+  [ Yuri ]
+  * Added Ctrl+Q shortcut.
+
+  [ PKEv ]
+  * Add tooltip in filetransferwidget It is not clear what they are doing
+    buttons
+
+  [ tux3 ]
+  * Fix typos in tooltips
+
+  [ Rohil Surana ]
+  * Removed corner border in scroll area
+
+  [ kushagra ]
+  * fixes action bugs 1) action received gets modified on restart 2) sender's
+    name is written twice if action is sent using offline messaging 3) /me is
+    written when action is sent in groupchat having one peer 4) /me is not
+    saved in last message variable in friendd chat
+  * Right clicking anywhere wont unhighlight text, fixes #1517
+
+  [ AxP ]
+  * German translation updated.
+
+  [ tux3 ]
+  * Cherry-pick da084594d9b58a5cbaf2414efecac04700c72ab4 from #1523
+
+  [ AxP ]
+  * German translation updated.
+
+  [ tux3 ]
+  * Cherry-pick da084594d9b58a5cbaf2414efecac04700c72ab4 from #1523
+  * Change some tabs to space for consistency
+  * Avatar sending on top of file transfers
+  * Don't show call buttons in text-only groupchats
+  * Prevent possible uninitialized read of status
+  * Cache avatar sending, fix image file preview
+  * Remove some CoreFile debug output
+  * Signal broken file transfers
+  * Cleanly cancel broken file transfers
+  * Fix save corruption bug
+  * Disable the GUI until a profile is active
+  * Fix more save corruption bugs
+  * Better error messages for friend requests
+
+  [ agilob ]
+  * added missing lib for ubuntu
+
+  [ tux3 ]
+  * Fix #1536
+  * Give appropriately scary name to dangerous function
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 26 Apr 2015 21:40:54 +0000
+
+qtox (0.0.0+git20150322.r2615-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * #1441 correct
+
+  [ Rohil Surana ]
+  * Corrected a spelling mistake
+
+  [ Jookia ]
+  * Added option to disable notification sounds.
+
+  [ PKEv ]
+  * Correct #1448
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 23 Mar 2015 19:15:55 +0000
+
 qtox (0.0.0+git20150321.r2610-1~trusty+1) trusty; urgency=medium
 
   * Building for Trusty
@@ -1550,6 +1732,13 @@ qtox (0.0.0+git20141231.r1769-1) unstable; urgency=medium
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 01 Jan 2015 02:33:45 +0000
 
+qtox (0.0.0+git20141217.r1753-1~debu7+1) stable; urgency=medium
+
+  * Backport to Wheezy
+  *  try with gnu++11
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 20 Dec 2014 03:12:47 +0000
+
 qtox (0.0.0+git20141217.r1753-1) unstable; urgency=medium
 
   [ Ansa89 ]
@@ -2816,6 +3005,12 @@ qtox (0.0.0+git20141021.r1058-1) unstable; urgency=medium
   * New git upstream snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 21 Oct 2014 21:28:43 +0000
+
+qtox (0.0.0+git20141020.r1051-1~deb7u+1) stable; urgency=medium
+
+  * Backport to Wheezy
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 20 Oct 2014 20:29:29 +0000
 
 qtox (0.0.0+git20141020.r1051-1) unstable; urgency=medium
 

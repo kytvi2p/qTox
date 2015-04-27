@@ -63,22 +63,22 @@ public:
 
     bool getAutostartInTray() const;
     void setAutostartInTray(bool newValue);
-    
+
     bool getCloseToTray() const;
     void setCloseToTray(bool newValue);
-    
+
     bool getMinimizeToTray() const;
     void setMinimizeToTray(bool newValue);
 
     bool getLightTrayIcon() const;
     void setLightTrayIcon(bool newValue);
-    
+
     QString getStyle() const;
     void setStyle(const QString& newValue);
 
     bool getShowSystemTray() const;
     void setShowSystemTray(const bool& newValue);
-    
+
     bool getUseEmoticons() const;
     void setUseEmoticons(bool newValue);
 
@@ -88,7 +88,7 @@ public:
 
     QString getTranslation() const;
     void setTranslation(QString newValue);
-    
+
     void setAutoSaveEnabled(bool newValue);
     bool getAutoSaveEnabled() const;
 
@@ -127,6 +127,9 @@ public:
 
     bool getShowInFront() const;
     void setShowInFront(bool newValue);
+
+    bool getNotifySound() const;
+    void setNotifySound(bool newValue);
 
     bool getGroupAlwaysNotify() const;
     void setGroupAlwaysNotify(bool newValue);
@@ -202,8 +205,11 @@ public:
     int getSecondColumnHandlePosFromRight() const;
     void setSecondColumnHandlePosFromRight(const int pos);
 
-    const QString &getTimestampFormat() const;
-    void setTimestampFormat(const QString &format);
+    const QString& getTimestampFormat() const;
+    void setTimestampFormat(const QString& format);
+
+    const QString& getDateFormat() const;
+    void setDateFormat(const QString& format);
 
     bool isMinimizeOnCloseEnabled() const;
     void setMinimizeOnClose(bool newValue);
@@ -242,10 +248,16 @@ public:
     bool getCompactLayout() const;
     void setCompactLayout(bool compact);
 
+    bool getGroupchatPosition() const;
+    void setGroupchatPosition(bool value);
+
 public:
     void save(bool writePersonal = true);
     void save(QString path, bool writePersonal = true);
     void load();
+
+private:
+    static QString genRandomProfileName();
 
 private:
     static Settings* settings;
@@ -269,6 +281,7 @@ private:
 
     bool fauxOfflineMessaging;
     bool compactLayout;
+    bool groupchatPosition;
     bool enableIPv6;
     QString translation;
     static bool makeToxPortable;
@@ -280,6 +293,7 @@ private:
     bool checkUpdates;
     bool showWindow;
     bool showInFront;
+    bool notifySound;
     bool groupAlwaysNotify;
 
     bool forceTCP;
@@ -299,7 +313,7 @@ private:
 
     QHash<QString, QByteArray> widgetSettings;
     QHash<QString, QString> autoAccept;
-    bool autoSaveEnabled;    
+    bool autoSaveEnabled;
     QString globalAutoAcceptDir;
 
     // GUI
@@ -320,6 +334,7 @@ private:
     int firstColumnHandlePos;
     int secondColumnHandlePosFromRight;
     QString timestampFormat;
+    QString dateFormat;
     bool statusChangeNotificationEnabled;
 
     // Privacy
@@ -351,7 +366,6 @@ signals:
     void logStorageOptsChanged();
     void smileyPackChanged();
     void emojiFontChanged();
-    void timestampFormatChanged();
     void compactLayoutChanged();
 };
 
