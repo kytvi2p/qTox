@@ -9,6 +9,8 @@
 SystemTrayIcon::SystemTrayIcon()
 {
     QString desktop = getenv("XDG_CURRENT_DESKTOP");
+    if (desktop.isEmpty())
+        desktop = getenv("DESKTOP_SESSION");
     desktop = desktop.toLower();
     if (false);
     #ifdef ENABLE_SYSTRAY_UNITY_BACKEND
@@ -227,8 +229,8 @@ void SystemTrayIcon::setContextMenu(QMenu* menu)
             g_signal_connect(item, "activate", G_CALLBACK(callback), a);
             gtk_widget_show(item);
         }
-        void (*callbackMenu)(StatusNotifier*, gint, gint, gpointer) =
-                [](StatusNotifier*, gint, gint, gpointer data)
+        void (*callbackMenu)(GtkMenu*, gint, gint, gpointer) =
+                [](GtkMenu*, gint, gint, gpointer data)
         {
             gtk_widget_show_all(((SystemTrayIcon*)data)->gtkMenu);
             gtk_menu_popup(GTK_MENU(((SystemTrayIcon*)data)->gtkMenu), 0, 0, 0, 0, 3, gtk_get_current_event_time());

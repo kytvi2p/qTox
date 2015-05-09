@@ -1,3 +1,107 @@
+qtox (0.0.0+git20150508.r2786-1) stable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Some style fixes
+  * Fix coding style and add copyright header
+
+  [ kushagra ]
+  * autocomplete will work for : also,fixes #1377
+
+  [ PKEv ]
+  * #1402 duplicate of the sender's name set if interval more 5 minuts, sender
+    name repet not tested for group chats!!!
+
+  [ tux3 ]
+  * Fix typo in error message
+  * Create config directory on first run
+  * Remove redundant QString ctor
+  * New OS X dock icon from #1541
+  * Fix qTox Android build
+
+  [ Fish ]
+  * Update fr.ts
+
+  [ Mario Preksavec ]
+  * Remove StatusNotifier dependency
+
+  [ novist ]
+  * Fixed filter_audio lib windows bootstraping Added qrencode lib to windows
+    bootstrap script
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Corey Sheldon ]
+  * Update INSTALL.md
+
+  [ Mario Preksavec ]
+  * Fallback XFCE detection
+  * Update Slackware install instructions
+  * Make dropdown menus look better on high dpi
+  * Respect configured emoticon size
+  * Unhide faux offline messaging checkbox
+
+  [ Rohil Surana ]
+  * Added chat room status to window title
+
+  [ Jookia ]
+  * Implemented cycling through contacts.
+  * Tabs with modifiers are passed up from chat boxes.
+  * Add keyboard bindings for cycling contacts.
+
+  [ PKEv ]
+  * fix drag and drop in chat history (windows)
+  * Add_www_link_possibility
+
+  [ Rohil Surana ]
+  * Added tool menu active button indicator.
+
+  [ tux3 ]
+  * Make tool buttons inactive when showing profile
+
+  [ Stefan Merettig ]
+  * WIP: KSnapshot-like screenshot grabber
+  * Screen grabber: Flyout menu for the screenshot button
+  * Screen grabber: Wait for the flyout to collapse before grabbing
+  * Screen grabber: Moving from button -> flyout -> button doesn't collapse
+  * Screen grabber: Remove forced redraw
+  * Screen grabber: Don't wait for the flyout to collapse
+  * Screen grabber: Modified helper tooltip texts
+  * Screen grabber: Reject small selections (< 2px width/height)
+  * Screen grabber: Show correct tooltip for selected/no-selection states
+  * Screen grabber: Calculate bounding rect, fixes some drawing issues
+  * Screen grabber: Fix position of handles with negative selection
+  * Screen grabber: Only show flyout if the attach button is enabeld
+  * Screen grabber: hide() the flyout at first
+  * Screen grabber: Hide mid-animation when leaving file button
+  * Screen grabber: Make sure the flyout is hidden on leave
+  * Screen grabber: Hide the flyout when the chat form is hidden.
+  * Screen grabber: Fix flying-flyout bug when resizing window while open
+
+  [ tux3 ]
+  * Use old Qt connect syntax for QTimer::singleShot
+
+  [ kushagra ]
+  * Implemented search of contacts
+
+  [ qwad1000 ]
+  * Updated Ukrainian translation
+
+  [ tux3 ]
+  * Fix fr.ts
+
+  [ llya Kowalewski ]
+  * Fixing clang build on OSX
+  * Include: complex -> cstdlib
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 09 May 2015 20:02:37 +0000
+
 qtox (0.0.0+git20150427.r2715-1) stable; urgency=medium
 
   [ tux3 ]
