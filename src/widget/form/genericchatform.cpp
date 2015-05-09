@@ -36,6 +36,7 @@
 #include "src/friend.h"
 #include "src/chatlog/chatlog.h"
 #include "src/chatlog/content/timestamp.h"
+#include "src/widget/tool/flyoutoverlaywidget.h"
 
 GenericChatForm::GenericChatForm(QWidget *parent)
   : QWidget(parent)
@@ -49,17 +50,17 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     nameLabel->setObjectName("nameLabel");
     nameLabel->setMinimumHeight(Style::getFont(Style::Medium).pixelSize());
     nameLabel->setEditable(true);
-    nameLabel->setTextFormat(Qt::PlainText);   
+    nameLabel->setTextFormat(Qt::PlainText);
 
     avatar = new MaskablePixmapWidget(this, QSize(40,40), ":/img/avatar_mask.svg");
     QHBoxLayout *mainFootLayout = new QHBoxLayout(),
                 *headLayout = new QHBoxLayout();
-    
+
     QVBoxLayout *mainLayout = new QVBoxLayout(),
                 *footButtonsSmall = new QVBoxLayout(),
                 *micButtonsLayout = new QVBoxLayout();
-                headTextLayout = new QVBoxLayout();    
-    
+                headTextLayout = new QVBoxLayout();
+
     QGridLayout *buttonsLayout = new QGridLayout();
 
     chatWidget = new ChatLog(this);
@@ -77,6 +78,8 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     // Setting the sizes in the CSS doesn't work (glitch with high DPIs)
     fileButton = new QPushButton();
     fileButton->setToolTip(tr("Send file(s)"));
+    screenshotButton = new QPushButton;
+    screenshotButton->setToolTip(tr("Send a screenshot"));
     callButton = new QPushButton();
     callButton->setFixedSize(50,40);
     callButton->setToolTip(tr("Start an audio call"));
@@ -89,8 +92,15 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     micButton = new QPushButton();
     // micButton->setFixedSize(25,20);
     micButton->setToolTip("");
+    
+    fileFlyout = new FlyoutOverlayWidget;
+    QHBoxLayout *fileLayout = new QHBoxLayout(fileFlyout);
+    fileLayout->addWidget(screenshotButton);
+    fileLayout->setContentsMargins(0, 0, 0, 0);
 
     footButtonsSmall->setSpacing(2);
+    fileLayout->setSpacing(0);
+    fileLayout->setMargin(0);
 
     msgEdit->setStyleSheet(Style::getStylesheet(":/ui/msgEdit/msgEdit.css"));
     msgEdit->setFixedHeight(50);
@@ -98,6 +108,7 @@ GenericChatForm::GenericChatForm(QWidget *parent)
 
     sendButton->setStyleSheet(Style::getStylesheet(":/ui/sendButton/sendButton.css"));
     fileButton->setStyleSheet(Style::getStylesheet(":/ui/fileButton/fileButton.css"));
+    screenshotButton->setStyleSheet(Style::getStylesheet(":/ui/screenshotButton/screenshotButton.css"));
     emoteButton->setStyleSheet(Style::getStylesheet(":/ui/emoteButton/emoteButton.css"));
 
     callButton->setObjectName("green");
@@ -127,33 +138,34 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     mainFootLayout->addSpacing(5);
     mainFootLayout->addWidget(sendButton);
     mainFootLayout->setSpacing(0);
-    
-    headTextLayout->addStretch();    
+
+    headTextLayout->addStretch();
     headTextLayout->addWidget(nameLabel);
     headTextLayout->addStretch();
-    
+
     micButtonsLayout->setSpacing(0);
     micButtonsLayout->addWidget(micButton, Qt::AlignTop | Qt::AlignRight);
     micButtonsLayout->addSpacing(4);
     micButtonsLayout->addWidget(volButton, Qt::AlignTop | Qt::AlignRight);
-    
+
     buttonsLayout->addLayout(micButtonsLayout, 0, 0, 2, 1, Qt::AlignTop | Qt::AlignRight);
     buttonsLayout->addWidget(callButton, 0, 1, 2, 1, Qt::AlignTop);
     buttonsLayout->addWidget(videoButton, 0, 2, 2, 1, Qt::AlignTop);
     buttonsLayout->setVerticalSpacing(0);
     buttonsLayout->setHorizontalSpacing(4);
-        
+
     headLayout->addWidget(avatar);
     headLayout->addSpacing(5);
     headLayout->addLayout(headTextLayout);
     headLayout->addLayout(buttonsLayout);
 
     headWidget->setLayout(headLayout);
-    
+
     //Fix for incorrect layouts on OS X as per
     //https://bugreports.qt-project.org/browse/QTBUG-14591
     sendButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     fileButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    screenshotButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     emoteButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     micButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     volButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
@@ -169,22 +181,38 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     connect(emoteButton, &QPushButton::clicked, this, &GenericChatForm::onEmoteButtonClicked);
     connect(chatWidget, &ChatLog::customContextMenuRequested, this, &GenericChatForm::onChatContextMenuRequested);
 
-    new QShortcut(Qt::CTRL + Qt::Key_PageUp, this, SLOT(previousContact()));
-    new QShortcut(Qt::CTRL + Qt::Key_PageDown, this, SLOT(nextContact()));
     new QShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_L, this, SLOT(clearChatArea()));
 
     chatWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatArea.css"));
     headWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatHead.css"));
+    
+    fileFlyout->setFixedSize(24, 24);
+    fileFlyout->setParent(this);
+    fileButton->installEventFilter(this);
+    fileFlyout->installEventFilter(this);
 }
 
-void GenericChatForm::previousContact()
+void GenericChatForm::adjustFileMenuPosition()
 {
-    parent->previousContact();
+    QPoint pos = fileButton->pos();
+    QSize size = fileFlyout->size();
+    fileFlyout->move(pos.x() - size.width(), pos.y());
 }
 
-void GenericChatForm::nextContact()
+void GenericChatForm::showFileMenu()
 {
-    parent->nextContact();
+    if (!fileFlyout->isShown() && !fileFlyout->isBeingShown()) {
+        adjustFileMenuPosition();
+    }
+    
+    fileFlyout->animateShow();
+}
+
+void GenericChatForm::hideFileMenu()
+{
+    if(fileFlyout->isShown() || fileFlyout->isBeingShown())
+        fileFlyout->animateHide();
+    
 }
 
 bool GenericChatForm::isEmpty()
@@ -225,7 +253,7 @@ ChatMessage::Ptr GenericChatForm::addMessage(const ToxID& author, const QString 
     QString authorStr = author.isMine() ? Core::getInstance()->getUsername() : resolveToxID(author);
 
     ChatMessage::Ptr msg;
-    if(isAction)
+    if (isAction)
     {
         msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ACTION, false);
         previousId.clear();
@@ -233,15 +261,16 @@ ChatMessage::Ptr GenericChatForm::addMessage(const ToxID& author, const QString 
     else
     {
         msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::NORMAL, author.isMine());
-        if(author == previousId)
+        if ( (author == previousId) && (prevMsgDateTime.secsTo(QDateTime::currentDateTime()) < getChatLog()->repNameAfter) )
             msg->hideSender();
 
         previousId = author;
+        prevMsgDateTime = QDateTime::currentDateTime();
     }
 
     insertChatMessage(msg);
 
-    if(isSent)
+    if (isSent)
         msg->markAsSent(datetime);
 
     return msg;
@@ -258,10 +287,11 @@ void GenericChatForm::addAlertMessage(const ToxID &author, QString message, QDat
     ChatMessage::Ptr msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ALERT, author.isMine(), datetime);
     insertChatMessage(msg);
 
-    if(author == previousId)
+    if ((author == previousId) && (prevMsgDateTime.secsTo(QDateTime::currentDateTime()) < getChatLog()->repNameAfter))
         msg->hideSender();
 
     previousId = author;
+    prevMsgDateTime = QDateTime::currentDateTime();
 }
 
 void GenericChatForm::onEmoteButtonClicked()
@@ -303,7 +333,7 @@ void GenericChatForm::onSaveLogClicked()
 
     QString plainText;
     auto lines = chatWidget->getLines();
-    for(ChatLine::Ptr l : lines)
+    for (ChatLine::Ptr l : lines)
     {
         Timestamp* rightCol = dynamic_cast<Timestamp*>(l->getContent(2));
         ChatLineContent* middleCol = l->getContent(1);
@@ -383,4 +413,51 @@ QString GenericChatForm::resolveToxID(const ToxID &id)
 void GenericChatForm::insertChatMessage(ChatMessage::Ptr msg)
 {
     chatWidget->insertChatlineAtBottom(std::dynamic_pointer_cast<ChatLine>(msg));
+}
+
+void GenericChatForm::hideEvent(QHideEvent* event)
+{
+    hideFileMenu();
+    QWidget::hideEvent(event);
+}
+
+void GenericChatForm::resizeEvent(QResizeEvent* event)
+{
+    adjustFileMenuPosition();
+    QWidget::resizeEvent(event);
+}
+
+bool GenericChatForm::eventFilter(QObject* object, QEvent* event)
+{
+    if (object != this->fileButton && object != this->fileFlyout)
+        return false;
+    
+    if (!qobject_cast<QWidget*>(object)->isEnabled())
+        return false;
+    
+    switch(event->type())
+    {
+    case QEvent::Enter:
+        showFileMenu();
+        break;
+        
+    case QEvent::Leave: {
+        QPoint pos = mapFromGlobal(QCursor::pos());
+        QRect fileRect(fileFlyout->pos(), fileFlyout->size());
+        fileRect = fileRect.united(QRect(fileButton->pos(), fileButton->size()));
+        
+        if (!fileRect.contains(pos))
+            hideFileMenu();
+        
+    } break;
+        
+    case QEvent::MouseButtonPress:
+        hideFileMenu();
+        break;
+        
+    default:
+        break;
+    }
+    
+    return false;
 }
