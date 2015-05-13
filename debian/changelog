@@ -1,3 +1,88 @@
+qtox (0.0.0+git20150512.r2844-1) stable; urgency=medium
+
+  [ kushagra ]
+  * Removes chat history of friend when removed, fixes #1486
+
+  [ tux3 ]
+  * Fix crash on video calls lowered to audio calls
+  * Fix some memory leaks and mismatches
+
+  [ sudden6 ]
+  * Add build instructions for openSUSE
+
+  [ tux3 ]
+  * Fix small memory leak cleaning up video calls
+  * Save memory with lazy loading
+  * Avoid unecessary copying of video frames
+  * Log size of received avatar data
+  * Limit outbound avatar size to 64kB
+  * Cleanly open/close FT image preview buffer
+
+  [ Rohil Surana ]
+  * Toolicon Menu was not indicating active button
+
+  [ agilob ]
+  * ask to remove history
+  * fix popup colors
+  * closes tux3/qtox#1561
+
+  [ Ilya Kowalewski ]
+  * Fixing tray icon visibility issue on OS X
+  * Fixing behaviour for a tray icon on OS X
+  * Redesign draft for settings pane and proper UX for Mac
+  * Resolves issues reported in PR before and some BEAST features:
+  * Fixing smiley alignment and wrong copyright years
+  * Persistent aliases, finally resolves #697
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ sudden6 ]
+  * rework the logging and debug output
+  * Change log messages to fit new log format
+  * remove useless code opencv uses exceptions for error handling
+
+  [ tux3 ]
+  * Remove pointless or potentially sensitive log messages
+
+  [ agilob ]
+  * closes tux3/qtox#1354
+
+  [ tux3 ]
+  * Faster file transfers (up to 160ms/s)
+
+  [ agilob ]
+  * closes tux3/qtox#768
+  * alsourcef in audio::playmono16sound
+  * this sould be better ;_;
+  * closes tux3/qtox#1426
+
+  [ saneki ]
+  * Changed Public Information area in User Profile form to use a QFormLayout
+  * Vertically aligned Public Information QFormLayout to appear more centered
+
+  [ tux3 ]
+  * Don't ask to remove history for fake friend removal
+  * Fix #928
+
+  [ agilob ]
+  * license box in advanced
+
+  [ saneki ]
+  * Fixed settings tabbar style
+
+  [ tux3 ]
+  * Implement and enable the audio sliders
+  * Revert "Merge branch 'pr1629'"
+  * Fix vol/mic toggle buttons
+  * Fix incorrect copyright headers
+  * Fix #1634
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 13 May 2015 01:39:15 +0000
+
 qtox (0.0.0+git20150508.r2786-1) stable; urgency=medium
 
   [ Zetok Zalbavar ]
