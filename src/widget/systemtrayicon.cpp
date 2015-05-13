@@ -4,6 +4,8 @@
 #include <QMenu>
 #include <QFile>
 #include <QDebug>
+#include <QPainter>
+#include <QBitmap>
 #include "src/misc/settings.h"
 
 SystemTrayIcon::SystemTrayIcon()
@@ -16,7 +18,7 @@ SystemTrayIcon::SystemTrayIcon()
     #ifdef ENABLE_SYSTRAY_UNITY_BACKEND
     else if (desktop == "unity")
     {
-        qDebug() << "SystemTrayIcon: Using Unity backend";
+        qDebug() << "Using Unity backend";
         gtk_init(nullptr, nullptr);
         QString settingsDir = Settings::getSettingsDirPath();
         QFile iconFile(settingsDir+"/icon.png");
@@ -42,7 +44,7 @@ SystemTrayIcon::SystemTrayIcon()
     #ifdef ENABLE_SYSTRAY_GTK_BACKEND
     else if (desktop == "xfce" || desktop.contains("gnome"))
     {
-        qDebug() << "SystemTrayIcon: Using GTK backend";
+        qDebug() << "Using GTK backend";
         backendType = SystrayBackendType::GTK;
         gtk_init(nullptr, nullptr);
         void (*callbackFreeImage)(guchar*, gpointer) =
@@ -78,7 +80,7 @@ SystemTrayIcon::SystemTrayIcon()
     else if (desktop == "kde"
             && getenv("KDE_SESSION_VERSION") == QString("5"))
     {
-        qDebug() << "SystemTrayIcon: Using Status Notifier backend";
+        qDebug() << "Using Status Notifier backend";
         backendType = SystrayBackendType::StatusNotifier;
         gtk_init(nullptr, nullptr);
         snMenu = gtk_menu_new();
@@ -103,11 +105,11 @@ SystemTrayIcon::SystemTrayIcon()
              && getenv("KDE_SESSION_VERSION") == QString("5"))
     {
         backendType = SystrayBackendType::KDE5;
-        qWarning() << "SystemTrayIcon: Detected a KDE5 session, but we don't have Status Notifier support. Disabling the systray icon";
+        qWarning() << "Detected a KDE5 session, but we don't have Status Notifier support. Disabling the systray icon";
     }
     else
     {
-        qDebug() << "SystemTrayIcon: Using the Qt backend";
+        qDebug() << "Using the Qt backend";
         qtIcon = new QSystemTrayIcon;
         backendType = SystrayBackendType::Qt;
         connect(qtIcon, &QSystemTrayIcon::activated, this, &SystemTrayIcon::activated);
@@ -388,6 +390,16 @@ void SystemTrayIcon::setIcon(QIcon &icon)
     #endif
     else if (backendType == SystrayBackendType::Qt)
     {
+        #ifdef Q_OS_MAC
+            // Since Qt doesn't render SVG tray icons for OSX
+            // we are forced to do this sort of a workaround!
+            QPixmap quirk(64, 64);
+            quirk.fill(Qt::transparent);
+            QPainter quirker(&quirk);
+            icon.paint(&quirker, 0, 0, 64, 64);
+            icon = QIcon(quirk);
+        #endif
+
         qtIcon->setIcon(icon);
     }
 }

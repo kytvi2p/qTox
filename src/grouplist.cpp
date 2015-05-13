@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -25,7 +23,7 @@ Group* GroupList::addGroup(int groupId, const QString& name, bool isAvGroupchat)
 {
     auto checker = groupList.find(groupId);
     if (checker != groupList.end())
-        qWarning() << "GroupList::addGroup: groupId already taken";
+        qWarning() << "addGroup: groupId already taken";
 
     Group* newGroup = new Group(groupId, name, isAvGroupchat);
     groupList[groupId] = newGroup;

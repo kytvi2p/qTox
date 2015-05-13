@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -46,7 +44,7 @@ SettingsWidget::SettingsWidget(QWidget* parent)
     headLayout->addStretch(1);
 
     settingsWidgets = new QTabWidget(this);
-    settingsWidgets->setTabPosition(QTabWidget::South);
+    settingsWidgets->setTabPosition(QTabWidget::North);
 
     bodyLayout->addWidget(settingsWidgets);
 

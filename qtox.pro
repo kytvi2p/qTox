@@ -4,9 +4,6 @@
 #
 #-------------------------------------------------
 
-
-#    Copyright (C) 2015 by Project Tox <https://tox.im>
-#
 #    This file is part of qTox, a Qt-based graphical interface for Tox.
 #
 #    This program is libre software: you can redistribute it and/or modify
@@ -51,6 +48,7 @@ DEFINES += GIT_VERSION=\"\\\"$$quote($$GIT_VERSION)\\\"\"
 TIMESTAMP = $$system($1 2>null||echo 0||a;rm null;date +%s||echo 0) # I'm so sorry
 DEFINES += TIMESTAMP=$$TIMESTAMP
 DEFINES += LOG_TO_FILE
+DEFINES += QT_MESSAGELOGCONTEXT
 
 android {
     ANDROID_TOOLCHAIN=/opt/android/toolchain-r9d-17/
@@ -437,7 +435,8 @@ SOURCES += \
     src/widget/tool/screengrabberchooserrectitem.cpp \
     src/widget/tool/screengrabberoverlayitem.cpp \
     src/widget/tool/toolboxgraphicsitem.cpp \
-    src/widget/tool/flyoutoverlaywidget.cpp
+    src/widget/tool/flyoutoverlaywidget.cpp \
+    src/widget/form/settings/verticalonlyscroller.cpp
 
 
 HEADERS += \
@@ -468,4 +467,5 @@ HEADERS += \
     src/widget/tool/screengrabberchooserrectitem.h \
     src/widget/tool/screengrabberoverlayitem.h \
     src/widget/tool/toolboxgraphicsitem.h \
-    src/widget/tool/flyoutoverlaywidget.h
+    src/widget/tool/flyoutoverlaywidget.h \
+    src/widget/form/settings/verticalonlyscroller.h

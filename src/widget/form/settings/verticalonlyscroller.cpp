@@ -12,19 +12,26 @@
     See the COPYING file for more details.
 */
 
-#include <QDebug>
-#ifdef Q_OS_WIN32
-#include "src/platform/timer.h"
-#include <windows.h>
+#include <QResizeEvent>
+#include <QShowEvent>
 
+#include "verticalonlyscroller.h"
 
-uint32_t Platform::getIdleTime()
+VerticalOnlyScroller::VerticalOnlyScroller(QWidget *parent) :
+    QScrollArea(parent)
 {
-    LASTINPUTINFO info = { 0, 0 };
-    info.cbSize = sizeof(info);
-    if (GetLastInputInfo(&info))
-        return GetTickCount() - info.dwTime;
-    return 0;
 }
 
-#endif  // Q_OS_WIN32
+void VerticalOnlyScroller::resizeEvent(QResizeEvent *event)
+{
+    QScrollArea::resizeEvent(event);
+    if (widget())
+        widget()->setMaximumWidth(event->size().width());
+}
+
+void VerticalOnlyScroller::showEvent(QShowEvent *event)
+{
+    QScrollArea::showEvent(event);
+    if (widget())
+        widget()->setMaximumWidth(size().width());
+}

@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -32,7 +30,8 @@
 #endif
 
 AVForm::AVForm() :
-    GenericForm(tr("Audio/Video"), QPixmap(":/img/settings/av.png"))
+    GenericForm(tr("Audio/Video"), QPixmap(":/img/settings/av.png")),
+    CamVideoSurface{nullptr}
 {
     bodyUI = new Ui::AVSettings;
     bodyUI->setupUi(this);
@@ -49,14 +48,15 @@ AVForm::AVForm() :
     auto qcomboboxIndexChanged = (void(QComboBox::*)(const QString&)) &QComboBox::currentIndexChanged;
     connect(bodyUI->inDevCombobox, qcomboboxIndexChanged, this, &AVForm::onInDevChanged);
     connect(bodyUI->outDevCombobox, qcomboboxIndexChanged, this, &AVForm::onOutDevChanged);
-    connect(bodyUI->filterAudio, SIGNAL(toggled(bool)), this, SLOT(onFilterAudioToggled(bool)));
+    connect(bodyUI->filterAudio, &QCheckBox::toggled, this, &AVForm::onFilterAudioToggled);
     connect(bodyUI->rescanButton, &QPushButton::clicked, this, [=](){getAudioInDevices(); getAudioOutDevices();});
     bodyUI->playbackSlider->setValue(100);
+    bodyUI->microphoneSlider->setValue(100);
 
     for (QComboBox* cb : findChildren<QComboBox*>())
     {
-            cb->installEventFilter(this);
-            cb->setFocusPolicy(Qt::StrongFocus);
+        cb->installEventFilter(this);
+        cb->setFocusPolicy(Qt::StrongFocus);
     }
 }
 
@@ -70,13 +70,13 @@ void AVForm::present()
     getAudioOutDevices();
     getAudioInDevices();
 
-    bodyUI->CamVideoSurface->setSource(Camera::getInstance());
+    createVideoSurface();
+    CamVideoSurface->setSource(Camera::getInstance());
 
     Camera::getInstance()->probeProp(Camera::SATURATION);
     Camera::getInstance()->probeProp(Camera::CONTRAST);
     Camera::getInstance()->probeProp(Camera::BRIGHTNESS);
     Camera::getInstance()->probeProp(Camera::HUE);
-
     Camera::getInstance()->probeResolutions();
 	
 	bodyUI->videoModescomboBox->blockSignals(true);
@@ -157,12 +157,17 @@ void AVForm::onResProbingFinished(QList<QSize> res)
 
 void AVForm::hideEvent(QHideEvent *)
 {
-    bodyUI->CamVideoSurface->setSource(nullptr);
+    if (CamVideoSurface)
+    {
+        CamVideoSurface->setSource(nullptr);
+        killVideoSurface();
+    }
 }
 
 void AVForm::showEvent(QShowEvent *)
 {
-    bodyUI->CamVideoSurface->setSource(Camera::getInstance());
+    createVideoSurface();
+    CamVideoSurface->setSource(Camera::getInstance());
 }
 
 void AVForm::getAudioInDevices()
@@ -253,26 +258,37 @@ void AVForm::onFilterAudioToggled(bool filterAudio)
 void AVForm::on_HueSlider_valueChanged(int value)
 {
     Camera::getInstance()->setProp(Camera::HUE, value / 100.0);
+    bodyUI->hueMax->setText(QString::number(value));
 }
 
 void AVForm::on_BrightnessSlider_valueChanged(int value)
 {
     Camera::getInstance()->setProp(Camera::BRIGHTNESS, value / 100.0);
+    bodyUI->brightnessMax->setText(QString::number(value));
 }
 
 void AVForm::on_SaturationSlider_valueChanged(int value)
 {
     Camera::getInstance()->setProp(Camera::SATURATION, value / 100.0);
+    bodyUI->saturationMax->setText(QString::number(value));
 }
 
 void AVForm::on_ContrastSlider_valueChanged(int value)
 {
     Camera::getInstance()->setProp(Camera::CONTRAST, value / 100.0);
+    bodyUI->contrastMax->setText(QString::number(value));
 }
 
 void AVForm::on_playbackSlider_valueChanged(int value)
 {
-    Audio::getInstance().outputVolume = value / 100.0;
+    Audio::setOutputVolume(value / 100.0);
+    bodyUI->playbackMax->setText(QString::number(value));
+}
+
+void AVForm::on_microphoneSlider_valueChanged(int value)
+{
+    Audio::setOutputVolume(value / 100.0);
+    bodyUI->microphoneMax->setText(QString::number(value));
 }
 
 bool AVForm::eventFilter(QObject *o, QEvent *e)
@@ -284,4 +300,26 @@ bool AVForm::eventFilter(QObject *o, QEvent *e)
         return true;
     }
     return QWidget::eventFilter(o, e);
+}
+
+void AVForm::createVideoSurface()
+{
+    if (CamVideoSurface)
+        return;
+    CamVideoSurface = new VideoSurface(bodyUI->CamFrame);
+    CamVideoSurface->setObjectName(QStringLiteral("CamVideoSurface"));
+    CamVideoSurface->setMinimumSize(QSize(160, 120));
+    bodyUI->gridLayout->addWidget(CamVideoSurface, 0, 0, 1, 1);
+}
+
+void AVForm::killVideoSurface()
+{
+    if (!CamVideoSurface)
+        return;
+    QLayoutItem *child;
+    while ((child = bodyUI->gridLayout->takeAt(0)) != 0)
+        delete child;
+    
+    delete CamVideoSurface;
+    CamVideoSurface = nullptr;
 }

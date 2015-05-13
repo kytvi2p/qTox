@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -80,7 +78,7 @@ QString Style::getStylesheet(const QString &filename)
         if (file.open(QFile::ReadOnly | QFile::Text))
             return resolve(file.readAll());
         else
-            qWarning() << "Style: Stylesheet " << filename << " not found";
+            qWarning() << "Stylesheet " << filename << " not found";
     }
 
     return QString();

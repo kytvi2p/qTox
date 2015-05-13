@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2015 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -71,13 +69,13 @@ private:
     void beginRectChooser(QGraphicsSceneMouseEvent* event);
     
     QPixmap screenGrab;
+    QGraphicsScene* scene;
     QGraphicsView* window;
     QGraphicsPixmapItem* screenGrabDisplay;
     ScreenGrabberOverlayItem* overlay;
     ScreenGrabberChooserRectItem* chooserRect;
     ToolBoxGraphicsItem* helperToolbox;
     QGraphicsTextItem* helperTooltip;
-    
 };
 
 

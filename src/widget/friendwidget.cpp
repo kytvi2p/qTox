@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -92,9 +90,6 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
         }
         else if (selectedItem == removeFriendAction)
         {
-            hide();
-            show(); //Toggle visibility to work around bug of repaintEvent() not being fired on parent widget when this is hidden
-            hide();
             emit removeFriend(friendId);
             return;
         }
@@ -112,7 +107,7 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
             {
                 dir = QFileDialog::getExistingDirectory(0, tr("Choose an auto accept directory","popup title"), dir);
                 autoAccept->setChecked(true);
-                qDebug() << "FriendWidget: setting auto accept dir for" << friendId << "to" << dir;
+                qDebug() << "setting auto accept dir for" << friendId << "to" << dir;
                 Settings::getInstance().setAutoAcceptDir(id, dir);
             }
         }
@@ -253,6 +248,7 @@ void FriendWidget::setAlias(const QString& _alias)
     Friend* f = FriendList::findFriend(friendId);
     f->setAlias(alias);
     Settings::getInstance().setFriendAlias(f->getToxID(), alias);
+    Settings::getInstance().save(true);
     hide();
     show();
 }
