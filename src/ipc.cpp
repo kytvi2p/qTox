@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -39,10 +37,10 @@ IPC::IPC()
 
     qsrand(time(0));
     globalId = ((uint64_t)qrand()) * ((uint64_t)qrand()) * ((uint64_t)qrand());
-    qDebug() << "IPC: Our global ID is " << globalId;
+    qDebug() << "Our global ID is " << globalId;
     if (globalMemory.create(sizeof(IPCMemory)))
     {
-        qDebug() << "IPC: Creating the global shared memory and taking ownership";
+        qDebug() << "Creating the global shared memory and taking ownership";
         if (globalMemory.lock())
         {
             IPCMemory* mem = global();
@@ -53,16 +51,16 @@ IPC::IPC()
         }
         else
         {
-            qWarning() << "IPC: Couldn't lock to take ownership";
+            qWarning() << "Couldn't lock to take ownership";
         }
     }
     else if (globalMemory.attach())
     {
-        qDebug() << "IPC: Attaching to the global shared memory";
+        qDebug() << "Attaching to the global shared memory";
     }
     else
     {
-        qDebug() << "IPC: Failed to attach to the global shared memory, giving up";
+        qDebug() << "Failed to attach to the global shared memory, giving up";
         return; // We won't be able to do any IPC without being attached, let's get outta here
     }
 
@@ -119,13 +117,13 @@ time_t IPC::postEvent(const QString &name, const QByteArray& data/*=QByteArray()
             mem->lastEvent = evt->posted = result = qMax(mem->lastEvent + 1, time(0));
             evt->dest = dest;
             evt->sender = getpid();
-            qDebug() << "IPC: postEvent " << name << "to" << dest;
+            qDebug() << "postEvent " << name << "to" << dest;
         }
         globalMemory.unlock();
         return result;
     }
     else
-        qDebug() << "IPC: Failed to lock in postEvent()";
+        qDebug() << "Failed to lock in postEvent()";
 
     return 0;
 }
@@ -137,7 +135,7 @@ bool IPC::isCurrentOwner()
         void* data = globalMemory.data();
         if (!data)
         {
-            qWarning() << "IPC: isCurrentOwner failed to access the memory, returning false";
+            qWarning() << "isCurrentOwner failed to access the memory, returning false";
             globalMemory.unlock();
             return false;
         }
@@ -147,7 +145,7 @@ bool IPC::isCurrentOwner()
     }
     else
     {
-        qWarning() << "IPC: isCurrentOwner failed to lock, returning false";
+        qWarning() << "isCurrentOwner failed to lock, returning false";
         return false;
     }
 }
@@ -178,7 +176,7 @@ bool IPC::isEventAccepted(time_t time)
     }
     else
     {
-        qWarning() << "IPC: isEventAccepted failed to lock, returning false";
+        qWarning() << "isEventAccepted failed to lock, returning false";
     }
     return result;
 }
@@ -254,7 +252,7 @@ void IPC::processEvents()
             // Only the owner processes events. But if the previous owner's dead, we can take ownership now
             if (difftime(time(0), mem->lastProcessed) >= OWNERSHIP_TIMEOUT_S)
             {
-                qDebug() << "IPC: Previous owner timed out, taking ownership" << mem->globalId << "->" << globalId;
+                qDebug() << "Previous owner timed out, taking ownership" << mem->globalId << "->" << globalId;
                 // Ignore events that were not meant for this instance
                 memset(mem, 0, sizeof(IPCMemory));
                 mem->globalId = globalId;
@@ -269,7 +267,7 @@ void IPC::processEvents()
             auto it = eventHandlers.find(name);
             if (it != eventHandlers.end())
             {
-                qDebug() << "IPC: Processing event: " << name << ":" << evt->posted << "=" << evt->accepted;
+                qDebug() << "Processing event: " << name << ":" << evt->posted << "=" << evt->accepted;
                 evt->accepted = runEventHandler(it.value(), evt->data);
                 if (evt->dest == 0)
                 {

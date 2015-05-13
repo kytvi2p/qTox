@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2015 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -34,8 +32,8 @@ ScreenshotGrabber::ScreenshotGrabber(QWidget* parent)
     : QWidget(parent)
 {
     
-    QGraphicsScene* scene = new QGraphicsScene;
-    this->window = new QGraphicsView (scene); // Top-level widget
+    scene = new QGraphicsScene;
+    window = new QGraphicsView (scene); // Top-level widget
     setupWindow();
     setupScene(scene);
     
@@ -45,6 +43,7 @@ ScreenshotGrabber::ScreenshotGrabber(QWidget* parent)
 
 ScreenshotGrabber::~ScreenshotGrabber()
 {
+    delete scene;
 }
 
 bool ScreenshotGrabber::eventFilter(QObject* object, QEvent* event)

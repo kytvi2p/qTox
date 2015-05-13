@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -49,7 +47,7 @@ void ProfileForm::refreshProfiles()
 }
 
 ProfileForm::ProfileForm(QWidget *parent) :
-    QWidget(parent)
+    QWidget{parent}, qr{nullptr}
 {
     bodyUI = new Ui::IdentitySettings;
     bodyUI->setupUi(this);
@@ -132,6 +130,7 @@ ProfileForm::ProfileForm(QWidget *parent) :
 
 ProfileForm::~ProfileForm()
 {
+    delete qr;
     delete bodyUI;
     head->deleteLater();
 }
@@ -182,6 +181,7 @@ void ProfileForm::setToxId(const QString& id)
     toxId->setText(id);
     toxId->setCursorPosition(0);
 
+    delete qr;
     qr = new QRWidget();
     qr->setQRData("tox:"+id);
     bodyUI->qrCode->setPixmap(QPixmap::fromImage(qr->getImage()->scaledToWidth(150)));
@@ -190,6 +190,16 @@ void ProfileForm::setToxId(const QString& id)
 
 void ProfileForm::onAvatarClicked()
 {
+    auto picToPng = [](QPixmap pic)
+    {
+        QByteArray bytes;
+        QBuffer buffer(&bytes);
+        buffer.open(QIODevice::WriteOnly);
+        pic.save(&buffer, "PNG");
+        buffer.close();
+        return bytes;
+    };
+
     QString filename = QFileDialog::getOpenFileName(0,
         tr("Choose a profile picture"),
         QDir::homePath(),
@@ -212,11 +222,27 @@ void ProfileForm::onAvatarClicked()
         return;
     }
 
-    QByteArray bytes;
-    QBuffer buffer(&bytes);
-    buffer.open(QIODevice::WriteOnly);
-    pic.save(&buffer, "PNG");
-    buffer.close();
+    // Limit the avatar size to 64kB
+    // We do a first rescale to 256x256 in case the image was huge, then keep tryng from here
+    QByteArray bytes{picToPng(pic)};
+    if (bytes.size() > 65535)
+    {
+        pic = pic.scaled(256,256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        bytes = picToPng(pic);
+    }
+    if (bytes.size() > 65535)
+        bytes = picToPng(pic.scaled(128,128, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    if (bytes.size() > 65535)
+        bytes = picToPng(pic.scaled(64,64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    if (bytes.size() > 65535)
+        bytes = picToPng(pic.scaled(32,32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    // If this happens, you're really doing it on purpose.
+    if (bytes.size() > 65535)
+    {
+        QMessageBox::critical(this, tr("Error"), tr("This image is too big"));
+        return;
+    }
 
     Nexus::getCore()->setAvatar(bytes);
 }
