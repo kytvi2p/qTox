@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -136,6 +134,24 @@ HistoryKeeper::HistoryKeeper(GenericDdInterface *db_) :
 HistoryKeeper::~HistoryKeeper()
 {
     delete db;
+}
+
+void HistoryKeeper::removeFriendHistory(const QString& chat)
+{
+    int chat_id = getChatID(chat, ctSingle).first;
+
+    db->exec("BEGIN TRANSACTION;");
+
+    QString cmd = QString("DELETE FROM chats WHERE name = '%1';").arg(chat);
+    db->exec(cmd);
+    cmd = QString("DELETE FROM aliases WHERE user_id = '%1';").arg(chat);
+    db->exec(cmd);
+    cmd = QString("DELETE FROM sent_status WHERE id IN (SELECT id FROM history WHERE chat_id = '%1');").arg(chat_id);
+    db->exec(cmd);
+    cmd = QString("DELETE FROM history WHERE chat_id = '%1';").arg(chat_id);
+    db->exec(cmd);
+
+    db->exec("COMMIT TRANSACTION;");
 }
 
 qint64 HistoryKeeper::addChatEntry(const QString& chat, const QString& message, const QString& sender, const QDateTime &dt, bool isSent)
@@ -414,9 +430,9 @@ bool HistoryKeeper::removeHistory(int encrypted)
 QList<HistoryKeeper::HistMessage> HistoryKeeper::exportMessagesDeleteFile(int encrypted)
 {
     auto msgs = getInstance()->exportMessages();
-    qDebug() << "HistoryKeeper: count" << msgs.size() << "messages exported";
+    qDebug() << "Messages exported";
     if (!removeHistory(encrypted))
-        qWarning() << "HistoryKeeper: couldn't delete old log file!";
+        qWarning() << "couldn't delete old log file!";
 
     return msgs;
 }

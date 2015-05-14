@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -119,6 +117,16 @@ void GroupWidget::updateStatusLight()
         statusPic.setPixmap(QPixmap(":img/status/dot_online_notification.svg"));
         statusPic.setMargin(0);
     }
+}
+
+QString GroupWidget::getStatusString()
+{
+    Group *g = GroupList::findGroup(groupId);
+
+    if (!g->getEventFlag())
+        return "Online";
+    else
+        return "New Message";
 }
 
 void GroupWidget::setChatForm(Ui::MainWindow &ui)

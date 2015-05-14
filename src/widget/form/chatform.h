@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -94,8 +92,13 @@ private slots:
     void onLoadHistory();
     void onUpdateTime();
     void onEnableCallButtons();
+    void onScreenshotClicked();
+    void onScreenshotTaken(const QPixmap &pixmap);
+    void doScreenshot();
 
 protected:
+    void showNetcam();
+    void hideNetcam();
     // drag & drop
     void dragEnterEvent(QDragEnterEvent* ev);
     void dropEvent(QDropEvent* ev);
@@ -109,7 +112,7 @@ private:
     int callId;
     QLabel *callDuration;
     QTimer *callDurationTimer;
-    QTimer typingTimer;    
+    QTimer typingTimer;
     QTimer *disableCallButtonsTimer;
     QElapsedTimer timeElapsed;
     OfflineMsgEngine *offlineEngine;
@@ -121,6 +124,7 @@ private:
     CallConfirmWidget *callConfirm;
     void enableCallButtons();
     bool isTyping;
+    void SendMessageStr(QString msg);
 };
 
 #endif // CHATFORM_H

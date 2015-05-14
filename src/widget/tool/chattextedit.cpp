@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -25,12 +23,17 @@ ChatTextEdit::ChatTextEdit(QWidget *parent) :
 }
 
 void ChatTextEdit::keyPressEvent(QKeyEvent * event)
-{    
+{
     int key = event->key();
     if ((key == Qt::Key_Enter || key == Qt::Key_Return) && !(event->modifiers() & Qt::ShiftModifier))
         emit enterPressed();
     else if (key == Qt::Key_Tab)
-        emit tabPressed();
+    {
+        if (event->modifiers())
+            event->ignore();
+        else
+            emit tabPressed();
+    }
     else if (key == Qt::Key_Up && this->toPlainText().isEmpty())
     {
         this->setText(lastMessage);

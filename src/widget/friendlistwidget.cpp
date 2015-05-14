@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -85,6 +83,32 @@ void FriendListWidget::onGroupchatPositionChanged(bool top)
         mainLayout->addLayout(layouts[static_cast<int>(Status::Online)], 0, 0);
         mainLayout->addLayout(groupLayout, 1, 0);
     }
+}
+
+QList<GenericChatroomWidget*> FriendListWidget::getAllFriends()
+{
+    QList<GenericChatroomWidget*> friends;
+
+    for (int i = 0; i < mainLayout->count(); ++i)
+    {
+        QLayout* subLayout = mainLayout->itemAt(i)->layout();
+
+        if(!subLayout)
+            continue;
+
+        for (int j = 0; j < subLayout->count(); ++j)
+        {
+            GenericChatroomWidget* widget =
+                reinterpret_cast<GenericChatroomWidget*>(subLayout->itemAt(j)->widget());
+
+            if(!widget)
+                continue;
+
+            friends.append(widget);
+        }
+    }
+
+    return friends;
 }
 
 void FriendListWidget::moveWidget(QWidget *w, Status s)

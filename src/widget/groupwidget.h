@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -33,6 +31,7 @@ public:
     void setChatForm(Ui::MainWindow &);
     void resetEventFlags();
     void setName(const QString& name);
+    QString getStatusString();
 
 signals:
     void groupWidgetClicked(GroupWidget* widget);

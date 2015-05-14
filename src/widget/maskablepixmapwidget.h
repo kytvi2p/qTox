@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -24,7 +22,7 @@ class MaskablePixmapWidget : public QWidget
     Q_OBJECT
 public:
     MaskablePixmapWidget(QWidget *parent, QSize size, QString maskName = QString());
-
+    ~MaskablePixmapWidget();
     void autopickBackground();
     void setClickable(bool clickable);
     void setPixmap(const QPixmap &pmap, QColor background);

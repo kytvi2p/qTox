@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -55,6 +53,14 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 public:
+    enum FilterCriteria
+    {
+        All=0,
+        Online,
+        Offline,
+        Friends,
+        Groups
+    };
     explicit Widget(QWidget *parent = 0);
     void init();
     void setCentralWidget(QWidget *widget, const QString &widgetName);
@@ -149,8 +155,19 @@ private slots:
     void onSetShowSystemTray(bool newValue);
     void onSplitterMoved(int pos, int index);
     void processOfflineMsgs();
+    void searchContacts();
+    void hideFriends(QString searchString, Status status, bool hideAll = false);
+    void hideGroups(QString searchString, bool hideAll = false);
 
 private:
+    enum ActiveToolMenuButton {
+        AddButton,
+        GroupButton,
+        TransferButton,
+        SettingButton,
+        None,
+    };
+    void setActiveToolMenuButton(ActiveToolMenuButton newActiveButton);
     void hideMainForms();
     virtual bool event(QEvent * e);
     Group *createGroup(int groupId);
@@ -158,6 +175,7 @@ private:
     void removeGroup(Group* g, bool fake = false);
     void saveWindowGeometry();
     void saveSplitterGeometry();
+    void cycleContacts(int offset);
     SystemTrayIcon *icon;
     QMenu *trayMenu;
     QAction *statusOnline,
