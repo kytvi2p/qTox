@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -92,9 +90,6 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
         }
         else if (selectedItem == removeFriendAction)
         {
-            hide();
-            show(); //Toggle visibility to work around bug of repaintEvent() not being fired on parent widget when this is hidden
-            hide();
             emit removeFriend(friendId);
             return;
         }
@@ -112,7 +107,7 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
             {
                 dir = QFileDialog::getExistingDirectory(0, tr("Choose an auto accept directory","popup title"), dir);
                 autoAccept->setChecked(true);
-                qDebug() << "FriendWidget: setting auto accept dir for" << friendId << "to" << dir;
+                qDebug() << "setting auto accept dir for" << friendId << "to" << dir;
                 Settings::getInstance().setAutoAcceptDir(id, dir);
             }
         }
@@ -166,6 +161,24 @@ void FriendWidget::updateStatusLight()
         statusPic.setMargin(3);
     else
         statusPic.setMargin(0);
+}
+
+QString FriendWidget::getStatusString()
+{
+    Friend* f = FriendList::findFriend(friendId);
+    Status status = f->getStatus();
+
+    if (f->getEventFlag() == 1)
+        return tr("New message");
+    else if (status == Status::Online)
+        return tr("Online");
+    else if (status == Status::Away)
+        return tr("Away");
+    else if (status == Status::Busy)
+        return tr("Busy");
+    else if (status == Status::Offline)
+        return tr("Offline");
+    return QString::null;
 }
 
 void FriendWidget::setChatForm(Ui::MainWindow &ui)
@@ -235,6 +248,7 @@ void FriendWidget::setAlias(const QString& _alias)
     Friend* f = FriendList::findFriend(friendId);
     f->setAlias(alias);
     Settings::getInstance().setFriendAlias(f->getToxID(), alias);
+    Settings::getInstance().save(true);
     hide();
     show();
 }

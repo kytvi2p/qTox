@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QDebug>
 #include <QImageReader>
+#include <QFile>
 
 #ifdef Q_OS_ANDROID
 #include <src/widget/androidgui.h>
@@ -41,7 +42,7 @@ void Nexus::start()
     if (started)
         return;
 
-    qDebug() << "Nexus: Starting up";
+    qDebug() << "Starting up";
 
     // Setup the environment
     qRegisterMetaType<Status>("Status");

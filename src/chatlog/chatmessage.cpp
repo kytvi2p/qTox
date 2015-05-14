@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -45,7 +43,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
     const QColor actionColor = QColor("#1818FF"); // has to match the color in innerStyle.css (div.action)
 
     //smileys
-    if(Settings::getInstance().getUseEmoticons())
+    if (Settings::getInstance().getUseEmoticons())
         text = SmileyPack::getInstance().smileyfied(text);
 
     //quotes (green text)
@@ -70,7 +68,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
     msg->addColumn(new Text(text, Style::getFont(Style::Big), false, type == (ACTION && isMe) ? QString("%1 %2").arg(sender, rawMessage) : rawMessage), ColumnFormat(1.0, ColumnFormat::VariableSize));
     msg->addColumn(new Spinner(":/ui/chatArea/spinner.svg", QSize(16, 16), 360.0/1.6), ColumnFormat(TIME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
 
-    if(!date.isNull())
+    if (!date.isNull())
         msg->markAsSent(date);
 
     return msg;
@@ -137,7 +135,7 @@ void ChatMessage::markAsSent(const QDateTime &time)
 QString ChatMessage::toString() const
 {
     ChatLineContent* c = getContent(1);
-    if(c)
+    if (c)
         return c->getText();
 
     return QString();
@@ -156,14 +154,14 @@ void ChatMessage::setAsAction()
 void ChatMessage::hideSender()
 {
     ChatLineContent* c = getContent(0);
-    if(c)
+    if (c)
         c->hide();
 }
 
 void ChatMessage::hideDate()
 {
     ChatLineContent* c = getContent(2);
-    if(c)
+    if (c)
         c->hide();
 }
 

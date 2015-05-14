@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -28,7 +26,7 @@ Friend* FriendList::addFriend(int friendId, const ToxID& userId)
 {
     auto friendChecker = friendList.find(friendId);
     if (friendChecker != friendList.end())
-        qWarning() << "FriendList::addFriend: friendId already taken";
+        qWarning() << "addFriend: friendId already taken";
 
     Friend* newfriend = new Friend(friendId, userId);
     friendList[friendId] = newfriend;

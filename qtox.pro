@@ -4,9 +4,6 @@
 #
 #-------------------------------------------------
 
-
-#    Copyright (C) 2015 by Project Tox <https://tox.im>
-#
 #    This file is part of qTox, a Qt-based graphical interface for Tox.
 #
 #    This program is libre software: you can redistribute it and/or modify
@@ -51,6 +48,7 @@ DEFINES += GIT_VERSION=\"\\\"$$quote($$GIT_VERSION)\\\"\"
 TIMESTAMP = $$system($1 2>null||echo 0||a;rm null;date +%s||echo 0) # I'm so sorry
 DEFINES += TIMESTAMP=$$TIMESTAMP
 DEFINES += LOG_TO_FILE
+DEFINES += QT_MESSAGELOGCONTEXT
 
 android {
     ANDROID_TOOLCHAIN=/opt/android/toolchain-r9d-17/
@@ -345,6 +343,7 @@ contains(ENABLE_SYSTRAY_GTK_BACKEND, NO) {
         src/autoupdate.h \
         src/widget/callconfirmwidget.h \
         src/widget/systemtrayicon.h \
+        src/misc/qrwidget.h \
         src/widget/systemtrayicon_private.h
 
         SOURCES += \
@@ -404,6 +403,7 @@ contains(ENABLE_SYSTRAY_GTK_BACKEND, NO) {
         src/chatlog/documentcache.cpp \
         src/chatlog/pixmapcache.cpp \
         src/offlinemsgengine.cpp \
+        src/misc/qrwidget.cpp \
         src/widget/genericchatroomwidget.cpp
 }
 
@@ -424,14 +424,20 @@ SOURCES += \
     src/video/videoframe.cpp \
     src/widget/gui.cpp \
     src/toxme.cpp \
-    src/misc/qrwidget.cpp \
     src/core/core.cpp \
     src/core/coreav.cpp \
     src/core/coreencryption.cpp \
     src/core/corefile.cpp \
     src/core/corestructs.cpp \
     src/profilelocker.cpp \
-    src/avatarbroadcaster.cpp
+    src/avatarbroadcaster.cpp \
+    src/widget/tool/screenshotgrabber.cpp \
+    src/widget/tool/screengrabberchooserrectitem.cpp \
+    src/widget/tool/screengrabberoverlayitem.cpp \
+    src/widget/tool/toolboxgraphicsitem.cpp \
+    src/widget/tool/flyoutoverlaywidget.cpp \
+    src/widget/form/settings/verticalonlyscroller.cpp
+
 
 HEADERS += \
     src/audio.h \
@@ -455,6 +461,11 @@ HEADERS += \
     src/video/netvideosource.h \
     src/widget/gui.h \
     src/toxme.h \
-    src/misc/qrwidget.h \
     src/profilelocker.h \
-    src/avatarbroadcaster.h
+    src/avatarbroadcaster.h \
+    src/widget/tool/screenshotgrabber.h \
+    src/widget/tool/screengrabberchooserrectitem.h \
+    src/widget/tool/screengrabberoverlayitem.h \
+    src/widget/tool/toolboxgraphicsitem.h \
+    src/widget/tool/flyoutoverlaywidget.h \
+    src/widget/form/settings/verticalonlyscroller.h

@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2015 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -19,13 +17,13 @@
 
 DocumentCache::~DocumentCache()
 {
-    while(!documents.isEmpty())
+    while (!documents.isEmpty())
         delete documents.pop();
 }
 
 QTextDocument* DocumentCache::pop()
 {
-    if(documents.empty())
+    if (documents.empty())
         documents.push(new CustomTextDocument);
 
     return documents.pop();
@@ -33,7 +31,7 @@ QTextDocument* DocumentCache::pop()
 
 void DocumentCache::push(QTextDocument *doc)
 {
-    if(doc)
+    if (doc)
     {
         doc->clear();
         documents.push(doc);

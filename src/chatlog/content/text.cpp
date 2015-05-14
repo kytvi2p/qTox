@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -41,7 +39,7 @@ Text::Text(const QString& txt, QFont font, bool enableElide, const QString &rwTe
 
 Text::~Text()
 {
-    if(doc)
+    if (doc)
         DocumentCache::getInstance().push(doc);
 }
 
@@ -56,7 +54,7 @@ void Text::setWidth(qreal w)
     width = w;
     dirty = true;
 
-    if(elide)
+    if (elide)
     {
         QFontMetrics metrics = QFontMetrics(defFont);
         elidedText = metrics.elidedText(text, Qt::ElideRight, width);
@@ -67,11 +65,11 @@ void Text::setWidth(qreal w)
 
 void Text::selectionMouseMove(QPointF scenePos)
 {
-    if(!doc)
+    if (!doc)
         return;
 
     int cur = cursorFromPos(scenePos);
-    if(cur >= 0)
+    if (cur >= 0)
     {
         selectionEnd = cur;
         selectedText = extractSanitizedText(getSelectionStart(), getSelectionEnd());
@@ -83,7 +81,7 @@ void Text::selectionMouseMove(QPointF scenePos)
 void Text::selectionStarted(QPointF scenePos)
 {
     int cur = cursorFromPos(scenePos);
-    if(cur >= 0)
+    if (cur >= 0)
     {
         selectionEnd = cur;
         selectionAnchor = cur;
@@ -103,12 +101,12 @@ void Text::selectionCleared()
 
 void Text::selectionDoubleClick(QPointF scenePos)
 {
-    if(!doc)
+    if (!doc)
         return;
 
     int cur = cursorFromPos(scenePos);
 
-    if(cur >= 0)
+    if (cur >= 0)
     {
         QTextCursor cursor(doc);
         cursor.setPosition(cur);
@@ -132,7 +130,7 @@ void Text::selectionFocusChanged(bool focusIn)
 bool Text::isOverSelection(QPointF scenePos) const
 {
     int cur = cursorFromPos(scenePos);
-    if(getSelectionStart() < cur && getSelectionEnd() >= cur)
+    if (getSelectionStart() < cur && getSelectionEnd() >= cur)
         return true;
 
     return false;
@@ -150,7 +148,7 @@ QRectF Text::boundingRect() const
 
 void Text::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-    if(doc)
+    if (doc)
     {
         painter->setClipRect(boundingRect());
 
@@ -158,7 +156,7 @@ void Text::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
         QAbstractTextDocumentLayout::PaintContext ctx;
         QAbstractTextDocumentLayout::Selection sel;
 
-        if(hasSelection())
+        if (hasSelection())
         {
             sel.cursor = QTextCursor(doc);
             sel.cursor.setPosition(getSelectionStart());
@@ -194,30 +192,30 @@ qreal Text::getAscent() const
 
 void Text::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton)
+    if (event->button() == Qt::LeftButton)
         event->accept(); // grabber
 }
 
 void Text::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(!doc)
+    if (!doc)
         return;
 
     QString anchor = doc->documentLayout()->anchorAt(event->pos());
 
     // open anchor in browser
-    if(!anchor.isEmpty())
+    if (!anchor.isEmpty())
         QDesktopServices::openUrl(anchor);
 }
 
 void Text::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
-    if(!doc)
+    if (!doc)
         return;
 
     QString anchor = doc->documentLayout()->anchorAt(event->pos());
 
-    if(!anchor.isEmpty())
+    if (!anchor.isEmpty())
         setCursor(QCursor(Qt::PointingHandCursor));
     else
         setCursor(QCursor());
@@ -233,17 +231,17 @@ QString Text::getText() const
 
 void Text::regenerate()
 {
-    if(!doc)
+    if (!doc)
     {
         doc = DocumentCache::getInstance().pop();
         dirty = true;
     }
 
-    if(dirty)
+    if (dirty)
     {
         doc->setDefaultFont(defFont);
 
-        if(!elide)
+        if (!elide)
             doc->setHtml(text);
         else
             doc->setPlainText(elidedText);
@@ -258,11 +256,11 @@ void Text::regenerate()
         doc->documentLayout()->update();
 
         // update ascent
-        if(doc->firstBlock().layout()->lineCount() > 0)
+        if (doc->firstBlock().layout()->lineCount() > 0)
             ascent = doc->firstBlock().layout()->lineAt(0).ascent();
 
         // let the scene know about our change in size
-        if(size != idealSize())
+        if (size != idealSize())
             prepareGeometryChange();
 
         // get the new width and height
@@ -272,7 +270,7 @@ void Text::regenerate()
     }
 
     // if we are not visible -> free mem
-    if(!keepInMemory)
+    if (!keepInMemory)
         freeResources();
 }
 
@@ -284,7 +282,7 @@ void Text::freeResources()
 
 QSizeF Text::idealSize()
 {
-    if(doc)
+    if (doc)
         return QSizeF(qMin(doc->idealWidth(), width), doc->size().height());
 
     return size;
@@ -292,7 +290,7 @@ QSizeF Text::idealSize()
 
 int Text::cursorFromPos(QPointF scenePos, bool fuzzy) const
 {
-    if(doc)
+    if (doc)
         return doc->documentLayout()->hitTest(mapFromScene(scenePos), fuzzy ? Qt::FuzzyHit : Qt::ExactHit);
 
     return -1;
@@ -315,23 +313,23 @@ bool Text::hasSelection() const
 
 QString Text::extractSanitizedText(int from, int to) const
 {
-    if(!doc)
+    if (!doc)
         return "";
 
     QString txt;
     QTextBlock block = doc->firstBlock();
 
-    for(QTextBlock::Iterator itr = block.begin(); itr!=block.end(); ++itr)
+    for (QTextBlock::Iterator itr = block.begin(); itr!=block.end(); ++itr)
     {
         int pos = itr.fragment().position(); //fragment position -> position of the first character in the fragment
 
-        if(itr.fragment().charFormat().isImageFormat())
+        if (itr.fragment().charFormat().isImageFormat())
         {
             QTextImageFormat imgFmt = itr.fragment().charFormat().toImageFormat();
             QString key = imgFmt.name(); //img key (eg. key::D for :D)
             QString rune = key.mid(4);
 
-            if(pos >= from && pos < to)
+            if (pos >= from && pos < to)
             {
                 txt += rune;
                 pos++;
@@ -339,9 +337,9 @@ QString Text::extractSanitizedText(int from, int to) const
         }
         else
         {
-            for(QChar c : itr.fragment().text())
+            for (QChar c : itr.fragment().text())
             {
-                if(pos >= from && pos < to)
+                if (pos >= from && pos < to)
                     txt += c;
 
                 pos++;
@@ -354,9 +352,9 @@ QString Text::extractSanitizedText(int from, int to) const
 
 QString Text::extractImgTooltip(int pos) const
 {
-    for(QTextBlock::Iterator itr = doc->firstBlock().begin(); itr!=doc->firstBlock().end(); ++itr)
+    for (QTextBlock::Iterator itr = doc->firstBlock().begin(); itr!=doc->firstBlock().end(); ++itr)
     {
-        if(itr.fragment().contains(pos) && itr.fragment().charFormat().isImageFormat())
+        if (itr.fragment().contains(pos) && itr.fragment().charFormat().isImageFormat())
         {
             QTextImageFormat imgFmt = itr.fragment().charFormat().toImageFormat();
             return imgFmt.toolTip();

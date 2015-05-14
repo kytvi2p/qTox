@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -50,14 +48,14 @@ void CameraWorker::onStart()
 
 void CameraWorker::_suspend()
 {
-    qDebug() << "CameraWorker: Suspend";
+    qDebug() << "Suspend";
     clock->stop();
     unsubscribe();
 }
 
 void CameraWorker::_resume()
 {
-    qDebug() << "CameraWorker: Resume";
+    qDebug() << "Resume";
     subscribe();
     clock->start();
 }
@@ -126,7 +124,7 @@ void CameraWorker::_probeResolutions()
 
         unsubscribe();
 
-        qDebug() << "CameraWorker: Resolutions" <<resolutions;
+        qDebug() << "Resolutions" <<resolutions;
     }
 
     emit resProbingFinished(resolutions);
@@ -156,12 +154,12 @@ void CameraWorker::subscribe()
             }
             catch( cv::Exception& e )
             {
-                qDebug() << "CameraWorker:" << "OpenCV exception caught: " << e.what();
+                qDebug() << "OpenCV exception caught: " << e.what();
             }
 
-            if(!bSuccess)
+            if (!bSuccess)
             {
-                qDebug() << "CameraWorker: Could not open camera";
+                qDebug() << "Could not open camera";
             }
             applyProps(); // restore props
         }
@@ -173,6 +171,8 @@ void CameraWorker::unsubscribe()
     if (--refCount <= 0)
     {
         cam.release();
+        frame = cv::Mat3b();
+        queue.clear();
         refCount = 0;
     }
 }
@@ -190,18 +190,18 @@ void CameraWorker::doWork()
     }
     catch( cv::Exception& e )
     {
-        qDebug() << "CameraWorker:" << "OpenCV exception caught: " << e.what();;
+        qDebug() << "OpenCV exception caught: " << e.what();;
         this->clock->stop(); // prevent log spamming
-        qDebug() << "CameraWorker: stopped clock";
+        qDebug() << "stopped clock";
     }
 
     if (!bSuccess)
     {
-        qDebug() << "CameraWorker: Cannot read frame";
+        qDebug() << "Cannot read frame";
         return;
     }
 
-    QByteArray frameData(reinterpret_cast<char*>(frame.data), frame.total() * frame.channels());
+    QByteArray frameData = QByteArray::fromRawData(reinterpret_cast<char*>(frame.data), frame.total() * frame.channels());
 
     emit newFrameAvailable(VideoFrame{frameData, QSize(frame.cols, frame.rows), VideoFrame::BGR});
 }

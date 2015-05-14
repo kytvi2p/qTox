@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -136,7 +134,7 @@ bool SmileyPack::load(const QString& filename)
             
             cacheSmiley(file); // preload all smileys
 
-            if(!getCachedSmiley(emoticon).isNull())
+            if (!getCachedSmiley(emoticon).isNull())
                 emoticonSet.push_back(emoticon);
             
             stringElement = stringElement.nextSibling().toElement();
@@ -206,9 +204,8 @@ QIcon SmileyPack::getCachedSmiley(const QString &key)
 
     // cache it if needed
     QString file = filenameTable.value(key);
-    if (!iconCache.contains(file)) {
+    if (!iconCache.contains(file))
         cacheSmiley(file);
-    }
 
     return iconCache.value(file);
 }
