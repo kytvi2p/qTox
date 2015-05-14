@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -70,7 +68,7 @@ void Spinner::setWidth(qreal width)
 
 void Spinner::visibilityChanged(bool visible)
 {
-    if(visible)
+    if (visible)
         timer.start();
     else
         timer.stop();
@@ -83,6 +81,6 @@ qreal Spinner::getAscent() const
 
 void Spinner::timeout()
 {
-    if(scene())
+    if (scene())
         scene()->invalidate(sceneBoundingRect());
 }

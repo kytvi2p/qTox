@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -42,6 +40,9 @@ private:
     void getAudioInDevices();
     void getAudioOutDevices();
 
+    void createVideoSurface();
+    void killVideoSurface();
+
 private slots:
     void on_ContrastSlider_sliderMoved(int position);
     void on_SaturationSlider_sliderMoved(int position);
@@ -54,6 +55,7 @@ private slots:
     void onOutDevChanged(const QString& deviceDescriptor);
     void onFilterAudioToggled(bool filterAudio);
     void on_playbackSlider_valueChanged(int value);
+    void on_microphoneSlider_valueChanged(int value);
 
     // camera
     void onPropProbingFinished(Camera::Prop prop, double val);
@@ -72,7 +74,7 @@ protected:
 
 private:
     Ui::AVSettings *bodyUI;
-    VideoSurface* camView;
+    VideoSurface* CamVideoSurface;
 };
 
 #endif

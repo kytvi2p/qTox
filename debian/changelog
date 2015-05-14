@@ -1,3 +1,192 @@
+qtox (0.0.0+git20150512.r2844-1) stable; urgency=medium
+
+  [ kushagra ]
+  * Removes chat history of friend when removed, fixes #1486
+
+  [ tux3 ]
+  * Fix crash on video calls lowered to audio calls
+  * Fix some memory leaks and mismatches
+
+  [ sudden6 ]
+  * Add build instructions for openSUSE
+
+  [ tux3 ]
+  * Fix small memory leak cleaning up video calls
+  * Save memory with lazy loading
+  * Avoid unecessary copying of video frames
+  * Log size of received avatar data
+  * Limit outbound avatar size to 64kB
+  * Cleanly open/close FT image preview buffer
+
+  [ Rohil Surana ]
+  * Toolicon Menu was not indicating active button
+
+  [ agilob ]
+  * ask to remove history
+  * fix popup colors
+  * closes tux3/qtox#1561
+
+  [ Ilya Kowalewski ]
+  * Fixing tray icon visibility issue on OS X
+  * Fixing behaviour for a tray icon on OS X
+  * Redesign draft for settings pane and proper UX for Mac
+  * Resolves issues reported in PR before and some BEAST features:
+  * Fixing smiley alignment and wrong copyright years
+  * Persistent aliases, finally resolves #697
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ sudden6 ]
+  * rework the logging and debug output
+  * Change log messages to fit new log format
+  * remove useless code opencv uses exceptions for error handling
+
+  [ tux3 ]
+  * Remove pointless or potentially sensitive log messages
+
+  [ agilob ]
+  * closes tux3/qtox#1354
+
+  [ tux3 ]
+  * Faster file transfers (up to 160ms/s)
+
+  [ agilob ]
+  * closes tux3/qtox#768
+  * alsourcef in audio::playmono16sound
+  * this sould be better ;_;
+  * closes tux3/qtox#1426
+
+  [ saneki ]
+  * Changed Public Information area in User Profile form to use a QFormLayout
+  * Vertically aligned Public Information QFormLayout to appear more centered
+
+  [ tux3 ]
+  * Don't ask to remove history for fake friend removal
+  * Fix #928
+
+  [ agilob ]
+  * license box in advanced
+
+  [ saneki ]
+  * Fixed settings tabbar style
+
+  [ tux3 ]
+  * Implement and enable the audio sliders
+  * Revert "Merge branch 'pr1629'"
+  * Fix vol/mic toggle buttons
+  * Fix incorrect copyright headers
+  * Fix #1634
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 13 May 2015 01:39:15 +0000
+
+qtox (0.0.0+git20150508.r2786-1) stable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Some style fixes
+  * Fix coding style and add copyright header
+
+  [ kushagra ]
+  * autocomplete will work for : also,fixes #1377
+
+  [ PKEv ]
+  * #1402 duplicate of the sender's name set if interval more 5 minuts, sender
+    name repet not tested for group chats!!!
+
+  [ tux3 ]
+  * Fix typo in error message
+  * Create config directory on first run
+  * Remove redundant QString ctor
+  * New OS X dock icon from #1541
+  * Fix qTox Android build
+
+  [ Fish ]
+  * Update fr.ts
+
+  [ Mario Preksavec ]
+  * Remove StatusNotifier dependency
+
+  [ novist ]
+  * Fixed filter_audio lib windows bootstraping Added qrencode lib to windows
+    bootstrap script
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Corey Sheldon ]
+  * Update INSTALL.md
+
+  [ Mario Preksavec ]
+  * Fallback XFCE detection
+  * Update Slackware install instructions
+  * Make dropdown menus look better on high dpi
+  * Respect configured emoticon size
+  * Unhide faux offline messaging checkbox
+
+  [ Rohil Surana ]
+  * Added chat room status to window title
+
+  [ Jookia ]
+  * Implemented cycling through contacts.
+  * Tabs with modifiers are passed up from chat boxes.
+  * Add keyboard bindings for cycling contacts.
+
+  [ PKEv ]
+  * fix drag and drop in chat history (windows)
+  * Add_www_link_possibility
+
+  [ Rohil Surana ]
+  * Added tool menu active button indicator.
+
+  [ tux3 ]
+  * Make tool buttons inactive when showing profile
+
+  [ Stefan Merettig ]
+  * WIP: KSnapshot-like screenshot grabber
+  * Screen grabber: Flyout menu for the screenshot button
+  * Screen grabber: Wait for the flyout to collapse before grabbing
+  * Screen grabber: Moving from button -> flyout -> button doesn't collapse
+  * Screen grabber: Remove forced redraw
+  * Screen grabber: Don't wait for the flyout to collapse
+  * Screen grabber: Modified helper tooltip texts
+  * Screen grabber: Reject small selections (< 2px width/height)
+  * Screen grabber: Show correct tooltip for selected/no-selection states
+  * Screen grabber: Calculate bounding rect, fixes some drawing issues
+  * Screen grabber: Fix position of handles with negative selection
+  * Screen grabber: Only show flyout if the attach button is enabeld
+  * Screen grabber: hide() the flyout at first
+  * Screen grabber: Hide mid-animation when leaving file button
+  * Screen grabber: Make sure the flyout is hidden on leave
+  * Screen grabber: Hide the flyout when the chat form is hidden.
+  * Screen grabber: Fix flying-flyout bug when resizing window while open
+
+  [ tux3 ]
+  * Use old Qt connect syntax for QTimer::singleShot
+
+  [ kushagra ]
+  * Implemented search of contacts
+
+  [ qwad1000 ]
+  * Updated Ukrainian translation
+
+  [ tux3 ]
+  * Fix fr.ts
+
+  [ llya Kowalewski ]
+  * Fixing clang build on OSX
+  * Include: complex -> cstdlib
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 09 May 2015 20:02:37 +0000
+
 qtox (0.0.0+git20150426.r2712-1ubuntu1) vivid; urgency=medium
 
   * Building for Vivid

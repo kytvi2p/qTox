@@ -45,9 +45,14 @@ Debian / Ubuntu:
 sudo apt-get install git
 ```
 
-Fedora:
+Fedora: (yum is now officially deprecated by dnf using yum will redirect to dnf on Fedora 21 and fail on future versions)
 ```bash
-yum install git
+sudo dnf install git
+```
+
+openSUSE:
+```bash
+sudo zypper install git
 ```
 
 
@@ -73,22 +78,34 @@ sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools li
 
 Fedora:
 ```bash
-yum groupinstall "Development Tools"
-yum install qt-devel qt-doc qt-creator qt5-qtsvg opencv-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
+dnf group install "Development Tools"
+dnf install qt-devel qt-doc qt-creator qt5-qtsvg opencv-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
+```
+
+openSUSE:
+
+If you are running openSUSE 13.2 you have to add the following repository to be able to install opencv-qt5.
+
+WARNING: This may break other applications that are depending on opencv.
+
+```bash
+sudo zypper ar http://download.opensuse.org/repositories/KDE:/Extra/openSUSE_13.2/ 'openSUSE BuildService - KDE:Extra'
+```
+
+With openSUSE Tumbleweed you can continue here:
+```bash
+sudo zypper install patterns-openSUSE-devel_basis libqt5-qtbase-common-devel libqt5-qtsvg-devel libqt5-linguist libQt5Network-devel libQt5OpenGL-devel libQt5Concurrent-devel libQt5Xml-devel libQt5Sql-devel openal-soft-devel qrencode-devel libXScrnSaver-devel libQt5Sql5-sqlite opencv-qt5-devel 
 ```
 
 Slackware:
-
-You can grab slackbuilds of the needed dependencies here:
+```bash
+You can grab SlackBuilds of the needed dependencies here:
 
 http://slackbuilds.org/repository/14.1/libraries/OpenAL/
-
 http://slackbuilds.org/repository/14.1/libraries/qt5/
-
 http://slackbuilds.org/repository/14.1/libraries/opencv/
-
-http://slackbuilds.org/slackbuilds/14.1/graphics/qrencode/
-
+http://slackbuilds.org/repository/14.1/graphics/qrencode/
+```
 
 ###Tox Core
 
@@ -106,7 +123,20 @@ sudo apt-get install libtool autotools-dev automake checkinstall check libopus-d
 
 Fedora:
 ```bash
-yum install libtool autoconf automake check check-devel
+sudo dnf install libtool autoconf automake check check-devel
+```
+
+openSUSE:
+```bash
+sudo zypper install libsodium-devel libvpx-devel libopus-devel patterns-openSUSE-devel_basis
+```
+
+Slackware:
+```bash
+You can grab SlackBuilds of the needed dependencies here:
+
+http://slackbuilds.org/repository/14.1/audio/opus/
+http://slackbuilds.org/repository/14.1/libraries/libvpx/
 ```
 
 Now you can either follow the instructions at https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix or use the "bootstrap.sh" script located at "/home/user/qTox".
@@ -128,6 +158,12 @@ sudo make install
 After all the dependencies are installed, compiling should be as simple as:
 ```bash
 qmake
+make
+```
+
+for openSUSE you have to use:
+```bash
+qmake-qt5
 make
 ```
 

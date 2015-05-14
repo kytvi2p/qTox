@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -224,6 +222,7 @@ void GeneralForm::onSetShowSystemTray()
     Settings::getInstance().setShowSystemTray(bodyUI->showSystemTray->isChecked());
     emit parent->setShowSystemTray(bodyUI->showSystemTray->isChecked());
     bodyUI->lightTrayIcon->setEnabled(bodyUI->showSystemTray->isChecked());
+    Settings::getInstance().save();
 }
 
 void GeneralForm::onSetAutostartInTray()
@@ -284,9 +283,9 @@ void GeneralForm::onAutoAcceptFileChange()
     Settings::getInstance().setAutoSaveEnabled(bodyUI->autoacceptFiles->isChecked());
 
     if (bodyUI->autoacceptFiles->isChecked() == true)
-        connect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()), this, SLOT(onAutoSaveDirChange()));
+        connect(bodyUI->autoSaveFilesDir, &QPushButton::clicked, this, &GeneralForm::onAutoSaveDirChange);
     else
-        disconnect(bodyUI->autoSaveFilesDir, SIGNAL(clicked()),this, SLOT(onAutoSaveDirChange()));
+        disconnect(bodyUI->autoSaveFilesDir, &QPushButton::clicked, this, &GeneralForm::onAutoSaveDirChange);
 }
 
 void GeneralForm::onAutoSaveDirChange()
@@ -360,7 +359,7 @@ void GeneralForm::reloadSmiles()
     QList<QStringList> emoticons = SmileyPack::getInstance().getEmoticons();
     if (emoticons.isEmpty())
     { // sometimes there are no emoticons available, don't crash in this case
-        qDebug() << "GeneralForm::reloadSmilies: No emoticons found";
+        qDebug() << "reloadSmilies: No emoticons found";
         return;
     }
 

@@ -1,6 +1,4 @@
 /*
-    Copyright (C) 2014 by Project Tox <https://tox.im>
-
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is libre software: you can redistribute it and/or modify
@@ -58,6 +56,8 @@ public:
 
     ChatLine::Ptr getTypingNotification() const;
     QVector<ChatLine::Ptr> getLines();
+    // repetition interval sender name (sec)
+    const uint repNameAfter = 5*60;
 
 signals:
     void selectionChanged();
@@ -141,6 +141,8 @@ private:
     // layout
     QMargins margins = QMargins(10,10,10,10);
     qreal lineSpacing = 5.0f;
+
+
 
 };
 
