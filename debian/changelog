@@ -1,3 +1,198 @@
+qtox (0.0.0+git20150526.r2981-1) stable; urgency=medium
+
+  [ Pro ]
+  * make /ME work
+  * change to Qt::CaseInseisitive
+
+  [ tux3 ]
+  * Minor trivial cleanups in platform/*
+  * Use GTK systray backend on MATE
+  * Fix missing includes in platform/timer_*
+
+  [ tux3 ]
+  * Fix missing includes in platform/timer_*
+  * Fix qrwidget QPainter error
+
+  [ Nick Hovaker ]
+  * Update Libsodium version in bootstrap.sh
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Invert U and V video planes back
+  * Remove the unused struct DhtServer
+  * Invert accept and reject FT buttons
+
+  [ marcel ]
+  * removed warnings
+
+  [ agilob ]
+  * style for comobobox in friendlist panel
+  * closes tux3/qtox#1657
+  * friendlist looks better on startup
+  * fix streching
+
+  [ Marcel ]
+  * replaced tabs with spaces
+  * ensure libtoxcore is installed with A/V support
+  * updated installation notes
+  * updated simple_make.sh
+  * added missing sudo in fedora install instructions
+  * filter_audio updated its api and added the parameter 'vad' in function
+    'enable_disable_filters'
+
+  [ tux3 ]
+  * Proper uninstall entry for Windows
+  * Install for all users on Windows
+
+  [ Yuri ]
+  * Copy ToxID into XA_PRIMARY clipboard too to make retrieval easier.
+
+  [ marcel ]
+  * added separate class for ToxId
+
+  [ agilob ]
+  * style for comobobox in friendlist panel
+  * closes tux3/qtox#1657
+  * friendlist looks better on startup
+
+  [ Marcel ]
+  * replaced tabs with spaces
+  * ensure libtoxcore is installed with A/V support
+  * updated installation notes
+  * updated simple_make.sh
+  * added missing sudo in fedora install instructions
+
+  [ agilob ]
+  * fix streching
+
+  [ tux3 ]
+  * Proper uninstall entry for Windows
+
+  [ Marcel ]
+  * filter_audio updated its api and added the parameter 'vad' in function
+    'enable_disable_filters'
+
+  [ tux3 ]
+  * Install for all users on Windows
+
+  [ Yuri ]
+  * Copy ToxID into XA_PRIMARY clipboard too to make retrieval easier.
+
+  [ marcel ]
+  * added documentation
+  * Renamed function isMine to isActiveProfile.
+  * added isActiveProfile function and fixed a typo
+  * replaced ToxID struct with ToxId class.
+
+  [ tux3 ]
+  * Fix tr() without QObject
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Don't fallback on tox1 for inexistant tox IDs
+
+  [ Sean ]
+  * Revert "Fixing tray icon visibility issue on OS X"
+  * Revert "Fixing behaviour for a tray icon on OS X"
+
+  [ tux3 ]
+  * Correctly send avatar hashs as file_idS
+  * Fix call on null object, unititialized bool
+  * Use proper random for IPC
+
+  [ Zetok Zalbavar ]
+  * Better error message for image resizing
+  * [bootstrap.sh] Add some clarification regarding its purpose
+
+  [ dcapeletti ]
+  * Renovation and improvements to Spanish language.
+
+  [ Zetok Zalbavar ]
+  * Code consistency fixes → 's/ToxID/ToxId/'
+  * Don't quote with action messages
+
+  [ Ansa89 ]
+  * Fix needed to compile on slackware64 14.1 (with multilib)
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Properly fix quoting in action messages
+
+  [ Ansa89 ]
+  * chatmessage.cpp: detectQuotes() simplify conditional statement
+  * Italian translation: update
+
+  [ tux3 ]
+  * Update busy icons
+
+  [ PKEv ]
+  * Correct for win install
+
+  [ TheLastProject ]
+  * Update profileform.cpp
+
+  [ ovitei ]
+  * added Norwegian Bokmal (nb_NO) translations
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Improve error message when profile is alrady used
+  * Update Polish translation
+
+  [ saneki ]
+  * Updated for latest toxcore api
+
+  [ Daniel Hrabovcak ]
+  * Group audio not being reset
+  * Add al delete to group leave
+  * Fix compile issues
+  * For range loops
+
+  [ tux3 ]
+  * Revert "Updated for latest toxcore api"
+
+  [ Zetok Zalbavar ]
+  * Fix quoting; everything after '>' is a quote
+
+  [ Сухарик ]
+  * use toxcore error codes
+
+  [ Diadlo ]
+  * Update translation/ru.ts
+
+  [ tux3 ]
+  * Fix failedToStart/badProxy blocking signals
+  * Recover if tox fails to start
+
+  [ Diadlo ]
+  * Fix russian translation
+
+  [ PKEv ]
+  * Correct duplication long messages on sender side #1703 & #1697
+
+  [ Diadlo ]
+  * Update ru.ts
+
+  [ PKEv ]
+  * Creat dir for screenshots #1696
+
+  [ Zetok Zalbavar ]
+  * Make string 'Search Contacts' translatable
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 26 May 2015 20:45:06 +0000
+
 qtox (0.0.0+git20150512.r2844-1) stable; urgency=medium
 
   [ kushagra ]

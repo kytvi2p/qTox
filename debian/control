@@ -8,14 +8,14 @@ Build-Depends: debhelper (>= 9)
  ,dh-apparmor
  ,dh-exec
  ,,libappindicator-dev
- ,libfilteraudio-dev (>= 0.0.0+git20150211)
+ ,libfilteraudio-dev (>= 0.0.0+git20150516)
  ,libopenal-dev
  ,libopencv-dev
  ,libqrencode-dev
  ,libqt5opengl5-dev
  ,libqt5svg5-dev
  ,libtoxav-dev (>= 0.0.0+20141129.r2982)
- ,libtoxcore-dev (>= 0.0.0+20140925.1)
+ ,libtoxcore-dev (>= 0.0.0+20150524)
  ,libtoxdns-dev
  ,libtoxencryptsave-dev
  ,libxss-dev
