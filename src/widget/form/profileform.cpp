@@ -67,7 +67,7 @@ ProfileForm::ProfileForm(QWidget *parent) :
     headLayout->addWidget(nameLabel);
     headLayout->addStretch(1);
 
-    nameLabel->setText(tr("User Profile"));
+    nameLabel->setText(QObject::tr("User Profile"));
     imgLabel->setPixmap(QPixmap(":/img/settings/identity.png").scaledToHeight(40, Qt::SmoothTransformation));
 
     // tox
@@ -150,7 +150,9 @@ void ProfileForm::copyIdClicked()
     toxId->selectAll();
     QString txt = toxId->text();
     txt.replace('\n',"");
-    QApplication::clipboard()->setText(txt);
+    QApplication::clipboard()->setText(txt, QClipboard::Clipboard);
+    if (QApplication::clipboard()->supportsSelection())
+      QApplication::clipboard()->setText(txt, QClipboard::Selection);
     toxId->setCursorPosition(0);
 
     if (!hasCheck)
@@ -211,14 +213,14 @@ void ProfileForm::onAvatarClicked()
     file.open(QIODevice::ReadOnly);
     if (!file.isOpen())
     {
-        GUI::showError(tr("Error"), tr("Unable to open this file"));
+        GUI::showError(tr("Error"), tr("Unable to open this file."));
         return;
     }
 
     QPixmap pic;
     if (!pic.loadFromData(file.readAll()))
     {
-        GUI::showError(tr("Error"), tr("Unable to read this image"));
+        GUI::showError(tr("Error"), tr("Unable to read this image."));
         return;
     }
 
@@ -240,7 +242,8 @@ void ProfileForm::onAvatarClicked()
     // If this happens, you're really doing it on purpose.
     if (bytes.size() > 65535)
     {
-        QMessageBox::critical(this, tr("Error"), tr("This image is too big"));
+        QMessageBox::critical(this, tr("Error"),
+            tr("The supplied image is too large.\nPlease use another image."));
         return;
     }
 

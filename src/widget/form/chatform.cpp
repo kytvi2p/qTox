@@ -50,7 +50,7 @@
 
 ChatForm::ChatForm(Friend* chatFriend)
     : f(chatFriend)
-    , callId(0)
+    , callId{0}, isTyping{false}
 {
     nameLabel->setText(f->getDisplayedName());
 
@@ -79,7 +79,7 @@ ChatForm::ChatForm(Friend* chatFriend)
     headTextLayout->addWidget(callDuration, 1, Qt::AlignCenter);
     callDuration->hide();
 
-    menu.addAction(tr("Load chat history..."), this, SLOT(onLoadHistory()));
+    menu.addAction(QObject::tr("Load chat history..."), this, SLOT(onLoadHistory()));
 
     connect(Core::getInstance(), &Core::fileSendStarted, this, &ChatForm::startFileSend);
     connect(sendButton, &QPushButton::clicked, this, &ChatForm::onSendTriggered);
@@ -179,7 +179,7 @@ void ChatForm::startFileSend(ToxFile file)
         return;
 
     QString name;
-    if (!previousId.isMine())
+    if (!previousId.isActiveProfile())
     {
         Core* core = Core::getInstance();
         name = core->getUsername();
@@ -203,7 +203,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
     }
 
     QString name;
-    ToxID friendId = f->getToxID();
+    ToxId friendId = f->getToxId();
     if (friendId != previousId)
     {
         name = f->getDisplayedName();
@@ -213,7 +213,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
     ChatMessage::Ptr msg = ChatMessage::createFileTransferMessage(name, file, false, QDateTime::currentDateTime());
     insertChatMessage(msg);
 
-    if (!Settings::getInstance().getAutoAcceptDir(f->getToxID()).isEmpty()
+    if (!Settings::getInstance().getAutoAcceptDir(f->getToxId()).isEmpty()
             || Settings::getInstance().getAutoSaveEnabled())
     {
         ChatLineContentProxy* proxy = dynamic_cast<ChatLineContentProxy*>(msg->getContent(1));
@@ -222,7 +222,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
             FileTransferWidget* tfWidget = dynamic_cast<FileTransferWidget*>(proxy->getWidget());
 
             if (tfWidget)
-                tfWidget->autoAcceptTransfer(Settings::getInstance().getAutoAcceptDir(f->getToxID()));
+                tfWidget->autoAcceptTransfer(Settings::getInstance().getAutoAcceptDir(f->getToxId()));
         }
     }
 }
@@ -401,7 +401,7 @@ void ChatForm::onAvRinging(uint32_t FriendId, int CallId, bool video)
     addSystemInfoMessage(tr("Calling to %1").arg(f->getDisplayedName()), ChatMessage::INFO, QDateTime::currentDateTime());
 }
 
-void ChatForm::onAvStarting(uint32_t FriendId, int CallId, bool video)
+void ChatForm::onAvStarting(uint32_t FriendId, int, bool video)
 {
     if (FriendId != f->getFriendID())
         return;
@@ -792,10 +792,10 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
         }
     }
 
-    auto msgs = HistoryKeeper::getInstance()->getChatHistory(HistoryKeeper::ctSingle, f->getToxID().publicKey, since, now);
+    auto msgs = HistoryKeeper::getInstance()->getChatHistory(HistoryKeeper::ctSingle, f->getToxId().publicKey, since, now);
 
-    ToxID storedPrevId = previousId;
-    ToxID prevId;
+    ToxId storedPrevId = previousId;
+    ToxId prevId;
 
     QList<ChatLine::Ptr> historyMessages;
 
@@ -813,14 +813,14 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
         }
 
         // Show each messages
-        ToxID authorId = ToxID::fromString(it.sender);
-        QString authorStr = authorId.isMine() ? Core::getInstance()->getUsername() : resolveToxID(authorId);
-        bool isAction = it.message.startsWith("/me ");
+        ToxId authorId = ToxId(it.sender);
+        QString authorStr = authorId.isActiveProfile() ? Core::getInstance()->getUsername() : resolveToxId(authorId);
+        bool isAction = it.message.startsWith("/me ", Qt::CaseInsensitive);
 
         ChatMessage::Ptr msg = ChatMessage::createChatMessage(authorStr,
                                                               isAction ? it.message.right(it.message.length() - 4) : it.message,
                                                               isAction ? ChatMessage::ACTION : ChatMessage::NORMAL,
-                                                              authorId.isMine(),
+                                                              authorId.isActiveProfile(),
                                                               QDateTime());
 
         if (!isAction && (prevId == authorId) && (prevMsgDateTime.secsTo(msgDateTime) < getChatLog()->repNameAfter) )
@@ -829,7 +829,7 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
         prevId = authorId;
         prevMsgDateTime = msgDateTime;
 
-        if (it.isSent || !authorId.isMine())
+        if (it.isSent || !authorId.isActiveProfile())
         {
             msg->markAsSent(msgDateTime);
         }
@@ -873,11 +873,12 @@ void ChatForm::doScreenshot()
     ScreenshotGrabber* screenshotGrabber = new ScreenshotGrabber(this);
     connect(screenshotGrabber, &ScreenshotGrabber::screenshotTaken, this, &ChatForm::onScreenshotTaken);
     screenshotGrabber->showGrabber();
+    // Create dir for screenshots
+    QDir(Settings::getSettingsDirPath()).mkdir("screenshots");
 }
 
 void ChatForm::onScreenshotTaken(const QPixmap &pixmap) {
-	QTemporaryFile file("qTox-Screenshot-XXXXXXXX.png");
-	
+    QTemporaryFile file(QDir(Settings::getSettingsDirPath() + QDir::separator() + "screenshots" + QDir::separator()).filePath("qTox-Screenshot-XXXXXXXX.png"));
 	if (!file.open())
 	{
 	    QMessageBox::warning(this, tr("Failed to open temporary file", "Temporary file for screenshot"),
@@ -893,8 +894,7 @@ void ChatForm::onScreenshotTaken(const QPixmap &pixmap) {
 	file.close();
 	QFileInfo fi(file);
 	
-	emit sendFile(f->getFriendID(), fi.fileName(), fi.filePath(), filesize);
-        
+	emit sendFile(f->getFriendID(), fi.fileName(), fi.filePath(), filesize);        
 }
 
 void ChatForm::onLoadHistory()
@@ -999,7 +999,7 @@ void ChatForm::SendMessageStr(QString msg)
     if (msg.isEmpty())
         return;
 
-    bool isAction = msg.startsWith("/me ");
+    bool isAction = msg.startsWith("/me ", Qt::CaseInsensitive);
     if (isAction)
         msg = msg = msg.right(msg.length() - 4);
 
@@ -1015,10 +1015,10 @@ void ChatForm::SendMessageStr(QString msg)
 
         bool status = !Settings::getInstance().getFauxOfflineMessaging();
 
-        int id = HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, qt_msg_hist,
+        int id = HistoryKeeper::getInstance()->addChatEntry(f->getToxId().publicKey, qt_msg_hist,
                                                             Core::getInstance()->getSelfId().publicKey, timestamp, status);
 
-        ChatMessage::Ptr ma = addSelfMessage(msg, isAction, timestamp, false);
+        ChatMessage::Ptr ma = addSelfMessage(qt_msg, isAction, timestamp, false);
 
         int rec;
         if (isAction)

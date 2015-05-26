@@ -180,43 +180,49 @@ void Core::make_tox(QByteArray savedata)
         }
     }
 
-    tox = tox_new(&toxOptions, (uint8_t*)savedata.data(), savedata.size(), nullptr);
-    if (tox == nullptr)
+    TOX_ERR_NEW tox_err;
+    tox = tox_new(&toxOptions, (uint8_t*)savedata.data(), savedata.size(), &tox_err);
+
+    switch (tox_err)
     {
-        if (enableIPv6) // Fallback to IPv4
-        {
-            toxOptions.ipv6_enabled = false;
-            tox = tox_new(&toxOptions, (uint8_t*)savedata.data(), savedata.size(), nullptr);
-            if (tox == nullptr)
+        case TOX_ERR_NEW_OK:
+            break;
+        case TOX_ERR_NEW_PORT_ALLOC:
+            if (enableIPv6)
             {
-                if (toxOptions.proxy_type != TOX_PROXY_TYPE_NONE)
+                toxOptions.ipv6_enabled = false;
+                tox = tox_new(&toxOptions, (uint8_t*)savedata.data(), savedata.size(), &tox_err);
+                if (tox_err == TOX_ERR_NEW_OK)
                 {
-                    qCritical() << "bad proxy! no toxcore!";
-                    emit badProxy();
+                    qWarning() << "Core failed to start with IPv6, falling back to IPv4. LAN discovery may not work properly.";
+                    break;
                 }
-                else
-                {
-                    qCritical() << "Tox core failed to start";
-                    emit failedToStart();
-                }
-                return;
             }
-            else
-            {
-                qWarning() << "Core failed to start with IPv6, falling back to IPv4. LAN discovery may not work properly.";
-            }
-        }
-        else if (toxOptions.proxy_type != TOX_PROXY_TYPE_NONE)
-        {
+
+            qCritical() << "can't to bind the port";
+            emit failedToStart();
+            return;
+        case TOX_ERR_NEW_PROXY_BAD_HOST:
+        case TOX_ERR_NEW_PROXY_BAD_PORT:
+            qCritical() << "bad proxy";
             emit badProxy();
             return;
-        }
-        else
-        {
+        case TOX_ERR_NEW_PROXY_NOT_FOUND:
+            qCritical() << "proxy not found";
+            emit badProxy();
+            return;
+        case TOX_ERR_NEW_LOAD_ENCRYPTED:
+            qCritical() << "load data is encrypted";
+            emit failedToStart();
+            return;
+        case TOX_ERR_NEW_LOAD_BAD_FORMAT:
+            qCritical() << "bad load data format";
+            emit failedToStart();
+            return;
+        default:
             qCritical() << "Tox core failed to start";
             emit failedToStart();
             return;
-        }
     }
 
     toxav = toxav_new(tox, TOXAV_MAX_CALLS);
@@ -246,6 +252,13 @@ void Core::start()
     }
 
     qsrand(time(nullptr));
+
+    if (!tox)
+    {
+        ready = true;
+        GUI::setEnabled(true);
+        return;
+    }
 
     // set GUI with user and statusmsg
     QString name = getUsername();
@@ -759,16 +772,16 @@ void Core::setAvatar(const QByteArray& data)
     pic.loadFromData(data);
     Settings::getInstance().saveAvatar(pic, getSelfId().toString());
     emit selfAvatarChanged(pic);
-    
+
     AvatarBroadcaster::setAvatar(data);
     AvatarBroadcaster::enableAutoBroadcast();
 }
 
-ToxID Core::getSelfId() const
+ToxId Core::getSelfId() const
 {
     uint8_t friendAddress[TOX_ADDRESS_SIZE] = {0};
     tox_self_get_address(tox, friendAddress);
-    return ToxID::fromString(CFriendAddress::toString(friendAddress));
+    return ToxId(CFriendAddress::toString(friendAddress));
 }
 
 QString Core::getIDString() const
@@ -869,7 +882,7 @@ QByteArray Core::loadToxSave(QString path)
     {
         qWarning() << "Profile "<<QFileInfo(path).baseName()<<" is already in use, pick another";
         GUI::showWarning(tr("Profile already in use"),
-                         tr("Your profile is already used by another qTox\n"
+                         tr("This profile is already used by another qTox instance\n"
                             "Please select another profile"));
         QString tmppath = Settings::getInstance().askProfiles();
         if (tmppath.isEmpty())
@@ -967,7 +980,7 @@ void Core::switchConfiguration(const QString& _profile)
     {
         qWarning() << "Profile "<<profile<<" is already in use, pick another";
         GUI::showWarning(tr("Profile already in use"),
-                         tr("Your profile is already used by another qTox instance\n"
+                         tr("This profile is already used by another qTox instance\n"
                             "Please select another profile"));
         do {
             profile = Settings::getInstance().askProfiles();
@@ -1080,20 +1093,20 @@ QString Core::getGroupPeerName(int groupId, int peerId) const
     return name;
 }
 
-ToxID Core::getGroupPeerToxID(int groupId, int peerId) const
+ToxId Core::getGroupPeerToxId(int groupId, int peerId) const
 {
-    ToxID peerToxID;
+    ToxId peerToxId;
 
     uint8_t rawID[TOX_PUBLIC_KEY_SIZE];
     int res = tox_group_peer_pubkey(tox, groupId, peerId, rawID);
     if (res == -1)
     {
-        qWarning() << "getGroupPeerToxID: Unknown error";
-        return peerToxID;
+        qWarning() << "getGroupPeerToxId: Unknown error";
+        return peerToxId;
     }
 
-    peerToxID = ToxID::fromString(CUserId::toString(rawID));
-    return peerToxID;
+    peerToxId = ToxId(CUserId::toString(rawID));
+    return peerToxId;
 }
 
 QList<QString> Core::getGroupPeerNames(int groupId) const
@@ -1281,7 +1294,7 @@ QList<CString> Core::splitMessage(const QString &message, int maxLen)
     return splittedMsgs;
 }
 
-QString Core::getPeerName(const ToxID& id) const
+QString Core::getPeerName(const ToxId& id) const
 {
     QString name;
     CUserId cid(id.toString());
@@ -1325,7 +1338,11 @@ void Core::setNospam(uint32_t nospam)
 void Core::resetCallSources()
 {
     for (ToxGroupCall& call : groupCalls)
+    {
+        for (ALuint source : call.alSources)
+            alDeleteSources(1, &source);
         call.alSources.clear();
+    }
 
     for (ToxCall& call : calls)
     {

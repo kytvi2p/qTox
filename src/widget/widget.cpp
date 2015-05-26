@@ -137,7 +137,7 @@ void Widget::init()
     ui->searchContactFilterCBox->addItem(tr("Friends"));
     ui->searchContactFilterCBox->addItem(tr("Groups"));
 
-    ui->searchContactText->setPlaceholderText("Search Contacts");
+    ui->searchContactText->setPlaceholderText(tr("Search Contacts"));
 
     if (QStyleFactory::keys().contains(Settings::getInstance().getStyle())
             && Settings::getInstance().getStyle() != "None")
@@ -301,7 +301,7 @@ void Widget::updateIcons()
     if (ico.isNull())
     {
         QString color = Settings::getInstance().getLightTrayIcon() ? "light" : "dark";
-        ico = QIcon(":/img/taskbar/" + color + "/taskbar_" + status + ".svg");
+        ico = QIcon(":img/taskbar/" + color + "/taskbar_" + status + ".svg");
     }
 
     setWindowIcon(ico);
@@ -414,6 +414,7 @@ void Widget::onFailedToStartCore()
 
 void Widget::onBadProxyCore()
 {
+    Settings::getInstance().setProxyType(0);
     QMessageBox critical(this);
     critical.setText(tr("toxcore failed to start with your proxy settings. qTox cannot run; please modify your "
                "settings and restart.", "popup text"));
@@ -491,11 +492,6 @@ void Widget::onIconClick(QSystemTrayIcon::ActivationReason reason)
     {
         case QSystemTrayIcon::Trigger:
         {
-            #if defined(Q_OS_MAC)
-                // We don't want to raise/minimize a window on icon click in OS X
-                break;
-            #endif
-
             if (isHidden())
             {
                 show();
@@ -609,7 +605,7 @@ void Widget::reloadHistory()
 
 void Widget::addFriend(int friendId, const QString &userId)
 {
-    ToxID userToxId = ToxID::fromString(userId);
+    ToxId userToxId = ToxId(userId);
     Friend* newfriend = FriendList::addFriend(friendId, userToxId);
     contactListWidget->moveWidget(newfriend->getFriendWidget(),Status::Offline);
 
@@ -774,10 +770,10 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
         return;
 
     QDateTime timestamp = QDateTime::currentDateTime();
-    f->getChatForm()->addMessage(f->getToxID(), message, isAction, timestamp, true);
+    f->getChatForm()->addMessage(f->getToxId(), message, isAction, timestamp, true);
 
-    HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, isAction ? "/me " + f->getDisplayedName() + " " + message : message,
-                                               f->getToxID().publicKey, timestamp, true);
+    HistoryKeeper::getInstance()->addChatEntry(f->getToxId().publicKey, isAction ? "/me " + f->getDisplayedName() + " " + message : message,
+                                               f->getToxId().publicKey, timestamp, true);
 
     f->setEventFlag(f->getFriendWidget() != activeChatroomWidget);
     newMessageAlert(f->getFriendWidget());
@@ -876,7 +872,7 @@ void Widget::removeFriend(Friend* f, bool fake)
         if (removeFriendMB == QMessageBox::Cancel)
                return;
         else if (removeFriendMB == QMessageBox::Yes)
-            HistoryKeeper::getInstance()->removeFriendHistory(f->getToxID().publicKey);
+            HistoryKeeper::getInstance()->removeFriendHistory(f->getToxId().publicKey);
     }
         
     f->getFriendWidget()->setAsInactiveChatroom();
@@ -950,8 +946,8 @@ void Widget::onGroupMessageReceived(int groupnumber, int peernumber, const QStri
     if (!g)
         return;
 
-    ToxID author = Core::getInstance()->getGroupPeerToxID(groupnumber, peernumber);
-    bool targeted = !author.isMine() && (message.contains(nameMention) || message.contains(sanitizedNameMention));
+    ToxId author = Core::getInstance()->getGroupPeerToxId(groupnumber, peernumber);
+    bool targeted = !author.isActiveProfile() && (message.contains(nameMention) || message.contains(sanitizedNameMention));
     if (targeted && !isAction)
         g->getChatForm()->addAlertMessage(author, message, QDateTime::currentDateTime());
     else

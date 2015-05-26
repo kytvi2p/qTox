@@ -78,8 +78,8 @@ sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools li
 
 Fedora:
 ```bash
-dnf group install "Development Tools"
-dnf install qt-devel qt-doc qt-creator qt5-qtsvg opencv-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
+sudo dnf group install "Development Tools"
+sudo dnf install qt-devel qt-doc qt-creator qt5-qtsvg opencv-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
 ```
 
 openSUSE:
@@ -113,17 +113,17 @@ First of all install the dependencies of Tox Core.
 
 Arch Linux:
 ```bash
-sudo pacman -S --needed opus libvpx
+sudo pacman -S --needed opus libvpx libsodium
 ```
 
 Debian / Ubuntu:
 ```bash
-sudo apt-get install libtool autotools-dev automake checkinstall check libopus-dev libvpx-dev
+sudo apt-get install libtool autotools-dev automake checkinstall check libopus-dev libvpx-dev libsodium-dev
 ```
 
 Fedora:
 ```bash
-sudo dnf install libtool autoconf automake check check-devel
+sudo dnf install libtool autoconf automake check check-devel libsodium-devel
 ```
 
 openSUSE:
@@ -137,10 +137,11 @@ You can grab SlackBuilds of the needed dependencies here:
 
 http://slackbuilds.org/repository/14.1/audio/opus/
 http://slackbuilds.org/repository/14.1/libraries/libvpx/
+http://slackbuilds.org/repository/14.1/libraries/libsodium/
 ```
 
 Now you can either follow the instructions at https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix or use the "bootstrap.sh" script located at "/home/user/qTox".
-The script will automatically download and install Tox Core and libsodium to "/home/user/qTox/libs":
+The script will automatically download and install Tox Core and libfilteraudio:
 ```bash
 cd /home/user/qTox
 ./bootstrap.sh # use -h or --help for more information
@@ -256,19 +257,20 @@ The following steps assume that Qt is installed at "C:\Qt". If you decided to ch
 Download the MinGW installer for Windows from [sourceforge.net](http://sourceforge.net/projects/mingw/files/Installer/).
 Make sure to install MSYS (a set of Unix tools for Windows).
 The following steps assume that MinGW is installed at "C:\MinGW". If you decided to choose another location, replace corresponding parts.
+Check that the version of MinGW, corresponds to the version of the QT component!
 
-###qrencode
-Download the qrencode from http://fukuchi.org/works/qrencode/ or direct from https://code.google.com/p/qrencode-win32/source/checkout ,
-build project "..\qrencode-win32\vc8\qrcodelib\", you must copy files from release in: "qrcodelib.dll" to \qTox\libs\bin\qrcodelib.dll";
-"qrencode.h" to \qTox\libs\include\qrencode.h"; "qrcodelib.lib" to "\qTox\libs\lib\qrencode.lib" with rename!!!
+###WGet
+Download the WGet installer for Windows from(
+http://gnuwin32.sourceforge.net/packages/wget.htm).
+Install them. The following steps assume that WGet is installed at "C:\Program Files\GnuWin32\". If you decided to choose another location, replace corresponding parts.
 
 ###Setting up Path
 
 Add MinGW/MSYS/CMake binaries to the system path to make them globally accessible. 
-Open Control Panel -> System and Security -> System -> Advanced system settings -> Environment Variables...
+Open Control Panel -> System and Security -> System -> Advanced system settings -> Environment Variables...(or run "sysdm.cpl" select tab "Advanced system settings" -> button "Environment Variables")
 In the second box search for the PATH variable and press Edit...
 The input box "Variable value:" should already contain some directories. Each directory is separated with a semicolon.
-Extend the input box by adding ";C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\Program Files (x86)\CMake 2.8\bin".
+Extend the input box by adding ";C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\Program Files (x86)\CMake 2.8\bin;C:\Program Files\GnuWin32\bin".
 The very first semicolon must only be added if it is missing. CMake may be added by installer automatically.
 
 ###Cloning the Repository

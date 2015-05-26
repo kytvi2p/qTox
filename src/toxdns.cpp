@@ -149,7 +149,7 @@ QString ToxDNS::queryTox1(const QString& record, bool silent)
     }
 
     toxId = entry.mid(idx, TOX_HEX_ID_LENGTH);
-    if (!ToxID::isToxId(toxId))
+    if (!ToxId::isToxId(toxId))
     {
         if (!silent)
             showWarning(tr("The DNS lookup does not contain a valid Tox ID", "Error with the DNS"));
@@ -188,8 +188,8 @@ QString ToxDNS::queryTox3(const tox3_server& server, const QString &record, bool
     entry = fetchLastTextRecord(realRecord, silent);
     if (entry.isEmpty())
     {
-        qWarning() << "Server "<<server.name<<" returned no record, using tox1 as a fallback";
-        goto fallbackOnTox1;
+        qWarning() << "Server "<<server.name<<" returned no record, assuming the Tox ID doesn't exist";
+        return toxIdStr;
     }
 
     // Check toxdns protocol version
@@ -250,17 +250,17 @@ If unsure, press “No”, so that request to ToxDNS service will not be made us
     return toxIdStr;
 }
 
-ToxID ToxDNS::resolveToxAddress(const QString &address, bool silent)
+ToxId ToxDNS::resolveToxAddress(const QString &address, bool silent)
 {
-    ToxID toxId;
+    ToxId toxId;
 
     if (address.isEmpty())
     {
         return toxId;
     }
-    else if (ToxID::isToxId(address))
+    else if (ToxId::isToxId(address))
     {
-        toxId = ToxID::fromString(address);
+        toxId = ToxId(address);
         return toxId;
     }
     else
@@ -271,7 +271,7 @@ ToxID ToxDNS::resolveToxAddress(const QString &address, bool silent)
         {
             if (servname == pin.name)
             {
-                toxId = ToxID::fromString(queryTox3(pin, address, silent));
+                toxId = ToxId(queryTox3(pin, address, silent));
                 return toxId;
             }
         }
@@ -284,19 +284,19 @@ ToxID ToxDNS::resolveToxAddress(const QString &address, bool silent)
             ToxDNS::tox3_server server;
             server.name = servnameData.data();
             server.pubkey = (uint8_t*)pubkey.data();
-            toxId = ToxID::fromString(queryTox3(server, address, silent));
+            toxId = ToxId(queryTox3(server, address, silent));
         }
         else
         {
 #if TOX1_SILENT_FALLBACK
-            toxId = ToxID::fromString(queryTox1(address, silent));
+            toxId = ToxId::fromString(queryTox1(address, silent));
 #elif TOX1_ASK_FALLBACK
             QMessageBox::StandardButton btn = QMessageBox::warning(nullptr, "qTox", tr("It appears that qTox has to use the old tox1 protocol to access DNS record of your friend's Tox ID.\n\
 Unfortunately tox1 is not secure, and you are at risk of someone hijacking what is sent between you and ToxDNS service.\n\
 Should tox1 be used anyway?\n\
 If unsure, press “No”, so that request to ToxDNS service will not be made using unsecure protocol."), QMessageBox::Ok|QMessageBox::No, QMessageBox::No);
             if (btn == QMessageBox::Ok)
-                toxId = ToxID::fromString(queryTox1(address, silent));
+                toxId = ToxId(queryTox1(address, silent));
 
 #else
             return toxId;

@@ -22,7 +22,7 @@
 QHash<int, Friend*> FriendList::friendList;
 QHash<QString, int> FriendList::tox2id;
 
-Friend* FriendList::addFriend(int friendId, const ToxID& userId)
+Friend* FriendList::addFriend(int friendId, const ToxId& userId)
 {
     auto friendChecker = friendList.find(friendId);
     if (friendChecker != friendList.end())
@@ -54,7 +54,7 @@ void FriendList::removeFriend(int friendId, bool fake)
     if (f_it != friendList.end())
     {
         if (!fake)
-            Settings::getInstance().removeFriendSettings(f_it.value()->getToxID());
+            Settings::getInstance().removeFriendSettings(f_it.value()->getToxId());
         friendList.erase(f_it);
     }
 }
@@ -66,7 +66,7 @@ void FriendList::clear()
     friendList.clear();
 }
 
-Friend* FriendList::findFriend(const ToxID& userId)
+Friend* FriendList::findFriend(const ToxId& userId)
 {
     auto id = tox2id.find(userId.publicKey);
     if (id != tox2id.end())
@@ -74,7 +74,7 @@ Friend* FriendList::findFriend(const ToxID& userId)
         Friend *f = findFriend(*id);
         if (!f)
             return nullptr;
-        if (f->getToxID() == userId)
+        if (f->getToxId() == userId)
             return f;
     }
 
