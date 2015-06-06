@@ -1,33 +1,40 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ui_generalsettings.h"
 #include "generalform.h"
 #include "src/widget/form/settingswidget.h"
 #include "src/widget/widget.h"
-#include "src/misc/settings.h"
-#include "src/misc/smileypack.h"
+#include "src/persistence/settings.h"
+#include "src/persistence/smileypack.h"
 #include "src/core/core.h"
-#include "src/misc/style.h"
+#include "src/widget/style.h"
+#include "src/nexus.h"
+#include "src/persistence/profile.h"
+#include "src/widget/translator.h"
+#include "src/net/autoupdate.h"
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <QTime>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QDebug>
-
-#include "src/autoupdate.h"
 
 static QStringList locales = {"bg", "de", "en", "es", "fr", "hr", "hu", "it", "lt", "mannol", "nl", "no_nb", "pirate", "pl", "pt", "ru", "sl", "fi", "sv", "uk", "zh"};
 static QStringList langs = {"Български", "Deutsch", "English", "Español", "Français", "Hrvatski", "Magyar", "Italiano", "Lietuvių", "mannol", "Nederlands", "Norsk Bokmål", "Pirate", "Polski", "Português", "Русский", "Slovenščina", "Suomi", "Svenska", "Українська", "简体中文"};
@@ -37,7 +44,7 @@ static QStringList timeFormats = {"hh:mm AP", "hh:mm", "hh:mm:ss AP", "hh:mm:ss"
 static QStringList dateFormats = {"yyyy-MM-dd", "dd-MM-yyyy", "d-MM-yyyy", "dddd d-MM-yyyy", "dddd d-MM", "dddd dd MMMM"};
 
 GeneralForm::GeneralForm(SettingsWidget *myParent) :
-    GenericForm(tr("General"), QPixmap(":/img/settings/general.png"))
+    GenericForm(QPixmap(":/img/settings/general.png"))
 {
     parent = myParent;
 
@@ -194,10 +201,13 @@ GeneralForm::GeneralForm(SettingsWidget *myParent) :
     bodyUI->autoAwayLabel->setEnabled(false);   // these don't seem to change the appearance of the widgets,
     bodyUI->autoAwaySpinBox->setEnabled(false); // though they are unusable
 #endif
+
+    Translator::registerHandler(std::bind(&GeneralForm::retranslateUi, this), this);
 }
 
 GeneralForm::~GeneralForm()
 {
+    Translator::unregister(this);
     delete bodyUI;
 }
 
@@ -209,7 +219,7 @@ void GeneralForm::onEnableIPv6Updated()
 void GeneralForm::onTranslationUpdated()
 {
     Settings::getInstance().setTranslation(locales[bodyUI->transComboBox->currentIndex()]);
-    Widget::getInstance()->setTranslation();
+    Translator::translate();
 }
 
 void GeneralForm::onAutorunUpdated()
@@ -222,7 +232,7 @@ void GeneralForm::onSetShowSystemTray()
     Settings::getInstance().setShowSystemTray(bodyUI->showSystemTray->isChecked());
     emit parent->setShowSystemTray(bodyUI->showSystemTray->isChecked());
     bodyUI->lightTrayIcon->setEnabled(bodyUI->showSystemTray->isChecked());
-    Settings::getInstance().save();
+    Settings::getInstance().saveGlobal();
 }
 
 void GeneralForm::onSetAutostartInTray()
@@ -349,9 +359,9 @@ void GeneralForm::onReconnectClicked()
 {
     if (Core::getInstance()->anyActiveCalls())
         QMessageBox::warning(this, tr("Call active", "popup title"),
-           tr("You can't disconnect while a call is active!", "popup text"));
+                        tr("You can't disconnect while a call is active!", "popup text"));
     else
-        emit Widget::getInstance()->changeProfile(Settings::getInstance().getCurrentProfile());
+        Nexus::getProfile()->restartCore();
 }
 
 void GeneralForm::reloadSmiles()
@@ -440,4 +450,9 @@ bool GeneralForm::eventFilter(QObject *o, QEvent *e)
         return true;
     }
     return QWidget::eventFilter(o, e);
+}
+
+void GeneralForm::retranslateUi()
+{
+    bodyUI->retranslateUi(this);
 }

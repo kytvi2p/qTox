@@ -1,44 +1,46 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "widget/widget.h"
-#include "misc/settings.h"
+#include "persistence/settings.h"
 #include "src/nexus.h"
 #include "src/ipc.h"
-#include "src/widget/toxuri.h"
-#include "src/widget/toxsave.h"
-#include "src/autoupdate.h"
-#include "src/profilelocker.h"
+#include "src/net/toxuri.h"
+#include "src/net/autoupdate.h"
+#include "src/persistence/toxsave.h"
+#include "src/persistence/profile.h"
+#include "src/persistence/profilelocker.h"
+#include "src/widget/loginscreen.h"
+#include "src/widget/translator.h"
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QDebug>
-#include <QDir>
 #include <QFile>
 #include <QFontDatabase>
 #include <QMutexLocker>
-#include <QProcess>
-#include <opencv2/core/core_c.h>
 
 #include <sodium.h>
 
-#include "toxme.h"
-
-#include <unistd.h>
-
-#define EXIT_UPDATE_MACX 218 //We track our state using unique exit codes when debugging
-#define EXIT_UPDATE_MACX_FAIL 216
+#if defined(Q_OS_MACX) && defined(QT_RELEASE)
+#include "platform/install_osx.h"
+#endif
 
 #ifdef LOG_TO_FILE
 static QTextStream* logFile {nullptr};
@@ -92,12 +94,14 @@ int main(int argc, char *argv[])
     a.setApplicationName("qTox");
     a.setOrganizationName("Tox");
     a.setApplicationVersion("\nGit commit: " + QString(GIT_VERSION));
-    
+
 #ifdef HIGH_DPI
     a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 #endif
 
     qsrand(time(0));
+    Settings::getInstance();
+    Translator::translate();
 
     // Process arguments
     QCommandLineParser parser;
@@ -111,19 +115,31 @@ int main(int argc, char *argv[])
 #ifndef Q_OS_ANDROID
     IPC::getInstance();
 #endif
-    Settings::getInstance(); // Build our Settings singleton as soon as QApplication is ready, not before
 
     if (parser.isSet("p"))
     {
-        QString profile = parser.value("p");
-        if (QDir(Settings::getSettingsDirPath()).exists(profile + ".tox"))
+        QString profileName = parser.value("p");
+        if (Profile::exists(profileName))
         {
-            qDebug() << "Setting profile to" << profile;
-            Settings::getInstance().switchProfile(profile);
+            qDebug() << "Setting profile to" << profileName;
+            if (Profile::isEncrypted(profileName))
+            {
+                Settings::getInstance().setCurrentProfile(profileName);
+            }
+            else
+            {
+                Profile* profile = Profile::loadProfile(profileName);
+                if (!profile)
+                {
+                    qCritical() << "-p profile" << profileName + ".tox" << " couldn't be loaded";
+                    return EXIT_FAILURE;
+                }
+                Nexus::getInstance().setProfile(profile);
+            }
         }
         else
         {
-            qCritical() << "-p profile" << profile + ".tox" << "doesn't exist";
+            qCritical() << "-p profile" << profileName + ".tox" << "doesn't exist";
             return EXIT_FAILURE;
         }
     }
@@ -132,7 +148,7 @@ int main(int argc, char *argv[])
 
 #ifdef LOG_TO_FILE
     logFile = new QTextStream;
-    QFile logfile(QDir(Settings::getSettingsDirPath()).filePath("qtox.log"));
+    QFile logfile(Settings::getInstance().getSettingsDirPath()+"qtox.log");
     if (logfile.open(QIODevice::Append))
     {
         logFile->setDevice(&logfile);
@@ -154,60 +170,7 @@ int main(int argc, char *argv[])
     qDebug() << "commit: " << GIT_VERSION << "\n";
 
 #if defined(Q_OS_MACX) && defined(QT_RELEASE)
-    if (qApp->applicationDirPath() != "/Applications/qtox.app/Contents/MacOS") {
-        qDebug() << "OS X: Not in Applications folder";
-
-        QMessageBox AskInstall;
-        AskInstall.setIcon(QMessageBox::Question);
-        AskInstall.setWindowModality(Qt::ApplicationModal);
-        AskInstall.setText("Move to Applications folder?");
-        AskInstall.setInformativeText("I can move myself to the Applications folder, keeping your downloads folder less cluttered.\r\n");
-        AskInstall.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
-        AskInstall.setDefaultButton(QMessageBox::Yes);
-
-        int AskInstallAttempt = AskInstall.exec(); //Actually ask the user
-
-        if (AskInstallAttempt == QMessageBox::Yes) {
-            QProcess *sudoprocess = new QProcess;
-            QProcess *qtoxprocess = new QProcess;
-
-            QString bindir = qApp->applicationDirPath();
-            QString appdir = bindir;
-            appdir.chop(15);
-            QString sudo = bindir + "/qtox_sudo rsync -avzhpltK " + appdir + " /Applications";
-            QString qtox = "open /Applications/qtox.app";
-
-            QString appdir_noqtox = appdir;
-            appdir_noqtox.chop(8);
-
-            if ((appdir_noqtox + "qtox.app") != appdir) //quick safety check
-            {
-                qDebug() << "OS X: Attmepted to delete non qTox directory!";
-                return EXIT_UPDATE_MACX_FAIL;
-            }
-
-            QDir old_app(appdir);
-
-            sudoprocess->start(sudo); //Where the magic actually happens, safety checks ^
-            sudoprocess->waitForFinished();
-
-            if (old_app.removeRecursively()) //We've just deleted the running program
-            {
-                qDebug() << "OS X: Cleaned up old directory";
-            }
-            else
-            {
-                qDebug() << "OS X: This should never happen, the directory failed to delete";
-            }
-
-            if (fork() != 0) //Forking is required otherwise it won't actually cleanly launch
-                return EXIT_UPDATE_MACX;
-
-            qtoxprocess->start(qtox);
-
-            return 0; //Actually kills it
-        }
-    }
+    osx::moveToAppFolder();
 #endif
 
     // Install Unicode 6.1 supporting font
@@ -290,10 +253,21 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    // Autologin
+    if (Settings::getInstance().getAutoLogin())
+    {
+        QString profileName = Settings::getInstance().getCurrentProfile();
+        if (Profile::exists(profileName) && !Profile::isEncrypted(profileName))
+        {
+            Profile* profile = Profile::loadProfile(profileName);
+            if (profile)
+                Nexus::getInstance().setProfile(profile);
+        }
+    }
+
     Nexus::getInstance().start();
 
     // Run
-    a.setQuitOnLastWindowClosed(false);
     int errorcode = a.exec();
 
 #ifdef LOG_TO_FILE
@@ -302,6 +276,7 @@ int main(int argc, char *argv[])
 #endif
 
     Nexus::destroyInstance();
-
+    Settings::destroyInstance();
+    qDebug() << "Clean exit with status"<<errorcode;
     return errorcode;
 }

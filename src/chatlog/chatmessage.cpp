@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "chatmessage.h"
@@ -21,9 +26,9 @@
 #include "content/image.h"
 #include "content/notificationicon.h"
 
-#include "src/misc/settings.h"
-#include "src/misc/smileypack.h"
-#include "src/misc/style.h"
+#include "src/persistence/settings.h"
+#include "src/persistence/smileypack.h"
+#include "src/widget/style.h"
 
 #define NAME_COL_WIDTH 90.0
 #define TIME_COL_WIDTH 90.0
@@ -65,7 +70,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
 
     // Note: Eliding cannot be enabled for RichText items. (QTBUG-17207)
     msg->addColumn(new Text(senderText, isMe ? Style::getFont(Style::BigBold) : Style::getFont(Style::Big), true, sender, type == ACTION ? actionColor : Qt::black), ColumnFormat(NAME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
-    msg->addColumn(new Text(text, Style::getFont(Style::Big), false, type == (ACTION && isMe) ? QString("%1 %2").arg(sender, rawMessage) : rawMessage), ColumnFormat(1.0, ColumnFormat::VariableSize));
+    msg->addColumn(new Text(text, Style::getFont(Style::Big), false, ((type == ACTION) && isMe) ? QString("%1 %2").arg(sender, rawMessage) : rawMessage), ColumnFormat(1.0, ColumnFormat::VariableSize));
     msg->addColumn(new Spinner(":/ui/chatArea/spinner.svg", QSize(16, 16), 360.0/1.6), ColumnFormat(TIME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
 
     if (!date.isNull())

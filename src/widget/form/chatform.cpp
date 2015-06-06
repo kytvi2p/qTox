@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
@@ -27,26 +32,27 @@
 #include "chatform.h"
 #include "src/core/core.h"
 #include "src/friend.h"
-#include "src/historykeeper.h"
-#include "src/misc/style.h"
-#include "src/misc/settings.h"
-#include "src/misc/cstring.h"
-#include "src/widget/callconfirmwidget.h"
+#include "src/persistence/historykeeper.h"
+#include "src/widget/style.h"
+#include "src/persistence/settings.h"
+#include "src/core/cstring.h"
+#include "src/widget/tool/callconfirmwidget.h"
 #include "src/widget/friendwidget.h"
-#include "src/widget/netcamview.h"
+#include "src/video/netcamview.h"
 #include "src/widget/form/loadhistorydialog.h"
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/widget.h"
 #include "src/widget/maskablepixmapwidget.h"
-#include "src/widget/croppinglabel.h"
+#include "src/widget/tool/croppinglabel.h"
 #include "src/chatlog/chatmessage.h"
 #include "src/chatlog/content/filetransferwidget.h"
 #include "src/chatlog/chatlinecontentproxy.h"
 #include "src/chatlog/content/text.h"
 #include "src/chatlog/chatlog.h"
-#include "src/offlinemsgengine.h"
+#include "src/persistence/offlinemsgengine.h"
 #include "src/widget/tool/screenshotgrabber.h"
 #include "src/widget/tool/flyoutoverlaywidget.h"
+#include "src/widget/translator.h"
 
 ChatForm::ChatForm(Friend* chatFriend)
     : f(chatFriend)
@@ -79,7 +85,7 @@ ChatForm::ChatForm(Friend* chatFriend)
     headTextLayout->addWidget(callDuration, 1, Qt::AlignCenter);
     callDuration->hide();
 
-    menu.addAction(QObject::tr("Load chat history..."), this, SLOT(onLoadHistory()));
+    loadHistoryAction = menu.addAction(QString(), this, SLOT(onLoadHistory()));
 
     connect(Core::getInstance(), &Core::fileSendStarted, this, &ChatForm::startFileSend);
     connect(sendButton, &QPushButton::clicked, this, &ChatForm::onSendTriggered);
@@ -100,10 +106,14 @@ ChatForm::ChatForm(Friend* chatFriend)
     } );
 
     setAcceptDrops(true);
+
+    retranslateUi();
+    Translator::registerHandler(std::bind(&ChatForm::retranslateUi, this), this);
 }
 
 ChatForm::~ChatForm()
 {
+    Translator::unregister(this);
     delete netcam;
     delete callConfirm;
     delete offlineEngine;
@@ -401,12 +411,14 @@ void ChatForm::onAvRinging(uint32_t FriendId, int CallId, bool video)
     addSystemInfoMessage(tr("Calling to %1").arg(f->getDisplayedName()), ChatMessage::INFO, QDateTime::currentDateTime());
 }
 
-void ChatForm::onAvStarting(uint32_t FriendId, int, bool video)
+void ChatForm::onAvStarting(uint32_t FriendId, int CallId, bool video)
 {
     if (FriendId != f->getFriendID())
         return;
 
     qDebug() << "onAvStarting";
+
+    callId = CallId;
 
     callButton->disconnect();
     videoButton->disconnect();
@@ -863,7 +875,7 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
 void ChatForm::onScreenshotClicked()
 {
     doScreenshot();
-    
+
     // Give the window manager a moment to open the fullscreen grabber window
     QTimer::singleShot(500, this, SLOT(hideFileMenu()));
 }
@@ -874,27 +886,27 @@ void ChatForm::doScreenshot()
     connect(screenshotGrabber, &ScreenshotGrabber::screenshotTaken, this, &ChatForm::onScreenshotTaken);
     screenshotGrabber->showGrabber();
     // Create dir for screenshots
-    QDir(Settings::getSettingsDirPath()).mkdir("screenshots");
+    QDir(Settings::getInstance().getSettingsDirPath()).mkdir("screenshots");
 }
 
 void ChatForm::onScreenshotTaken(const QPixmap &pixmap) {
-    QTemporaryFile file(QDir(Settings::getSettingsDirPath() + QDir::separator() + "screenshots" + QDir::separator()).filePath("qTox-Screenshot-XXXXXXXX.png"));
+    QTemporaryFile file(Settings::getInstance().getSettingsDirPath()+"screenshots"+QDir::separator()+"qTox-Screenshot-XXXXXXXX.png");
 	if (!file.open())
 	{
 	    QMessageBox::warning(this, tr("Failed to open temporary file", "Temporary file for screenshot"),
 	                         tr("qTox wasn't able to save the screenshot"));
 	    return;
 	}
-	
+
 	file.setAutoRemove(false);
-	
+
 	pixmap.save(&file, "PNG");
-	
+
 	long long filesize = file.size();
 	file.close();
 	QFileInfo fi(file);
-	
-	emit sendFile(f->getFriendID(), fi.fileName(), fi.filePath(), filesize);        
+
+	emit sendFile(f->getFriendID(), fi.fileName(), fi.filePath(), filesize);
 }
 
 void ChatForm::onLoadHistory()
@@ -981,11 +993,19 @@ void ChatForm::show(Ui::MainWindow &ui)
         callConfirm->show();
 }
 
+void ChatForm::showEvent(QShowEvent* event)
+{
+    if (callConfirm)
+        callConfirm->show();
+
+    GenericChatForm::showEvent(event);
+}
+
 void ChatForm::hideEvent(QHideEvent* event)
 {
     if (callConfirm)
         callConfirm->hide();
-    
+
     GenericChatForm::hideEvent(event);
 }
 
@@ -1046,4 +1066,9 @@ void ChatForm::hideNetcam()
     netcam->hide();
     delete netcam;
     netcam = nullptr;
+}
+
+void ChatForm::retranslateUi()
+{
+    loadHistoryAction->setText(tr("Load chat history..."));
 }

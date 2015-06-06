@@ -1,34 +1,41 @@
 /*
     Copyright (C) 2013 by Maxim Biro <nurupo.contributions@gmail.com>
+    Copyright © 2014-2015 by The qTox Project
 
-    This file is part of Tox Qt GUI.
+    This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "core.h"
 #include "src/nexus.h"
-#include "src/misc/cdata.h"
-#include "src/misc/cstring.h"
-#include "src/misc/settings.h"
+#include "src/core/cdata.h"
+#include "src/core/cstring.h"
+#include "src/persistence/settings.h"
 #include "src/widget/gui.h"
-#include "src/historykeeper.h"
-#include "src/audio.h"
-#include "src/profilelocker.h"
-#include "src/avatarbroadcaster.h"
+#include "src/persistence/historykeeper.h"
+#include "src/audio/audio.h"
+#include "src/persistence/profilelocker.h"
+#include "src/net/avatarbroadcaster.h"
+#include "src/persistence/profile.h"
 #include "corefile.h"
+#include "src/video/camerasource.h"
 
 #include <tox/tox.h>
 
 #include <ctime>
+#include <cassert>
 #include <limits>
 #include <functional>
 
@@ -52,19 +59,15 @@ QThread* Core::coreThread{nullptr};
 
 #define MAX_GROUP_MESSAGE_LEN 1024
 
-Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
-    tox(nullptr), toxav(nullptr), camera(cam), loadPath(loadPath), ready{false}
+Core::Core(QThread *CoreThread, Profile& profile) :
+    tox(nullptr), toxav(nullptr), profile(profile), ready{false}
 {
-    qDebug() << "loading Tox from" << loadPath;
-
     coreThread = CoreThread;
 
     Audio::getInstance();
 
     videobuf = nullptr;
-
-    for (int i = 0; i < ptCounter; i++)
-        pwsaltedkeys[i] = nullptr;
+    encryptionKey = nullptr;
 
     toxTimer = new QTimer(this);
     toxTimer->setSingleShot(true);
@@ -76,10 +79,7 @@ Core::Core(Camera* cam, QThread *CoreThread, QString loadPath) :
         calls[i].active = false;
         calls[i].alSource = 0;
         calls[i].sendAudioTimer = new QTimer();
-        calls[i].sendVideoTimer = new QTimer();
         calls[i].sendAudioTimer->moveToThread(coreThread);
-        calls[i].sendVideoTimer->moveToThread(coreThread);
-        connect(calls[i].sendVideoTimer, &QTimer::timeout, [this,i](){sendCallVideo(i);});
     }
 
     // OpenAL init
@@ -107,13 +107,28 @@ Core::~Core()
 {
     qDebug() << "Deleting Core";
 
-    saveConfiguration();
-    toxTimer->stop();
+    if (coreThread->isRunning())
+    {
+        if (QThread::currentThread() == coreThread)
+            killTimers(false);
+        else
+            QMetaObject::invokeMethod(this, "killTimers", Qt::BlockingQueuedConnection,
+                                      Q_ARG(bool, false));
+    }
     coreThread->exit(0);
     while (coreThread->isRunning())
     {
         qApp->processEvents();
         coreThread->wait(500);
+    }
+
+    for (ToxCall call : calls)
+    {
+        if (!call.active)
+            continue;
+        hangupCall(call.callId);
+        if (call.camera)
+            delete call.camera;
     }
 
     deadifyTox();
@@ -130,7 +145,7 @@ Core* Core::getInstance()
     return Nexus::getCore();
 }
 
-void Core::make_tox(QByteArray savedata)
+void Core::makeTox(QByteArray savedata)
 {
     // IPv6 needed for LAN discovery, but can crash some weird routers. On by default, can be disabled in options.
     bool enableIPv6 = Settings::getInstance().getEnableIPv6();
@@ -152,6 +167,10 @@ void Core::make_tox(QByteArray savedata)
     toxOptions.proxy_type = TOX_PROXY_TYPE_NONE;
     toxOptions.proxy_host = nullptr;
     toxOptions.proxy_port = 0;
+
+    toxOptions.savedata_type = (!savedata.isNull() ? TOX_SAVEDATA_TYPE_TOX_SAVE : TOX_SAVEDATA_TYPE_NONE);
+    toxOptions.savedata_data = (uint8_t*)savedata.data();
+    toxOptions.savedata_length = savedata.size();
 
     if (proxyType != ProxyType::ptNone)
     {
@@ -181,7 +200,7 @@ void Core::make_tox(QByteArray savedata)
     }
 
     TOX_ERR_NEW tox_err;
-    tox = tox_new(&toxOptions, (uint8_t*)savedata.data(), savedata.size(), &tox_err);
+    tox = tox_new(&toxOptions, &tox_err);
 
     switch (tox_err)
     {
@@ -191,7 +210,7 @@ void Core::make_tox(QByteArray savedata)
             if (enableIPv6)
             {
                 toxOptions.ipv6_enabled = false;
-                tox = tox_new(&toxOptions, (uint8_t*)savedata.data(), savedata.size(), &tox_err);
+                tox = tox_new(&toxOptions, &tox_err);
                 if (tox_err == TOX_ERR_NEW_OK)
                 {
                     qWarning() << "Core failed to start with IPv6, falling back to IPv4. LAN discovery may not work properly.";
@@ -236,19 +255,24 @@ void Core::make_tox(QByteArray savedata)
 
 void Core::start()
 {
-    qDebug() << "Starting up";
-
-    QByteArray savedata = loadToxSave(loadPath);
-
-    make_tox(savedata);
-
-    // Do we need to create a new save & profile?
-    if (savedata.isNull())
+    bool isNewProfile = profile.isNewProfile();
+    if (isNewProfile)
     {
-        qDebug() << "Save file not found, creating a new profile";
-        Settings::getInstance().load();
+        qDebug() << "Creating a new profile";
+        makeTox(QByteArray());
         setStatusMessage(tr("Toxing on qTox"));
-        setUsername(tr("qTox User"));
+        setUsername(profile.getName());
+    }
+    else
+    {
+        qDebug() << "Loading user profile";
+        QByteArray savedata = profile.loadToxSave();
+        if (savedata.isEmpty())
+        {
+            emit failedToStart();
+            return;
+        }
+        makeTox(savedata);
     }
 
     qsrand(time(nullptr));
@@ -274,7 +298,7 @@ void Core::start()
         emit idSet(id);
 
     // tox core is already decrypted
-    if (Settings::getInstance().getEnableLogging() && Settings::getInstance().getEncryptLogs())
+    if (Settings::getInstance().getEnableLogging() && Nexus::getProfile()->isEncrypted())
         checkEncryptedHistory();
 
     loadFriends();
@@ -323,7 +347,7 @@ void Core::start()
     }
     else
     {
-        qDebug() << "Error loading self avatar";
+        qDebug() << "Self avatar not found";
     }
 
     ready = true;
@@ -331,9 +355,9 @@ void Core::start()
     // If we created a new profile earlier,
     // now that we're ready save it and ONLY THEN broadcast the new ID.
     // This is useful for e.g. the profileForm that searches for saves.
-    if (savedata.isNull())
+    if (isNewProfile)
     {
-        saveConfiguration();
+        profile.saveToxSave();
         emit idSet(getSelfId().toString());
     }
 
@@ -408,7 +432,7 @@ bool Core::checkConnection()
 void Core::bootstrapDht()
 {
     const Settings& s = Settings::getInstance();
-    QList<Settings::DhtServer> dhtServerList = s.getDhtServerList();
+    QList<DhtServer> dhtServerList = s.getDhtServerList();
 
     int listSize = dhtServerList.size();
     if (listSize == 0)
@@ -423,9 +447,9 @@ void Core::bootstrapDht()
     int i=0;
     while (i < 2) // i think the more we bootstrap, the more we jitter because the more we overwrite nodes
     {
-        const Settings::DhtServer& dhtServer = dhtServerList[j % listSize];
+        const DhtServer& dhtServer = dhtServerList[j % listSize];
         if (tox_bootstrap(tox, dhtServer.address.toLatin1().data(),
-            dhtServer.port, CUserId(dhtServer.userId).data(), nullptr) == 1)
+            dhtServer.port, CUserId(dhtServer.userId).data(), nullptr))
         {
             qDebug() << "Bootstrapping from " + dhtServer.name
                         + ", addr " + dhtServer.address.toLatin1().data()
@@ -434,6 +458,18 @@ void Core::bootstrapDht()
         else
         {
             qDebug() << "Error bootstrapping from "+dhtServer.name;
+        }
+
+        if (tox_add_tcp_relay(tox, dhtServer.address.toLatin1().data(),
+            dhtServer.port, CUserId(dhtServer.userId).data(), nullptr))
+        {
+            qDebug() << "Adding TCP relay from " + dhtServer.name
+                        + ", addr " + dhtServer.address.toLatin1().data()
+                        + ", port " + QString().setNum(dhtServer.port);
+        }
+        else
+        {
+            qDebug() << "Error adding TCP relay from "+dhtServer.name;
         }
 
         j++;
@@ -564,7 +600,7 @@ void Core::acceptFriendRequest(const QString& userId)
     }
     else
     {
-        saveConfiguration();
+        profile.saveToxSave();
         emit friendAdded(friendId, userId);
     }
 }
@@ -609,7 +645,7 @@ void Core::requestFriendship(const QString& friendAddress, const QString& messag
             emit friendAdded(friendId, userId);
         }
     }
-    saveConfiguration();
+    profile.saveToxSave();
 }
 
 int Core::sendMessage(uint32_t friendId, const QString& message)
@@ -724,7 +760,7 @@ void Core::removeFriend(uint32_t friendId, bool fake)
     }
     else
     {
-        saveConfiguration();
+        profile.saveToxSave();
         emit friendRemoved(friendId);
     }
 }
@@ -762,7 +798,8 @@ void Core::setUsername(const QString& username)
     else
     {
         emit usernameSet(username);
-        saveConfiguration();
+        if (ready)
+            profile.saveToxSave();
     }
 }
 
@@ -826,7 +863,8 @@ void Core::setStatusMessage(const QString& message)
     }
     else
     {
-        saveConfiguration();
+        if (ready)
+            profile.saveToxSave();
         emit statusMessageSet(message);
     }
 }
@@ -851,7 +889,7 @@ void Core::setStatus(Status status)
     }
 
     tox_self_set_status(tox, userstatus);
-    saveConfiguration();
+    profile.saveToxSave();
     emit statusSet(status);
 }
 
@@ -872,149 +910,13 @@ QString Core::sanitize(QString name)
     return name;
 }
 
-QByteArray Core::loadToxSave(QString path)
+QByteArray Core::getToxSaveData()
 {
+    uint32_t fileSize = tox_get_savedata_size(tox);
     QByteArray data;
-    loadPath = ""; // if not empty upon return, then user forgot a password and is switching
-
-    // If we can't get a lock, then another instance is already using that profile
-    while (!ProfileLocker::lock(QFileInfo(path).baseName()))
-    {
-        qWarning() << "Profile "<<QFileInfo(path).baseName()<<" is already in use, pick another";
-        GUI::showWarning(tr("Profile already in use"),
-                         tr("This profile is already used by another qTox instance\n"
-                            "Please select another profile"));
-        QString tmppath = Settings::getInstance().askProfiles();
-        if (tmppath.isEmpty())
-            continue;
-        Settings::getInstance().switchProfile(tmppath);
-        path = QDir(Settings::getSettingsDirPath()).filePath(tmppath + TOX_EXT);
-        HistoryKeeper::resetInstance();
-    }
-
-    QFile configurationFile(path);
-    qDebug() << "loadConfiguration: reading from " << path;
-
-    if (!configurationFile.exists())
-    {
-        qWarning() << "The Tox configuration file "<<path<<" was not found";
-        return data;
-    }
-
-    if (!configurationFile.open(QIODevice::ReadOnly))
-    {
-        qCritical() << "File " << path << " cannot be opened";
-        return data;
-    }
-
-    qint64 fileSize = configurationFile.size();
-    if (fileSize > 0)
-    {
-        data = configurationFile.readAll();
-        if (tox_is_data_encrypted((uint8_t*)data.data()))
-        {
-            if (!loadEncryptedSave(data))
-            {
-                configurationFile.close();
-
-                QString profile;
-                do {
-                    profile = Settings::getInstance().askProfiles();
-                } while (profile.isEmpty());
-
-                if (!profile.isEmpty())
-                {
-                    Settings::getInstance().switchProfile(profile);
-                    HistoryKeeper::resetInstance();
-                    return loadToxSave(QDir(Settings::getSettingsDirPath()).filePath(profile + TOX_EXT));
-                }
-                return QByteArray();
-            }
-        }
-    }
-    configurationFile.close();
-
+    data.resize(fileSize);
+    tox_get_savedata(tox, (uint8_t*)data.data());
     return data;
-}
-
-void Core::saveConfiguration()
-{
-    if (QThread::currentThread() != coreThread)
-        return (void) QMetaObject::invokeMethod(this, "saveConfiguration");
-
-    if (!isReady())
-        return;
-
-    ProfileLocker::assertLock();
-
-    QString dir = Settings::getSettingsDirPath();
-    QDir directory(dir);
-    if (!directory.exists() && !directory.mkpath(directory.absolutePath()))
-    {
-        qCritical() << "Error while creating directory " << dir;
-        return;
-    }
-
-    QString profile = Settings::getInstance().getCurrentProfile();
-
-    if (profile == "")
-    { // no profile active; this should only happen on startup, if at all
-        profile = sanitize(getUsername());
-
-        if (profile == "") // happens on creation of a new Tox ID
-            profile = getIDString();
-
-        Settings::getInstance().switchProfile(profile);
-    }
-
-    QString path = directory.filePath(profile + TOX_EXT);
-
-    saveConfiguration(path);
-}
-
-void Core::switchConfiguration(const QString& _profile)
-{
-    QString profile = QFileInfo(_profile).baseName();
-    // If we can't get a lock, then another instance is already using that profile
-    while (!profile.isEmpty() && !ProfileLocker::lock(profile))
-    {
-        qWarning() << "Profile "<<profile<<" is already in use, pick another";
-        GUI::showWarning(tr("Profile already in use"),
-                         tr("This profile is already used by another qTox instance\n"
-                            "Please select another profile"));
-        do {
-            profile = Settings::getInstance().askProfiles();
-        } while (profile.isEmpty());
-    }
-
-    if (profile.isEmpty())
-        qDebug() << "creating new Id";
-    else
-        qDebug() << "switching from" << Settings::getInstance().getCurrentProfile() << "to" << profile;
-
-    saveConfiguration();
-    saveCurrentInformation(); // part of a hack, see core.h
-
-    ready = false;
-    GUI::setEnabled(false);
-    clearPassword(ptMain);
-    clearPassword(ptHistory);
-
-    toxTimer->stop();
-    deadifyTox();
-
-    emit selfAvatarChanged(QPixmap(":/img/contact_dark.svg"));
-    emit blockingClearContacts(); // we need this to block, but signals are required for thread safety
-
-    if (profile.isEmpty())
-        loadPath = "";
-    else
-        loadPath = QDir(Settings::getSettingsDirPath()).filePath(profile + TOX_EXT);
-
-    Settings::getInstance().switchProfile(profile);
-    HistoryKeeper::resetInstance();
-
-    start();
 }
 
 void Core::loadFriends()
@@ -1355,4 +1257,29 @@ void Core::resetCallSources()
             alGenSources(1, &call.alSource);
         }
     }
+}
+
+void Core::killTimers(bool onlyStop)
+{
+    assert(QThread::currentThread() == coreThread);
+    toxTimer->stop();
+    if (!onlyStop)
+    {
+        delete toxTimer;
+        toxTimer = nullptr;
+    }
+}
+
+void Core::reset()
+{
+    assert(QThread::currentThread() == coreThread);
+
+    ready = false;
+    killTimers(true);
+    deadifyTox();
+
+    emit selfAvatarChanged(QPixmap(":/img/contact_dark.svg"));
+    GUI::clearContacts();
+
+    start();
 }

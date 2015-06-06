@@ -1,47 +1,69 @@
+/*
+    Copyright © 2014-2015 by The qTox Project
+
+    This file is part of qTox, a Qt-based graphical interface for Tox.
+
+    qTox is libre software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "nexus.h"
+#include "src/persistence/profile.h"
 #include "src/core/core.h"
-#include "misc/settings.h"
-#include "video/camera.h"
+#include "persistence/settings.h"
+#include "video/camerasource.h"
 #include "widget/gui.h"
+#include "widget/loginscreen.h"
 #include <QThread>
 #include <QDebug>
 #include <QImageReader>
 #include <QFile>
+#include <QApplication>
+#include <cassert>
 
 #ifdef Q_OS_ANDROID
 #include <src/widget/androidgui.h>
 #else
 #include <src/widget/widget.h>
+#include <QDesktopWidget>
 #endif
 
 static Nexus* nexus{nullptr};
 
 Nexus::Nexus(QObject *parent) :
     QObject(parent),
-    core{nullptr},
-    coreThread{nullptr},
+    profile{nullptr},
     widget{nullptr},
     androidgui{nullptr},
-    started{false}
+    loginScreen{nullptr}
 {
 }
 
 Nexus::~Nexus()
 {
-    delete core;
-    delete coreThread;
 #ifdef Q_OS_ANDROID
     delete androidgui;
 #else
     delete widget;
 #endif
+    delete loginScreen;
+    delete profile;
+    Settings::getInstance().saveGlobal();
 }
 
 void Nexus::start()
 {
-    if (started)
-        return;
-
     qDebug() << "Starting up";
 
     // Setup the environment
@@ -54,22 +76,51 @@ void Nexus::start()
     qRegisterMetaType<int32_t>("int32_t");
     qRegisterMetaType<int64_t>("int64_t");
     qRegisterMetaType<QPixmap>("QPixmap");
+    qRegisterMetaType<Profile*>("Profile*");
     qRegisterMetaType<ToxFile>("ToxFile");
     qRegisterMetaType<ToxFile::FileDirection>("ToxFile::FileDirection");
-    qRegisterMetaType<Core::PasswordType>("Core::PasswordType");
+    qRegisterMetaType<std::shared_ptr<VideoFrame>>("std::shared_ptr<VideoFrame>");
+
+    loginScreen = new LoginScreen();
+
+    if (profile)
+        showMainGUI();
+    else
+        showLogin();
+}
+
+void Nexus::showLogin()
+{
+#ifdef Q_OS_ANDROID
+    delete androidui;
+    androidgui = nullptr;
+#else
+    delete widget;
+    widget = nullptr;
+#endif
+
+    delete profile;
+    profile = nullptr;
+
+    loginScreen->reset();
+#ifndef Q_OS_ANDROID
+    loginScreen->move(QApplication::desktop()->screen()->rect().center() - loginScreen->rect().center());
+#endif
+    loginScreen->show();
+    ((QApplication*)qApp)->setQuitOnLastWindowClosed(true);
+}
+
+void Nexus::showMainGUI()
+{
+    assert(profile);
+
+    ((QApplication*)qApp)->setQuitOnLastWindowClosed(false);
+    loginScreen->close();
 
     // Create GUI
 #ifndef Q_OS_ANDROID
     widget = Widget::getInstance();
 #endif
-
-    // Create Core
-    QString profilePath = Settings::getInstance().detectProfile();
-    coreThread = new QThread(this);
-    coreThread->setObjectName("qTox Core");
-    core = new Core(Camera::getInstance(), coreThread, profilePath);
-    core->moveToThread(coreThread);
-    connect(coreThread, &QThread::started, core, &Core::start);
 
     // Start GUI
 #ifdef Q_OS_ANDROID
@@ -87,6 +138,7 @@ void Nexus::start()
     GUI::setEnabled(false);
 
     // Connections
+    Core* core = profile->getCore();
 #ifdef Q_OS_ANDROID
     connect(core, &Core::connected, androidgui, &AndroidGUI::onConnected);
     connect(core, &Core::disconnected, androidgui, &AndroidGUI::onDisconnected);
@@ -125,7 +177,6 @@ void Nexus::start()
     connect(core, &Core::groupPeerAudioPlaying,      widget, &Widget::onGroupPeerAudioPlaying);
     connect(core, &Core::emptyGroupCreated, widget, &Widget::onEmptyGroupCreated);
     connect(core, &Core::avInvite, widget, &Widget::playRingtone);
-    connect(core, &Core::blockingClearContacts, widget, &Widget::clearContactsList, Qt::BlockingQueuedConnection);
     connect(core, &Core::friendTypingChanged, widget, &Widget::onFriendTypingChanged);
 
     connect(core, &Core::messageSentResult, widget, &Widget::onMessageSendResult);
@@ -134,13 +185,9 @@ void Nexus::start()
     connect(widget, &Widget::statusSet, core, &Core::setStatus);
     connect(widget, &Widget::friendRequested, core, &Core::requestFriendship);
     connect(widget, &Widget::friendRequestAccepted, core, &Core::acceptFriendRequest);
-    connect(widget, &Widget::changeProfile, core, &Core::switchConfiguration);
 #endif
 
-    // Start Core
-    coreThread->start();
-
-    started = true;
+    profile->startCore();
 }
 
 Nexus& Nexus::getInstance()
@@ -159,7 +206,22 @@ void Nexus::destroyInstance()
 
 Core* Nexus::getCore()
 {
-    return getInstance().core;
+    Nexus& nexus = getInstance();
+    if (!nexus.profile)
+        return nullptr;
+    return nexus.profile->getCore();
+}
+
+Profile* Nexus::getProfile()
+{
+    return getInstance().profile;
+}
+
+void Nexus::setProfile(Profile* profile)
+{
+    getInstance().profile = profile;
+    if (profile)
+        Settings::getInstance().loadPersonnal(profile);
 }
 
 AndroidGUI* Nexus::getAndroidGUI()

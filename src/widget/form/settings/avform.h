@@ -1,32 +1,37 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef AVFORM_H
 #define AVFORM_H
 
+#include <QObject>
+#include <QString>
+#include <QList>
 #include "genericsettings.h"
-#include "src/widget/videosurface.h"
-#include "src/video/camera.h"
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QPushButton>
+#include "src/video/videomode.h"
 
 namespace Ui {
 class AVSettings;
 }
 
-class Camera;
+class CameraSource;
+class VideoSurface;
 
 class AVForm : public GenericForm
 {
@@ -34,20 +39,19 @@ class AVForm : public GenericForm
 public:
     AVForm();
     ~AVForm();
-    virtual void present();
+    QString getFormName() final {return tr("Audio/Video");}
 
 private:
     void getAudioInDevices();
     void getAudioOutDevices();
+    void getVideoDevices();
 
     void createVideoSurface();
     void killVideoSurface();
 
+    void retranslateUi();
+
 private slots:
-    void on_ContrastSlider_sliderMoved(int position);
-    void on_SaturationSlider_sliderMoved(int position);
-    void on_BrightnessSlider_sliderMoved(int position);
-    void on_HueSlider_sliderMoved(int position);
     void on_videoModescomboBox_currentIndexChanged(int index);
 
     // audio
@@ -58,23 +62,22 @@ private slots:
     void on_microphoneSlider_valueChanged(int value);
 
     // camera
-    void onPropProbingFinished(Camera::Prop prop, double val);
+    void onVideoDevChanged(int index);
     void onResProbingFinished(QList<QSize> res);
 
     virtual void hideEvent(QHideEvent*);
     virtual void showEvent(QShowEvent*);
 
-    void on_HueSlider_valueChanged(int value);
-    void on_BrightnessSlider_valueChanged(int value);
-    void on_SaturationSlider_valueChanged(int value);
-    void on_ContrastSlider_valueChanged(int value);
-    
 protected:
-    bool eventFilter(QObject *o, QEvent *e);    
+    bool eventFilter(QObject *o, QEvent *e);
+    void updateVideoModes(int curIndex);
 
 private:
     Ui::AVSettings *bodyUI;
-    VideoSurface* CamVideoSurface;
+    VideoSurface* camVideoSurface;
+    CameraSource* camera;
+    QVector<QPair<QString, QString>> videoDeviceList;
+    QVector<VideoMode> videoModes;
 };
 
 #endif

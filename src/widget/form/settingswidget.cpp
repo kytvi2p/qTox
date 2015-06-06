@@ -1,25 +1,31 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "settingswidget.h"
 #include "src/widget/widget.h"
 #include "ui_mainwindow.h"
-#include "src/video/camera.h"
+#include "src/video/camerasource.h"
 #include "src/widget/form/settings/generalform.h"
 #include "src/widget/form/settings/privacyform.h"
 #include "src/widget/form/settings/avform.h"
 #include "src/widget/form/settings/advancedform.h"
+#include "src/widget/translator.h"
 #include <QTabWidget>
 
 SettingsWidget::SettingsWidget(QWidget* parent)
@@ -53,20 +59,23 @@ SettingsWidget::SettingsWidget(QWidget* parent)
     AVForm* avfrm = new AVForm;
     AdvancedForm *expfrm = new AdvancedForm;
 
-    GenericForm* cfgForms[] = { gfrm, pfrm, avfrm, expfrm };
+    cfgForms = {{ gfrm, pfrm, avfrm, expfrm }};
     for (GenericForm* cfgForm : cfgForms)
         settingsWidgets->addTab(cfgForm, cfgForm->getFormIcon(), cfgForm->getFormName());
 
     connect(settingsWidgets, &QTabWidget::currentChanged, this, &SettingsWidget::onTabChanged);
+
+    Translator::registerHandler(std::bind(&SettingsWidget::retranslateUi, this), this);
 }
 
 SettingsWidget::~SettingsWidget()
 {
+    Translator::unregister(this);
 }
 
 void SettingsWidget::setBodyHeadStyle(QString style)
 {
-    head->setStyle(QStyleFactory::create(style));    
+    head->setStyle(QStyleFactory::create(style));
     body->setStyle(QStyleFactory::create(style));
 }
 
@@ -83,7 +92,14 @@ void SettingsWidget::onTabChanged(int index)
 {
     this->settingsWidgets->setCurrentIndex(index);
     GenericForm* currentWidget = static_cast<GenericForm*>(this->settingsWidgets->widget(index));
-    currentWidget->present();
     nameLabel->setText(currentWidget->getFormName());
     imgLabel->setPixmap(currentWidget->getFormIcon().scaledToHeight(40, Qt::SmoothTransformation));
+}
+
+void SettingsWidget::retranslateUi()
+{
+    GenericForm* currentWidget = static_cast<GenericForm*>(settingsWidgets->currentWidget());
+    nameLabel->setText(currentWidget->getFormName());
+    for (size_t i=0; i<cfgForms.size(); i++)
+        settingsWidgets->setTabText(i, cfgForms[i]->getFormName());
 }

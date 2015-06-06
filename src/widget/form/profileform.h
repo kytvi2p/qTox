@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef IDENTITYFORM_H
@@ -20,7 +25,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include "src/core/core.h"
-#include "src/misc/qrwidget.h"
+#include "src/widget/qrwidget.h"
 
 class CroppingLabel;
 class Core;
@@ -39,7 +44,7 @@ public:
 signals:
     void clicked();
 protected:
-    void mouseReleaseEvent(QMouseEvent*) {emit clicked();}    
+    void mouseReleaseEvent(QMouseEvent*) {emit clicked();}
 };
 
 class ProfileForm : public QWidget
@@ -56,7 +61,6 @@ signals:
 
 public slots:
     void onSelfAvatarLoaded(const QPixmap &pic);
-    void onStatusSet(Status status);
 
 private slots:
     void setToxId(const QString& id);
@@ -64,32 +68,28 @@ private slots:
     void onAvatarClicked();
     void onUserNameEdited();
     void onStatusMessageEdited();
-    void onLoadClicked();
     void onRenameClicked();
     void onExportClicked();
     void onDeleteClicked();
-    void onImportClicked();
-    void onNewClicked();
-    void disableSwitching();
-    void enableSwitching();
-    void on_copyQr_clicked();
-    
-    void on_saveQr_clicked();
-    
-protected:
-    virtual void showEvent(QShowEvent *);
-    bool eventFilter(QObject *o, QEvent *e);
+    void onLogoutClicked();
+    void onCopyQrClicked();
+    void onSaveQrClicked();
+    void onDeletePassClicked();
+    void onChangePassClicked();
+
+private:
+    void retranslateUi();
 
 private:
     void refreshProfiles();
     Ui::IdentitySettings* bodyUI;
     MaskablePixmapWidget* profilePicture;
+    QLabel* nameLabel;
     QWidget *head;
     Core* core;
     QTimer timer;
     bool hasCheck = false;
     QRWidget *qr;
-
     ClickableTE* toxId;
 };
 
