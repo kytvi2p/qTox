@@ -1,3 +1,35 @@
+qtox (0.0.0+git20150609.r3150-1) unstable; urgency=medium
+
+  [ tux3 ]
+  * Faster profile settings saving
+  * Fix inconsistent constexpr
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ tux3 ]
+  * Fix font size in contact list
+  * Don't focus msg edit when non-text keys are pressed
+  * Disable RTTI
+
+  [ PKEv ]
+  * Correct Russion translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Fix some warnings
+  * Add final/override specifiers
+  * Fix #1837
+  * Fix #1840
+  * Fix #1841
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Jun 2015 19:42:34 +0000
+
 qtox (0.0.0+git20150607.r3134-1) stable; urgency=medium
 
   [ PKEv ]

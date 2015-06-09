@@ -10,8 +10,7 @@ Build-Depends: debhelper (>= 9)
  ,libappindicator-dev
  ,libfilteraudio-dev (>= 0.0.0+git20150516)
  ,libopenal-dev
- ,libavdevice-dev | libavdevice-ffmpeg-dev
- ,libopencv-dev
+ ,libavdevice-ffmpeg-dev
  ,libqrencode-dev
  ,libqt5opengl5-dev
  ,libqt5svg5-dev
