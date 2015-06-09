@@ -257,7 +257,8 @@ bool GenericChatForm::event(QEvent* e)
     if (e->type() == QEvent::KeyRelease && !msgEdit->hasFocus())
     {
         QKeyEvent* ke = static_cast<QKeyEvent*>(e);
-        if (ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier)
+        if ((ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier)
+                && !ke->text().isEmpty())
             msgEdit->setFocus();
     }
     return QWidget::event(e);
@@ -359,7 +360,7 @@ void GenericChatForm::onSaveLogClicked()
     auto lines = chatWidget->getLines();
     for (ChatLine::Ptr l : lines)
     {
-        Timestamp* rightCol = dynamic_cast<Timestamp*>(l->getContent(2));
+        Timestamp* rightCol = static_cast<Timestamp*>(l->getContent(2));
         ChatLineContent* middleCol = l->getContent(1);
         ChatLineContent* leftCol = l->getContent(0);
 

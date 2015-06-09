@@ -20,6 +20,7 @@
 
 #include "callconfirmwidget.h"
 #include "src/widget/gui.h"
+#include "src/widget/widget.h"
 #include <assert.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -31,12 +32,12 @@
 #include <QRect>
 #include <QPalette>
 
-CallConfirmWidget::CallConfirmWidget(const QWidget *Anchor) :
-    QWidget(GUI::getMainWidget()), anchor(Anchor),
+CallConfirmWidget::CallConfirmWidget(const QWidget *Anchor, const Friend& f) :
+    QWidget(GUI::getMainWidget()), anchor(Anchor), f(f),
     rectW{120}, rectH{85},
     spikeW{30}, spikeH{15},
     roundedFactor{20},
-    rectRatio{static_cast<qreal>(rectH)/static_cast<qreal>(rectW)}
+    rectRatio(static_cast<qreal>(rectH)/static_cast<qreal>(rectW))
 {
     setWindowFlags(Qt::SubWindow);
 
@@ -110,6 +111,14 @@ void CallConfirmWidget::paintEvent(QPaintEvent*)
 
 void CallConfirmWidget::showEvent(QShowEvent*)
 {
+    // If someone does show() from Widget or lower, the event will reach us
+    // because it's our parent, and we could show up in the wrong form.
+    // So check here if our friend's form is actually the active one.
+    if (!Widget::getInstance()->isFriendWidgetCurActiveWidget(&f))
+    {
+        QWidget::hide();
+        return;
+    }
     reposition();
     update();
 }

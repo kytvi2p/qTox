@@ -42,6 +42,10 @@
 #include "src/widget/gui.h"
 #include "src/persistence/offlinemsgengine.h"
 #include "src/widget/translator.h"
+#include "src/widget/form/addfriendform.h"
+#include "src/widget/form/filesform.h"
+#include "src/widget/form/profileform.h"
+#include "src/widget/form/settingswidget.h"
 #include <cassert>
 #include <QMessageBox>
 #include <QDebug>
@@ -711,12 +715,13 @@ void Widget::onFriendUsernameChanged(int friendId, const QString& username)
 void Widget::onChatroomWidgetClicked(GenericChatroomWidget *widget)
 {
     hideMainForms();
-    widget->setChatForm(*ui);
+
     if (activeChatroomWidget != nullptr)
         activeChatroomWidget->setAsInactiveChatroom();
-
     activeChatroomWidget = widget;
+
     widget->setAsActiveChatroom();
+    widget->setChatForm(*ui);
     setWindowTitle(widget->getName());
     widget->resetEventFlags();
     widget->updateStatusLight();
@@ -775,8 +780,6 @@ void Widget::newMessageAlert(GenericChatroomWidget* chat)
 
     if (Settings::getInstance().getShowWindow())
     {
-        if (activeChatroomWidget != chat)
-            onChatroomWidgetClicked(chat);
         show();
         if (inactiveWindow && Settings::getInstance().getShowInFront())
             setWindowState(Qt::WindowActive);
@@ -1047,12 +1050,12 @@ void Widget::onEmptyGroupCreated(int groupId)
     createGroup(groupId);
 }
 
-bool Widget::isFriendWidgetCurActiveWidget(Friend* f)
+bool Widget::isFriendWidgetCurActiveWidget(const Friend* f) const
 {
     if (!f)
         return false;
 
-    return (activeChatroomWidget == static_cast<GenericChatroomWidget*>(f->getFriendWidget()));
+    return (activeChatroomWidget == static_cast<const GenericChatroomWidget*>(f->getFriendWidget()));
 }
 
 bool Widget::event(QEvent * e)

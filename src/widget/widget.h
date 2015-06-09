@@ -22,12 +22,7 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include <QMessageBox>
 #include <QFileInfo>
-#include "form/addfriendform.h"
-#include "form/settingswidget.h"
-#include "form/profileform.h"
-#include "form/filesform.h"
 #include "src/core/corestructs.h"
 
 #define PIXELS_TO_ACT 7
@@ -48,39 +43,27 @@ class FriendListWidget;
 class MaskablePixmapWidget;
 class QTimer;
 class SystemTrayIcon;
+class FilesForm;
+class ProfileForm;
+class SettingsWidget;
+class AddFriendForm;
 
-class Widget : public QMainWindow
+class Widget final : public QMainWindow
 {
     Q_OBJECT
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-
 public:
-    enum FilterCriteria
-    {
-        All=0,
-        Online,
-        Offline,
-        Friends,
-        Groups
-    };
     explicit Widget(QWidget *parent = 0);
+    ~Widget();
     void init();
     void setCentralWidget(QWidget *widget, const QString &widgetName);
     QString getUsername();
     Camera* getCamera();
     static Widget* getInstance();
     void newMessageAlert(GenericChatroomWidget* chat);
-    bool isFriendWidgetCurActiveWidget(Friend* f);
+    bool isFriendWidgetCurActiveWidget(const Friend* f) const;
     bool getIsWindowMinimized();
     void updateIcons();
     void clearContactsList();
-    ~Widget();
-
-    virtual void closeEvent(QCloseEvent *event);
-    virtual void changeEvent(QEvent *event);
-    virtual void resizeEvent(QResizeEvent *event);
 
     static void confirmExecutableOpen(const QFileInfo file);
 
@@ -136,6 +119,13 @@ signals:
     void statusMessageChanged(const QString& statusMessage);
     void resized();
 
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *event) final override;
+    virtual bool event(QEvent * e) final override;
+    virtual void closeEvent(QCloseEvent *event) final override;
+    virtual void changeEvent(QEvent *event) final override;
+    virtual void resizeEvent(QResizeEvent *event) final override;
+
 private slots:
     void onAddClicked();
     void onGroupClicked();
@@ -169,9 +159,19 @@ private:
         SettingButton,
         None,
     };
+
+    enum FilterCriteria
+    {
+        All=0,
+        Online,
+        Offline,
+        Friends,
+        Groups
+    };
+
+private:
     void setActiveToolMenuButton(ActiveToolMenuButton newActiveButton);
     void hideMainForms();
-    virtual bool event(QEvent * e);
     Group *createGroup(int groupId);
     void removeFriend(Friend* f, bool fake = false);
     void removeGroup(Group* g, bool fake = false);
@@ -179,6 +179,8 @@ private:
     void saveSplitterGeometry();
     void cycleContacts(int offset);
     void retranslateUi();
+
+private:
     SystemTrayIcon *icon;
     QMenu *trayMenu;
     QAction *statusOnline,

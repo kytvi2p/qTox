@@ -28,29 +28,31 @@
 
 class QPaintEvent;
 class QShowEvent;
+class Friend;
 
 /// This is a widget with dialog buttons to accept/reject a call
 /// It tracks the position of another widget called the anchor
 /// and looks like a bubble at the bottom of that widget.
-class CallConfirmWidget : public QWidget
+class CallConfirmWidget final : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CallConfirmWidget(const QWidget *Anchor);
+    explicit CallConfirmWidget(const QWidget *Anchor, const Friend& f);
 
 signals:
     void accepted();
     void rejected();
 
 protected:
-    virtual void paintEvent(QPaintEvent* event) override;
-    virtual void showEvent(QShowEvent * event) override;
+    virtual void paintEvent(QPaintEvent* event) final override;
+    virtual void showEvent(QShowEvent* event) final override;
 
 protected slots:
     void reposition(); ///< Recalculate our positions to track the anchor
 
 private:
     const QWidget* anchor; ///< The widget we're going to be tracking
+    const Friend& f; ///< The friend on whose chat form we should appear
 
     QRect mainRect;
     QPolygon spikePoly;
