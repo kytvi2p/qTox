@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
@@ -24,33 +29,36 @@
 #include <QScreen>
 #include <QTemporaryFile>
 #include <QGuiApplication>
+#include <QStyle>
+#include <cassert>
 #include "chatform.h"
 #include "src/core/core.h"
 #include "src/friend.h"
-#include "src/historykeeper.h"
-#include "src/misc/style.h"
-#include "src/misc/settings.h"
-#include "src/misc/cstring.h"
-#include "src/widget/callconfirmwidget.h"
+#include "src/persistence/historykeeper.h"
+#include "src/widget/style.h"
+#include "src/persistence/settings.h"
+#include "src/core/cstring.h"
+#include "src/widget/tool/callconfirmwidget.h"
 #include "src/widget/friendwidget.h"
-#include "src/widget/netcamview.h"
+#include "src/video/netcamview.h"
 #include "src/widget/form/loadhistorydialog.h"
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/widget.h"
 #include "src/widget/maskablepixmapwidget.h"
-#include "src/widget/croppinglabel.h"
+#include "src/widget/tool/croppinglabel.h"
 #include "src/chatlog/chatmessage.h"
 #include "src/chatlog/content/filetransferwidget.h"
 #include "src/chatlog/chatlinecontentproxy.h"
 #include "src/chatlog/content/text.h"
 #include "src/chatlog/chatlog.h"
-#include "src/offlinemsgengine.h"
+#include "src/persistence/offlinemsgengine.h"
 #include "src/widget/tool/screenshotgrabber.h"
 #include "src/widget/tool/flyoutoverlaywidget.h"
+#include "src/widget/translator.h"
 
 ChatForm::ChatForm(Friend* chatFriend)
     : f(chatFriend)
-    , callId(0)
+    , callId{0}, isTyping{false}
 {
     nameLabel->setText(f->getDisplayedName());
 
@@ -79,7 +87,7 @@ ChatForm::ChatForm(Friend* chatFriend)
     headTextLayout->addWidget(callDuration, 1, Qt::AlignCenter);
     callDuration->hide();
 
-    menu.addAction(tr("Load chat history..."), this, SLOT(onLoadHistory()));
+    loadHistoryAction = menu.addAction(QString(), this, SLOT(onLoadHistory()));
 
     connect(Core::getInstance(), &Core::fileSendStarted, this, &ChatForm::startFileSend);
     connect(sendButton, &QPushButton::clicked, this, &ChatForm::onSendTriggered);
@@ -100,10 +108,14 @@ ChatForm::ChatForm(Friend* chatFriend)
     } );
 
     setAcceptDrops(true);
+
+    retranslateUi();
+    Translator::registerHandler(std::bind(&ChatForm::retranslateUi, this), this);
 }
 
 ChatForm::~ChatForm()
 {
+    Translator::unregister(this);
     delete netcam;
     delete callConfirm;
     delete offlineEngine;
@@ -179,7 +191,7 @@ void ChatForm::startFileSend(ToxFile file)
         return;
 
     QString name;
-    if (!previousId.isMine())
+    if (!previousId.isActiveProfile())
     {
         Core* core = Core::getInstance();
         name = core->getUsername();
@@ -203,7 +215,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
     }
 
     QString name;
-    ToxID friendId = f->getToxID();
+    ToxId friendId = f->getToxId();
     if (friendId != previousId)
     {
         name = f->getDisplayedName();
@@ -213,17 +225,13 @@ void ChatForm::onFileRecvRequest(ToxFile file)
     ChatMessage::Ptr msg = ChatMessage::createFileTransferMessage(name, file, false, QDateTime::currentDateTime());
     insertChatMessage(msg);
 
-    if (!Settings::getInstance().getAutoAcceptDir(f->getToxID()).isEmpty()
+    if (!Settings::getInstance().getAutoAcceptDir(f->getToxId()).isEmpty()
             || Settings::getInstance().getAutoSaveEnabled())
     {
-        ChatLineContentProxy* proxy = dynamic_cast<ChatLineContentProxy*>(msg->getContent(1));
-        if (proxy)
-        {
-            FileTransferWidget* tfWidget = dynamic_cast<FileTransferWidget*>(proxy->getWidget());
-
-            if (tfWidget)
-                tfWidget->autoAcceptTransfer(Settings::getInstance().getAutoAcceptDir(f->getToxID()));
-        }
+        ChatLineContentProxy* proxy = static_cast<ChatLineContentProxy*>(msg->getContent(1));
+        assert(proxy->getWidgetType() == ChatLineContentProxy::FileTransferWidgetType);
+        FileTransferWidget* tfWidget = static_cast<FileTransferWidget*>(proxy->getWidget());
+        tfWidget->autoAcceptTransfer(Settings::getInstance().getAutoAcceptDir(f->getToxId()));
     }
 }
 
@@ -239,8 +247,8 @@ void ChatForm::onAvInvite(uint32_t FriendId, int CallId, bool video)
     videoButton->disconnect();
     if (video)
     {
-        callConfirm = new CallConfirmWidget(videoButton);
-        if (isVisible())
+        callConfirm = new CallConfirmWidget(videoButton, *f);
+        if (Widget::getInstance()->isFriendWidgetCurActiveWidget(f))
             callConfirm->show();
 
         connect(callConfirm, &CallConfirmWidget::accepted, this, &ChatForm::onAnswerCallTriggered);
@@ -254,8 +262,8 @@ void ChatForm::onAvInvite(uint32_t FriendId, int CallId, bool video)
     }
     else
     {
-        callConfirm = new CallConfirmWidget(callButton);
-        if (isVisible())
+        callConfirm = new CallConfirmWidget(callButton, *f);
+        if (Widget::getInstance()->isFriendWidgetCurActiveWidget(f))
             callConfirm->show();
 
         connect(callConfirm, &CallConfirmWidget::accepted, this, &ChatForm::onAnswerCallTriggered);
@@ -407,6 +415,8 @@ void ChatForm::onAvStarting(uint32_t FriendId, int CallId, bool video)
         return;
 
     qDebug() << "onAvStarting";
+
+    callId = CallId;
 
     callButton->disconnect();
     videoButton->disconnect();
@@ -792,10 +802,10 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
         }
     }
 
-    auto msgs = HistoryKeeper::getInstance()->getChatHistory(HistoryKeeper::ctSingle, f->getToxID().publicKey, since, now);
+    auto msgs = HistoryKeeper::getInstance()->getChatHistory(HistoryKeeper::ctSingle, f->getToxId().publicKey, since, now);
 
-    ToxID storedPrevId = previousId;
-    ToxID prevId;
+    ToxId storedPrevId = previousId;
+    ToxId prevId;
 
     QList<ChatLine::Ptr> historyMessages;
 
@@ -813,14 +823,14 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
         }
 
         // Show each messages
-        ToxID authorId = ToxID::fromString(it.sender);
-        QString authorStr = authorId.isMine() ? Core::getInstance()->getUsername() : resolveToxID(authorId);
-        bool isAction = it.message.startsWith("/me ");
+        ToxId authorId = ToxId(it.sender);
+        QString authorStr = authorId.isActiveProfile() ? Core::getInstance()->getUsername() : resolveToxId(authorId);
+        bool isAction = it.message.startsWith("/me ", Qt::CaseInsensitive);
 
         ChatMessage::Ptr msg = ChatMessage::createChatMessage(authorStr,
                                                               isAction ? it.message.right(it.message.length() - 4) : it.message,
                                                               isAction ? ChatMessage::ACTION : ChatMessage::NORMAL,
-                                                              authorId.isMine(),
+                                                              authorId.isActiveProfile(),
                                                               QDateTime());
 
         if (!isAction && (prevId == authorId) && (prevMsgDateTime.secsTo(msgDateTime) < getChatLog()->repNameAfter) )
@@ -829,7 +839,7 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
         prevId = authorId;
         prevMsgDateTime = msgDateTime;
 
-        if (it.isSent || !authorId.isMine())
+        if (it.isSent || !authorId.isActiveProfile())
         {
             msg->markAsSent(msgDateTime);
         }
@@ -863,7 +873,7 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
 void ChatForm::onScreenshotClicked()
 {
     doScreenshot();
-    
+
     // Give the window manager a moment to open the fullscreen grabber window
     QTimer::singleShot(500, this, SLOT(hideFileMenu()));
 }
@@ -873,28 +883,28 @@ void ChatForm::doScreenshot()
     ScreenshotGrabber* screenshotGrabber = new ScreenshotGrabber(this);
     connect(screenshotGrabber, &ScreenshotGrabber::screenshotTaken, this, &ChatForm::onScreenshotTaken);
     screenshotGrabber->showGrabber();
+    // Create dir for screenshots
+    QDir(Settings::getInstance().getSettingsDirPath()).mkdir("screenshots");
 }
 
 void ChatForm::onScreenshotTaken(const QPixmap &pixmap) {
-	QTemporaryFile file("qTox-Screenshot-XXXXXXXX.png");
-	
+    QTemporaryFile file(Settings::getInstance().getSettingsDirPath()+"screenshots"+QDir::separator()+"qTox-Screenshot-XXXXXXXX.png");
 	if (!file.open())
 	{
 	    QMessageBox::warning(this, tr("Failed to open temporary file", "Temporary file for screenshot"),
 	                         tr("qTox wasn't able to save the screenshot"));
 	    return;
 	}
-	
+
 	file.setAutoRemove(false);
-	
+
 	pixmap.save(&file, "PNG");
-	
+
 	long long filesize = file.size();
 	file.close();
 	QFileInfo fi(file);
-	
+
 	emit sendFile(f->getFriendID(), fi.fileName(), fi.filePath(), filesize);
-        
 }
 
 void ChatForm::onLoadHistory()
@@ -967,10 +977,8 @@ void ChatForm::setFriendTyping(bool isTyping)
 {
     chatWidget->setTypingNotificationVisible(isTyping);
 
-    Text* text = dynamic_cast<Text*>(chatWidget->getTypingNotification()->getContent(1));
-
-    if (text)
-        text->setText("<div class=typing>" + QString("%1 is typing").arg(f->getDisplayedName()) + "</div>");
+    Text* text = static_cast<Text*>(chatWidget->getTypingNotification()->getContent(1));
+    text->setText("<div class=typing>" + QString("%1 is typing").arg(f->getDisplayedName()) + "</div>");
 }
 
 void ChatForm::show(Ui::MainWindow &ui)
@@ -981,11 +989,19 @@ void ChatForm::show(Ui::MainWindow &ui)
         callConfirm->show();
 }
 
+void ChatForm::showEvent(QShowEvent* event)
+{
+    if (callConfirm)
+        callConfirm->show();
+
+    GenericChatForm::showEvent(event);
+}
+
 void ChatForm::hideEvent(QHideEvent* event)
 {
     if (callConfirm)
         callConfirm->hide();
-    
+
     GenericChatForm::hideEvent(event);
 }
 
@@ -999,7 +1015,7 @@ void ChatForm::SendMessageStr(QString msg)
     if (msg.isEmpty())
         return;
 
-    bool isAction = msg.startsWith("/me ");
+    bool isAction = msg.startsWith("/me ", Qt::CaseInsensitive);
     if (isAction)
         msg = msg = msg.right(msg.length() - 4);
 
@@ -1015,10 +1031,10 @@ void ChatForm::SendMessageStr(QString msg)
 
         bool status = !Settings::getInstance().getFauxOfflineMessaging();
 
-        int id = HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, qt_msg_hist,
+        int id = HistoryKeeper::getInstance()->addChatEntry(f->getToxId().publicKey, qt_msg_hist,
                                                             Core::getInstance()->getSelfId().publicKey, timestamp, status);
 
-        ChatMessage::Ptr ma = addSelfMessage(msg, isAction, timestamp, false);
+        ChatMessage::Ptr ma = addSelfMessage(qt_msg, isAction, timestamp, false);
 
         int rec;
         if (isAction)
@@ -1046,4 +1062,9 @@ void ChatForm::hideNetcam()
     netcam->hide();
     delete netcam;
     netcam = nullptr;
+}
+
+void ChatForm::retranslateUi()
+{
+    loadHistoryAction->setText(tr("Load chat history..."));
 }

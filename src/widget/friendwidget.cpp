@@ -1,15 +1,18 @@
 /*
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "friendwidget.h"
@@ -21,9 +24,9 @@
 #include "src/core/core.h"
 #include "form/chatform.h"
 #include "maskablepixmapwidget.h"
-#include "croppinglabel.h"
-#include "src/misc/style.h"
-#include "src/misc/settings.h"
+#include "src/widget/tool/croppinglabel.h"
+#include "src/widget/style.h"
+#include "src/persistence/settings.h"
 #include "src/widget/widget.h"
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -51,7 +54,7 @@ FriendWidget::FriendWidget(int FriendId, QString id)
 void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
 {
     QPoint pos = event->globalPos();
-    ToxID id = FriendList::findFriend(friendId)->getToxID();
+    ToxId id = FriendList::findFriend(friendId)->getToxId();
     QString dir = Settings::getInstance().getAutoAcceptDir(id);
     QMenu menu;
     QMenu* inviteMenu = menu.addMenu(tr("Invite to group","Menu to invite a friend to a groupchat"));
@@ -220,6 +223,8 @@ void FriendWidget::mousePressEvent(QMouseEvent *ev)
 {
     if (ev->button() == Qt::LeftButton)
         dragStartPos = ev->pos();
+
+    GenericChatroomWidget::mousePressEvent(ev);
 }
 
 void FriendWidget::mouseMoveEvent(QMouseEvent *ev)
@@ -247,8 +252,8 @@ void FriendWidget::setAlias(const QString& _alias)
     alias = alias.left(128); // same as TOX_MAX_NAME_LENGTH
     Friend* f = FriendList::findFriend(friendId);
     f->setAlias(alias);
-    Settings::getInstance().setFriendAlias(f->getToxID(), alias);
-    Settings::getInstance().save(true);
+    Settings::getInstance().setFriendAlias(f->getToxId(), alias);
+    Settings::getInstance().savePersonal();
     hide();
     show();
 }

@@ -1,21 +1,26 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "emoticonswidget.h"
-#include "src/misc/smileypack.h"
-#include "src/misc/style.h"
-#include "src/misc/settings.h"
+#include "src/widget/style.h"
+#include "src/persistence/smileypack.h"
+#include "src/persistence/settings.h"
 
 #include <QPushButton>
 #include <QRadioButton>
@@ -127,7 +132,11 @@ void EmoticonsWidget::onSmileyClicked()
     // emit insert emoticon
     QWidget* sender = qobject_cast<QWidget*>(QObject::sender());
     if (sender)
-        emit insertEmoticon(' ' + sender->property("sequence").toString() + ' ');
+    {
+        QString sequence = sender->property("sequence").toString()
+                .replace("&lt;","<").replace("&gt;",">");
+        emit insertEmoticon(' ' + sequence + ' ');
+    }
 }
 
 void EmoticonsWidget::onPageButtonClicked()
@@ -153,4 +162,34 @@ void EmoticonsWidget::mouseReleaseEvent(QMouseEvent *ev)
 
 void EmoticonsWidget::mousePressEvent(QMouseEvent*)
 {
+}
+
+void EmoticonsWidget::wheelEvent (QWheelEvent *e)
+{
+    if (e->orientation() == Qt::Vertical)
+    {
+     if (e->delta() < 0 )
+     {
+        stack.setCurrentIndex(stack.currentIndex()+1);
+     }
+     else
+     {
+            stack.setCurrentIndex(stack.currentIndex()-1);
+     }
+    emit PageButtonsUpdate();
+
+    }
+}
+
+void EmoticonsWidget::PageButtonsUpdate()
+{
+    QList<QRadioButton*> pageButtons = this->findChildren<QRadioButton*>(QString());
+    QRadioButton *t_pageButton;
+    foreach (t_pageButton,pageButtons)
+    {
+       if ( t_pageButton->property("pageIndex").toInt()==stack.currentIndex())
+           t_pageButton->setChecked(true);
+       else
+           t_pageButton->setChecked(false);
+    }
 }

@@ -51,6 +51,7 @@
         <file>translations/hu.qm</file>
         <file>translations/it.qm</file>
         <file>translations/nl.qm</file>
+        <file>translations/no_nb.qm</file>
         <file>translations/lt.qm</file>
         <file>translations/mannol.qm</file>
         <file>translations/pirate.qm</file>
@@ -71,7 +72,6 @@
         <file>ui/chatArea/scrollBarDownArrow.svg</file>
         <file>ui/chatArea/scrollBarLeftArrow.svg</file>
         <file>ui/chatArea/scrollBarRightArrow.svg</file>
-        <file>ui/chatroomWidgets/genericChatroomWidget.css</file>
         <file>ui/emoteButton/emoteButton.css</file>
         <file>ui/emoteButton/emoteButton.svg</file>
         <file>ui/emoticonWidget/dot_page.svg</file>
@@ -118,5 +118,6 @@
         <file>ui/acceptCall/acceptCall.svg</file>
         <file>ui/rejectCall/rejectCall.svg</file>
         <file>ui/volButton/volButtonDisabled.png</file>
+        <file>img/login_logo.svg</file>
     </qresource>
 </RCC>

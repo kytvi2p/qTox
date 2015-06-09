@@ -1,3 +1,23 @@
+/*
+    Copyright © 2015 by The qTox Project
+
+    This file is part of qTox, a Qt-based graphical interface for Tox.
+
+    qTox is libre software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef GUI_H
 #define GUI_H
 
@@ -15,6 +35,8 @@ public:
     static GUI& getInstance();
     /// Returns the main QWidget* of the application
     static QWidget* getMainWidget();
+    /// Clear the GUI's contact list
+    static void clearContacts();
     /// Will enable or disable the GUI.
     /// A disabled GUI can't be interacted with by the user
     static void setEnabled(bool state);
@@ -64,6 +86,7 @@ private:
 
     // Private implementation, those must be called from the GUI thread
 private slots:
+    void _clearContacts();
     void _setEnabled(bool state);
     void _setWindowTitle(const QString& title);
     void _reloadTheme();
