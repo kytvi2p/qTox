@@ -23,18 +23,19 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET    = qtox
 TEMPLATE  = app
 FORMS    += \
+    src/android.ui \
+    src/loginscreen.ui \
     src/mainwindow.ui \
-    src/widget/form/settings/generalsettings.ui \
-    src/widget/form/settings/avsettings.ui \
-    src/widget/form/settings/privacysettings.ui \
+    src/chatlog/content/filetransferwidget.ui \
     src/widget/form/profileform.ui \
     src/widget/form/loadhistorydialog.ui \
     src/widget/form/setpassworddialog.ui \
-    src/chatlog/content/filetransferwidget.ui \
+    src/widget/form/settings/aboutsettings.ui \
     src/widget/form/settings/advancedsettings.ui \
-    src/android.ui \
-    src/loginscreen.ui
-    
+    src/widget/form/settings/avsettings.ui \
+    src/widget/form/settings/generalsettings.ui \
+    src/widget/form/settings/privacysettings.ui
+
 CONFIG   += c++11
 
 QMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
@@ -186,7 +187,7 @@ win32 {
             }
 
             contains(JENKINS, YES) {
-                LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxdns.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxcore.a ./libs/lib/libopenal.a ./libs/lib/libsodium.a ./libs/lib/libfilteraudio.a -lX11 -lXss -lqrencode
+                LIBS = ./libs/lib/libtoxav.a ./libs/lib/libvpx.a ./libs/lib/libopus.a ./libs/lib/libtoxdns.a ./libs/lib/libtoxencryptsave.a ./libs/lib/libtoxcore.a ./libs/lib/libopenal.a ./libs/lib/libsodium.a ./libs/lib/libfilteraudio.a ./libs/lib/libavformat.so ./libs/lib/libavdevice.so ./libs/lib/libavcodec.so ./libs/lib/libavutil.so ./libs/lib/libswscale.so -ldl -lX11 -lXss -lqrencode
                 contains(ENABLE_SYSTRAY_UNITY_BACKEND, YES) {
                     LIBS += -lgobject-2.0 -lappindicator -lgtk-x11-2.0
                 }
@@ -205,6 +206,7 @@ contains(ENABLE_SYSTRAY_UNITY_BACKEND, YES) {
 	INCLUDEPATH += "/usr/include/gtk-2.0"
 	INCLUDEPATH += "/usr/include/atk-1.0"
 	INCLUDEPATH += "/usr/include/cairo"
+	INCLUDEPATH += "/usr/include/ffmpeg"
 	INCLUDEPATH += "/usr/include/gdk-pixbuf-2.0"
 	INCLUDEPATH += "/usr/include/libappindicator-0.1"
 	INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
@@ -236,6 +238,7 @@ contains(ENABLE_SYSTRAY_STATUSNOTIFIER_BACKEND, NO) {
 	INCLUDEPATH += "/usr/include/gtk-2.0"
 	INCLUDEPATH += "/usr/include/atk-1.0"
 	INCLUDEPATH += "/usr/include/cairo"
+	INCLUDEPATH += "/usr/include/ffmpeg"
 	INCLUDEPATH += "/usr/include/gdk-pixbuf-2.0"
 	INCLUDEPATH += "/usr/include/pango-1.0"
 	equals(QT_ARCH, x86_64) {
@@ -324,6 +327,7 @@ contains(ENABLE_SYSTRAY_GTK_BACKEND, NO) {
         src/chatlog/chatmessage.h \
         src/chatlog/content/image.h \
         src/chatlog/customtextdocument.h \
+        src/widget/form/settings/aboutform.h \
         src/widget/form/settings/advancedform.h \
         src/chatlog/content/notificationicon.h \
         src/chatlog/content/timestamp.h \
@@ -413,6 +417,7 @@ contains(ENABLE_SYSTRAY_GTK_BACKEND, NO) {
         src/chatlog/chatmessage.cpp \
         src/chatlog/content/image.cpp \
         src/chatlog/customtextdocument.cpp\
+        src/widget/form/settings/aboutform.cpp \
         src/widget/form/settings/advancedform.cpp \
         src/chatlog/content/notificationicon.cpp \
         src/chatlog/content/timestamp.cpp \
@@ -481,7 +486,9 @@ SOURCES += \
     src/core/toxid.cpp \
     src/persistence/profile.cpp \
     src/widget/translator.cpp \
-    src/persistence/settingsserializer.cpp
+    src/persistence/settingsserializer.cpp \
+    src/widget/notificationscrollarea.cpp \
+    src/widget/notificationedgewidget.cpp
 
 HEADERS += \
     src/audio/audio.h \
@@ -517,4 +524,6 @@ HEADERS += \
     src/core/toxid.h \
     src/persistence/profile.h \
     src/widget/translator.h \
-    src/persistence/settingsserializer.h
+    src/persistence/settingsserializer.h \
+    src/widget/notificationscrollarea.h \
+    src/widget/notificationedgewidget.h
