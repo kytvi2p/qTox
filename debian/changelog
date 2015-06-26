@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150625.r3186-1~trusty+1) trusty; urgency=medium
+
+  * Backport to Trusty
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 26 Jun 2015 17:52:46 +0000
+
 qtox (0.0.0+git20150625.r3186-1) unstable; urgency=medium
 
   [ PKEv ]
@@ -492,12 +498,6 @@ qtox (0.0.0+git20150526.r2981-1) stable; urgency=medium
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 26 May 2015 20:45:06 +0000
 
-qtox (0.0.0+git20150512.r2844-1~trusty+1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 14 May 2015 13:12:28 +0000
-
 qtox (0.0.0+git20150512.r2844-1) stable; urgency=medium
 
   [ kushagra ]
@@ -892,12 +892,6 @@ qtox (0.0.0+git20150320.r2609-1) unstable; urgency=medium
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Mar 2015 00:33:21 +0000
 
-qtox (0.0.0+git20150319.r2600-1~trusty+1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 19 Mar 2015 23:58:03 +0000
-
 qtox (0.0.0+git20150319.r2600-1) unstable; urgency=medium
 
   [ novist ]
@@ -912,12 +906,6 @@ qtox (0.0.0+git20150319.r2600-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 19 Mar 2015 20:11:03 +0000
-
-qtox (0.0.0+git20150318.r2597-1~trusty+1) trusty; urgency=medium
-
-  * Building for Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 18 Mar 2015 20:34:00 +0000
 
 qtox (0.0.0+git20150318.r2597-1) unstable; urgency=medium
 
