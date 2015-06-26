@@ -1,15 +1,18 @@
 /*
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FRIENDWIDGET_H
@@ -22,18 +25,18 @@
 class QPixmap;
 class MaskablePixmapWidget;
 
-struct FriendWidget : public GenericChatroomWidget
+struct FriendWidget final : public GenericChatroomWidget
 {
     Q_OBJECT
 public:
     FriendWidget(int FriendId, QString id);
-    void contextMenuEvent(QContextMenuEvent * event);
-    void setAsActiveChatroom();
-    void setAsInactiveChatroom();
-    void updateStatusLight();
-    void setChatForm(Ui::MainWindow &);
-    void resetEventFlags();
-    QString getStatusString();
+    virtual void contextMenuEvent(QContextMenuEvent * event) override;
+    virtual void setAsActiveChatroom() override;
+    virtual void setAsInactiveChatroom() override;
+    virtual void updateStatusLight() override;
+    virtual void setChatForm(Ui::MainWindow &) override;
+    virtual void resetEventFlags() override;
+    virtual QString getStatusString() override;
 
 signals:
     void friendWidgetClicked(FriendWidget* widget);
@@ -46,8 +49,8 @@ public slots:
     void setAlias(const QString& alias);
 
 protected:
-    void mousePressEvent(QMouseEvent* ev);
-    void mouseMoveEvent(QMouseEvent* ev);
+    virtual void mousePressEvent(QMouseEvent* ev) final override;
+    virtual void mouseMoveEvent(QMouseEvent* ev) final  override;
     void setFriendAlias();
 
 public:

@@ -9,9 +9,8 @@ TRANSLATIONS = translations/es.ts \
                translations/hu.ts \
                translations/it.ts \
                translations/nl.ts \
+               translations/no_nb.ts \
                translations/lt.ts \
-               translations/mannol.ts \
-               translations/pirate.ts \
                translations/pl.ts \
                translations/ru.ts \
                translations/sl.ts \

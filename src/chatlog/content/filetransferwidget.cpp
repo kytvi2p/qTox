@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "filetransferwidget.h"
@@ -17,7 +22,7 @@
 
 #include "src/nexus.h"
 #include "src/core/core.h"
-#include "src/misc/style.h"
+#include "src/widget/style.h"
 #include "src/widget/widget.h"
 
 #include <QMouseEvent>
@@ -401,46 +406,46 @@ void FileTransferWidget::setupButtons()
     switch(fileInfo.status)
     {
     case ToxFile::TRANSMITTING:
-        ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/no.svg"));
-        ui->topButton->setObjectName("cancel");
-        ui->topButton->setToolTip(tr("Cancel transfer"));
+        ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/no.svg"));
+        ui->bottomButton->setObjectName("cancel");
+        ui->bottomButton->setToolTip(tr("Cancel transfer"));
 
-        ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/pause.svg"));
-        ui->bottomButton->setObjectName("pause");
-        ui->bottomButton->setToolTip(tr("Pause transfer"));
+        ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/pause.svg"));
+        ui->topButton->setObjectName("pause");
+        ui->topButton->setToolTip(tr("Pause transfer"));
 
         setButtonColor(Style::getColor(Style::Green));
 
         break;
     case ToxFile::PAUSED:
-        ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/no.svg"));
-        ui->topButton->setObjectName("cancel");
-        ui->topButton->setToolTip(tr("Cancel transfer"));
+        ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/no.svg"));
+        ui->bottomButton->setObjectName("cancel");
+        ui->bottomButton->setToolTip(tr("Cancel transfer"));
 
-        ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/arrow_white.svg"));
-        ui->bottomButton->setObjectName("resume");
-        ui->bottomButton->setToolTip(tr("Resume transfer"));
+        ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/arrow_white.svg"));
+        ui->topButton->setObjectName("resume");
+        ui->topButton->setToolTip(tr("Resume transfer"));
 
         setButtonColor(Style::getColor(Style::LightGrey));
 
         break;
     case ToxFile::STOPPED:
     case ToxFile::BROKEN: //TODO: ?
-        ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/no.svg"));
-        ui->topButton->setObjectName("cancel");
-        ui->topButton->setToolTip(tr("Cancel transfer"));
+        ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/no.svg"));
+        ui->bottomButton->setObjectName("cancel");
+        ui->bottomButton->setToolTip(tr("Cancel transfer"));
 
         if (fileInfo.direction == ToxFile::SENDING)
         {
-            ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/pause.svg"));
-            ui->bottomButton->setObjectName("pause");
-            ui->bottomButton->setToolTip(tr("Pause transfer"));
+            ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/pause.svg"));
+            ui->topButton->setObjectName("pause");
+            ui->topButton->setToolTip(tr("Pause transfer"));
         }
         else
         {
-            ui->bottomButton->setIcon(QIcon(":/ui/fileTransferInstance/yes.svg"));
-            ui->bottomButton->setObjectName("accept");
-            ui->bottomButton->setToolTip(tr("Accept transfer"));
+            ui->topButton->setIcon(QIcon(":/ui/fileTransferInstance/yes.svg"));
+            ui->topButton->setObjectName("accept");
+            ui->topButton->setToolTip(tr("Accept transfer"));
         }
         break;
     }

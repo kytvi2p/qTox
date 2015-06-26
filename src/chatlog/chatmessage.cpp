@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "chatmessage.h"
@@ -21,9 +26,9 @@
 #include "content/image.h"
 #include "content/notificationicon.h"
 
-#include "src/misc/settings.h"
-#include "src/misc/smileypack.h"
-#include "src/misc/style.h"
+#include "src/persistence/settings.h"
+#include "src/persistence/smileypack.h"
+#include "src/widget/style.h"
 
 #define NAME_COL_WIDTH 90.0
 #define TIME_COL_WIDTH 90.0
@@ -47,7 +52,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
         text = SmileyPack::getInstance().smileyfied(text);
 
     //quotes (green text)
-    text = detectQuotes(detectAnchors(text));
+    text = detectQuotes(detectAnchors(text), type);
 
     switch(type)
     {
@@ -65,7 +70,7 @@ ChatMessage::Ptr ChatMessage::createChatMessage(const QString &sender, const QSt
 
     // Note: Eliding cannot be enabled for RichText items. (QTBUG-17207)
     msg->addColumn(new Text(senderText, isMe ? Style::getFont(Style::BigBold) : Style::getFont(Style::Big), true, sender, type == ACTION ? actionColor : Qt::black), ColumnFormat(NAME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
-    msg->addColumn(new Text(text, Style::getFont(Style::Big), false, type == (ACTION && isMe) ? QString("%1 %2").arg(sender, rawMessage) : rawMessage), ColumnFormat(1.0, ColumnFormat::VariableSize));
+    msg->addColumn(new Text(text, Style::getFont(Style::Big), false, ((type == ACTION) && isMe) ? QString("%1 %2").arg(sender, rawMessage) : rawMessage), ColumnFormat(1.0, ColumnFormat::VariableSize));
     msg->addColumn(new Spinner(":/ui/chatArea/spinner.svg", QSize(16, 16), 360.0/1.6), ColumnFormat(TIME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
 
     if (!date.isNull())
@@ -110,6 +115,11 @@ ChatMessage::Ptr ChatMessage::createTypingNotification()
     ChatMessage::Ptr msg = ChatMessage::Ptr(new ChatMessage);
 
     // Note: "[user]..." is just a placeholder. The actual text is set in ChatForm::setFriendTyping()
+    //
+    // FIXME: Due to circumstances, placeholder is being used in a case where
+    // user received typing notifications constantly since contact came online.
+    // This causes "[user]..." to be displayed in place of user nick, as long
+    // as user will keep typing. Issue #1280
     msg->addColumn(new NotificationIcon(QSize(18, 18)), ColumnFormat(NAME_COL_WIDTH, ColumnFormat::FixedSize, ColumnFormat::Right));
     msg->addColumn(new Text("[user]...", Style::getFont(Style::Big), false, ""), ColumnFormat(1.0, ColumnFormat::VariableSize, ColumnFormat::Left));
 
@@ -196,17 +206,24 @@ QString ChatMessage::detectAnchors(const QString &str)
     return out;
 }
 
-QString ChatMessage::detectQuotes(const QString& str)
+QString ChatMessage::detectQuotes(const QString& str, MessageType type)
 {
     // detect text quotes
     QStringList messageLines = str.split("\n");
     QString quotedText;
-    for (int i=0;i<messageLines.size();++i)
+    for (int i = 0; i < messageLines.size(); ++i)
     {
-        if (QRegExp("^(&gt;|＞)( |[[]|&gt;|[^_\\d\\W]).*").exactMatch(messageLines[i]))
-            quotedText += "<span class=quote>" + messageLines[i] + "</span>";
-        else
+        // don't quote first line in action message. This makes co-existence of
+        // quotes and action messages possible, since only first line can cause
+        // problems in case where there is quote in it used.
+        if (QRegExp("^(&gt;|＞).*").exactMatch(messageLines[i])) {
+            if (i > 0 || type != ACTION)
+                quotedText += "<span class=quote>" + messageLines[i] + "</span>";
+            else
+                quotedText += messageLines[i];
+        } else {
             quotedText += messageLines[i];
+        }
 
         if (i < messageLines.size() - 1)
             quotedText += "<br/>";

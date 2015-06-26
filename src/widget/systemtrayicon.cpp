@@ -1,12 +1,30 @@
+/*
+    Copyright © 2015 by The qTox Project
+
+    This file is part of qTox, a Qt-based graphical interface for Tox.
+
+    qTox is libre software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "systemtrayicon.h"
 #include <QString>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QFile>
 #include <QDebug>
-#include <QPainter>
-#include <QBitmap>
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
 
 SystemTrayIcon::SystemTrayIcon()
 {
@@ -42,7 +60,7 @@ SystemTrayIcon::SystemTrayIcon()
     }
     #endif
     #ifdef ENABLE_SYSTRAY_GTK_BACKEND
-    else if (desktop == "xfce" || desktop.contains("gnome"))
+    else if (desktop == "xfce" || desktop.contains("gnome") || desktop == "mate")
     {
         qDebug() << "Using GTK backend";
         backendType = SystrayBackendType::GTK;
@@ -390,16 +408,6 @@ void SystemTrayIcon::setIcon(QIcon &icon)
     #endif
     else if (backendType == SystrayBackendType::Qt)
     {
-        #ifdef Q_OS_MAC
-            // Since Qt doesn't render SVG tray icons for OSX
-            // we are forced to do this sort of a workaround!
-            QPixmap quirk(64, 64);
-            quirk.fill(Qt::transparent);
-            QPainter quirker(&quirk);
-            icon.paint(&quirker, 0, 0, 64, 64);
-            icon = QIcon(quirk);
-        #endif
-
         qtIcon->setIcon(icon);
     }
 }

@@ -1,3 +1,497 @@
+qtox (0.0.0+git20150625.r3186-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * Correct strange names is groups #1764
+
+  [ tux3 ]
+  * Fix SettingsSerializer not resetting after load
+
+  [ TheSpiritXIII ]
+  * Show edge markers for notifications
+  * Fix notification edge bound checking
+  * Don't track active chatrooms for notifications
+  * Plurilization capabilities for notification messages
+
+  [ An-dy ]
+  * Update INSTALL.md
+
+  [ Zetok Zalbavar ]
+  * Update INSTALL.md
+
+  [ Yuri ]
+  * Added missing include <errno.h>
+
+  [ PKEv ]
+  * Add friend name in removal dialog(fix #1860)
+
+  [ TheSpiritXIII ]
+  * Notifications Edge: Fix Valgrind invalid read
+
+  [ jx ]
+  * Add ffmpeg include to compile on Fedora 22
+
+  [ Zetok Zalbavar ]
+  * Improve explanations about Nospam
+
+  [ David Zero ]
+  * Added a proper About page. Closes #1668
+
+  [ Zetok Zalbavar ]
+  * README.md: fix link to wiki entry about bug reporting
+
+  [ David Zero ]
+  * Updated link to bug report guidelines
+  * Fixed commit hash translation issue
+
+  [ tux3 ]
+  * Remove old download links from README
+  * Add 'None' video device
+
+  [ Zetok Zalbavar ]
+  * Remove outdated and unmaintained mannol and Pirate translations
+
+  [ tux3 ]
+  * Update JENKINS linux build config
+
+  [ Сухарик ]
+  * fix qt 5.6 build
+
+  [ PKev ]
+  * translate "aboute page" in Russian
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 25 Jun 2015 18:42:25 +0000
+
+qtox (0.0.0+git20150609.r3150-1) unstable; urgency=medium
+
+  [ tux3 ]
+  * Faster profile settings saving
+  * Fix inconsistent constexpr
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ tux3 ]
+  * Fix font size in contact list
+  * Don't focus msg edit when non-text keys are pressed
+  * Disable RTTI
+
+  [ PKEv ]
+  * Correct Russion translation
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Fix some warnings
+  * Add final/override specifiers
+  * Fix #1837
+  * Fix #1840
+  * Fix #1841
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 09 Jun 2015 19:42:34 +0000
+
+qtox (0.0.0+git20150607.r3134-1) stable; urgency=medium
+
+  [ PKEv ]
+  * Correct screenshot 2nd monitor but only if a second monitor on the right
+    side
+  * Correct_doubled_nicks_when_copypasting
+  * Correct_style_filter_combobox fix #1681
+
+  [ Ansa89 ]
+  * Also call 'tox_add_tcp_relay()'
+
+  [ tux3 ]
+  * Re-apply toxcore tox_new compat patch
+
+  [ PKEv ]
+  * Correct_after_cpp_check style and typos
+
+  [ qwad1000 ]
+  * Updated Ukrainian translation
+
+  [ kehugter ]
+  * Updated Spanish translation. All lines translated/checked.
+
+  [ PKev ]
+  * scroll emoticon selector fix #1561
+
+  [ Fish ]
+  * Updated fr.ts and completed all the lines
+
+  [ tux3 ]
+  * Update win64 nsis script
+  * Replace OpenCV with FFmpeg
+  * Compatibility with older libavdevice
+  * More compatibility with older libavdevice
+  * Disable exceptions support
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Save video dev name in settings
+  * Implement DirectShow video dev listing
+  * Namespaces, not ctor-deleted classes
+  * Released frames are out of the freelist
+  * Implement video modesetting for dshow
+  * Disable the hue/bright/sat/contrast sliders
+  * Case-sensitive includes in windows files
+
+  [ tux3 ]
+  * Ifdef some dshow code on win only
+  * Never resize frames with Qt, use sws_scale
+  * Restore CallId param in onAvStarting
+  * Video modesetting for v4l2
+  * Only compile v4l2 support on *nix
+  * Remove video post-processing sliders
+  * Don't use tagged init
+  * X11 dekstop streaming
+  * Fix double free when switching camera
+  * Properly set desktop capture region
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Windows desktop capture (gdigrab)
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Rework README.md
+
+  [ tux3 ]
+  * Partially update INSTALL.md
+
+  [ kehugter ]
+  * Proofread Spanish translation
+  * Update to follow qTox's wiki guidelines
+  * New lines translated
+
+  [ tux3 ]
+  * Fix nullptr dereference on A/V timeout
+
+  [ PKev ]
+  * Correct redraw after filtering fix #1757 It looks a bit strange, but a
+    redraw on another call fails. Moreover, order calling functions radically
+    changes the behavior of the widget
+
+  [ Zetok Zalbavar ]
+  * Fix tab-completion for names starting with '@'
+
+  [ tux3 ]
+  * Fix crash if avdevice_list_devices fails
+  * Don't compile linux files on mac
+  * More consistent README.md
+  * Create login screen UI
+  * Add Tox logo at login
+  * Fix login screen window title
+  * Disable login screen on Android
+  * Connect LoginScreen signals
+  * Update login screen ui
+  * Use combobox for login username
+  * Scan profiles for login screen
+  * Make Nexus own and start the LoginScreen
+  * Allow to load/create from login screen
+  * Cleanly create new profiles
+  * Add tox save loading/saving to Profile
+  * Remove deprecated profile management functions
+  * Autosave on exit
+  * Implement logout button
+  * Fix profile saving on exit
+  * Implement profile deletion
+  * Implement profile renaming
+  * Remove some unused Settings methods
+  * Implement the -p option
+  * Fix crash in ~Core
+  * Use profile password for all encryption
+  * Reject passwords shorter than 6 characters
+  * Don't allow overwriting on profile rename
+  * Implement restarting toxcore
+  * Add button to delete password
+  * Add change password button
+  * Allow creating unencrypted accounts again
+  * Fix loginscreen not resetting pass confirm
+  * Consider empty encrypted history as nonexistent
+  * Allow long (32k chars) passwords
+  * Password strenght meter on login screen
+  * New password strengh function
+  * Update login logo image
+  * Don't use QVector::removeAll
+  * Limit desktop streamins FPS
+
+  [ Сухарик ]
+  * some russian translation update
+
+  [ tux3 ]
+  * Fix #1794
+
+  [ Fish ]
+  * Added precisions
+  * typo
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Small improvements of displayed strings on login screen
+
+  [ tux3 ]
+  * Translate all GUI, not just Widget
+  * Cleanup main() a bit
+  * Remove some spammy debug output
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Implment auto-login
+  * Auto focus input field in login screen
+  * Make the login screen save global settings
+  * Fix #1792
+  * Add quit (CTRL+Q) shortcut to login screen
+  * Clean Settings interface
+  * Add Settings biglock
+  * Asynchronous settings saving
+  * Properly kill all calls in ~Core
+  * Dynamic translation
+  * Auto focus the chat input box when typing
+  * Clean up Translator a little
+  * Make login screen a bit larger
+  * Improve avatar caching reliability
+  * Fix #1809 build error
+  * Fix #1806
+  * Reorganize files
+  * Fix #1037
+  * Remove some unused defines
+  * Move adjustingscrollarea.cpp
+  * Fix #1811
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ kehugter ]
+  * Translation: Spanish update
+
+  [ Zetok Zalbavar ]
+  * Fix incorrect copyright headers
+
+  [ tux3 ]
+  * Update advanced settings copyright notice
+  * Fix copyright notice date
+  * Workaround for #1817
+  * Add encrypting profile settings serializer
+  * Handle personnal save corruption better
+  * Fix #1817
+  * Fix #1819
+  * Fix #1821
+  * Better checks before cleanupCall
+  * Fix wrong assert
+  * Fix GenericChatroomWidget rigth click glitch
+  * Make compact contact list a per-profile setting
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 06 Jun 2015 23:07:36 +0000
+
+qtox (0.0.0+git20150526.r2981-1) stable; urgency=medium
+
+  [ Pro ]
+  * make /ME work
+  * change to Qt::CaseInseisitive
+
+  [ tux3 ]
+  * Minor trivial cleanups in platform/*
+  * Use GTK systray backend on MATE
+  * Fix missing includes in platform/timer_*
+
+  [ tux3 ]
+  * Fix missing includes in platform/timer_*
+  * Fix qrwidget QPainter error
+
+  [ Nick Hovaker ]
+  * Update Libsodium version in bootstrap.sh
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Invert U and V video planes back
+  * Remove the unused struct DhtServer
+  * Invert accept and reject FT buttons
+
+  [ marcel ]
+  * removed warnings
+
+  [ agilob ]
+  * style for comobobox in friendlist panel
+  * closes tux3/qtox#1657
+  * friendlist looks better on startup
+  * fix streching
+
+  [ Marcel ]
+  * replaced tabs with spaces
+  * ensure libtoxcore is installed with A/V support
+  * updated installation notes
+  * updated simple_make.sh
+  * added missing sudo in fedora install instructions
+  * filter_audio updated its api and added the parameter 'vad' in function
+    'enable_disable_filters'
+
+  [ tux3 ]
+  * Proper uninstall entry for Windows
+  * Install for all users on Windows
+
+  [ Yuri ]
+  * Copy ToxID into XA_PRIMARY clipboard too to make retrieval easier.
+
+  [ marcel ]
+  * added separate class for ToxId
+
+  [ agilob ]
+  * style for comobobox in friendlist panel
+  * closes tux3/qtox#1657
+  * friendlist looks better on startup
+
+  [ Marcel ]
+  * replaced tabs with spaces
+  * ensure libtoxcore is installed with A/V support
+  * updated installation notes
+  * updated simple_make.sh
+  * added missing sudo in fedora install instructions
+
+  [ agilob ]
+  * fix streching
+
+  [ tux3 ]
+  * Proper uninstall entry for Windows
+
+  [ Marcel ]
+  * filter_audio updated its api and added the parameter 'vad' in function
+    'enable_disable_filters'
+
+  [ tux3 ]
+  * Install for all users on Windows
+
+  [ Yuri ]
+  * Copy ToxID into XA_PRIMARY clipboard too to make retrieval easier.
+
+  [ marcel ]
+  * added documentation
+  * Renamed function isMine to isActiveProfile.
+  * added isActiveProfile function and fixed a typo
+  * replaced ToxID struct with ToxId class.
+
+  [ tux3 ]
+  * Fix tr() without QObject
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ tux3 ]
+  * Don't fallback on tox1 for inexistant tox IDs
+
+  [ Sean ]
+  * Revert "Fixing tray icon visibility issue on OS X"
+  * Revert "Fixing behaviour for a tray icon on OS X"
+
+  [ tux3 ]
+  * Correctly send avatar hashs as file_idS
+  * Fix call on null object, unititialized bool
+  * Use proper random for IPC
+
+  [ Zetok Zalbavar ]
+  * Better error message for image resizing
+  * [bootstrap.sh] Add some clarification regarding its purpose
+
+  [ dcapeletti ]
+  * Renovation and improvements to Spanish language.
+
+  [ Zetok Zalbavar ]
+  * Code consistency fixes → 's/ToxID/ToxId/'
+  * Don't quote with action messages
+
+  [ Ansa89 ]
+  * Fix needed to compile on slackware64 14.1 (with multilib)
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Properly fix quoting in action messages
+
+  [ Ansa89 ]
+  * chatmessage.cpp: detectQuotes() simplify conditional statement
+  * Italian translation: update
+
+  [ tux3 ]
+  * Update busy icons
+
+  [ PKEv ]
+  * Correct for win install
+
+  [ TheLastProject ]
+  * Update profileform.cpp
+
+  [ ovitei ]
+  * added Norwegian Bokmal (nb_NO) translations
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Zetok Zalbavar ]
+  * Improve error message when profile is alrady used
+  * Update Polish translation
+
+  [ saneki ]
+  * Updated for latest toxcore api
+
+  [ Daniel Hrabovcak ]
+  * Group audio not being reset
+  * Add al delete to group leave
+  * Fix compile issues
+  * For range loops
+
+  [ tux3 ]
+  * Revert "Updated for latest toxcore api"
+
+  [ Zetok Zalbavar ]
+  * Fix quoting; everything after '>' is a quote
+
+  [ Сухарик ]
+  * use toxcore error codes
+
+  [ Diadlo ]
+  * Update translation/ru.ts
+
+  [ tux3 ]
+  * Fix failedToStart/badProxy blocking signals
+  * Recover if tox fails to start
+
+  [ Diadlo ]
+  * Fix russian translation
+
+  [ PKEv ]
+  * Correct duplication long messages on sender side #1703 & #1697
+
+  [ Diadlo ]
+  * Update ru.ts
+
+  [ PKEv ]
+  * Creat dir for screenshots #1696
+
+  [ Zetok Zalbavar ]
+  * Make string 'Search Contacts' translatable
+
+  [ Ansa89 ]
+  * Italian translation: update
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 26 May 2015 20:45:06 +0000
+
 qtox (0.0.0+git20150512.r2844-1~trusty+1) trusty; urgency=medium
 
   * Building for Trusty

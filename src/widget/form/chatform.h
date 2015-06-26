@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CHATFORM_H
@@ -45,7 +50,7 @@ public:
     void setFriendTyping(bool isTyping);
     OfflineMsgEngine* getOfflineMsgEngine();
 
-    virtual void show(Ui::MainWindow &ui);
+    virtual void show(Ui::MainWindow &ui) final override;
 
 signals:
     void sendFile(uint32_t friendId, QString, QString, long long);
@@ -96,14 +101,17 @@ private slots:
     void onScreenshotTaken(const QPixmap &pixmap);
     void doScreenshot();
 
+private:
+    void retranslateUi();
+
 protected:
     void showNetcam();
     void hideNetcam();
     // drag & drop
-    void dragEnterEvent(QDragEnterEvent* ev);
-    void dropEvent(QDropEvent* ev);
-    void registerReceipt(int receipt, int messageID, ChatMessage::Ptr msg);
-    virtual void hideEvent(QHideEvent* event);
+    virtual void dragEnterEvent(QDragEnterEvent* ev) final override;
+    virtual void dropEvent(QDropEvent* ev) final override;
+    virtual void hideEvent(QHideEvent* event) final override;
+    virtual void showEvent(QShowEvent* event) final override;
 
 private:
     Friend* f;
@@ -116,6 +124,7 @@ private:
     QTimer *disableCallButtonsTimer;
     QElapsedTimer timeElapsed;
     OfflineMsgEngine *offlineEngine;
+    QAction* loadHistoryAction;
 
     QHash<uint, FileTransferInstance*> ftransWidgets;
     void startCounter();

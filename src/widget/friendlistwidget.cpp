@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "friendlistwidget.h"
 #include <QDebug>
@@ -65,7 +70,6 @@ QVBoxLayout* FriendListWidget::getFriendLayout(Status s)
     if (res != layouts.end())
         return res.value();
 
-    //qDebug() << "Friend Status: " << static_cast<int>(s) << " not found!";
     return layouts[static_cast<int>(Status::Online)];
 }
 
@@ -111,23 +115,29 @@ QList<GenericChatroomWidget*> FriendListWidget::getAllFriends()
     return friends;
 }
 
-void FriendListWidget::moveWidget(QWidget *w, Status s)
+void FriendListWidget::moveWidget(FriendWidget *w, Status s)
 {
     QVBoxLayout* l = getFriendLayout(s);
     l->removeWidget(w);
-    Friend* g = FriendList::findFriend(dynamic_cast<FriendWidget*>(w)->friendId);
+    Friend* g = FriendList::findFriend(w->friendId);
     for (int i = 0; i < l->count(); i++)
     {
-        FriendWidget* w1 = dynamic_cast<FriendWidget*>(l->itemAt(i)->widget());
-        if (w1 != NULL)
+        FriendWidget* w1 = static_cast<FriendWidget*>(l->itemAt(i)->widget());
+        Friend* f = FriendList::findFriend(w1->friendId);
+        if (f->getDisplayedName().localeAwareCompare(g->getDisplayedName()) > 0)
         {
-            Friend* f = FriendList::findFriend(w1->friendId);
-            if (f->getDisplayedName().localeAwareCompare(g->getDisplayedName()) > 0)
-            {
-                l->insertWidget(i,w);
-                return;
-            }
+            l->insertWidget(i,w);
+            return;
         }
     }
+    static_assert(std::is_same<decltype(w), FriendWidget*>(), "The layout must only contain FriendWidget*");
     l->addWidget(w);
+}
+
+// update widget after add/delete/hide/show
+void FriendListWidget::reDraw()
+{
+    hide();
+    show();
+    resize(QSize()); //lifehack
 }

@@ -1,29 +1,46 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "chatlinecontentproxy.h"
+#include "src/chatlog/content/filetransferwidget.h"
 #include <QLayout>
 #include <QWidget>
 #include <QPainter>
 #include <QDebug>
 
-ChatLineContentProxy::ChatLineContentProxy(QWidget* widget, int minWidth, float widthInPercent)
-    : widthMin(minWidth)
-    , widthPercent(widthInPercent)
+ChatLineContentProxy::ChatLineContentProxy(QWidget* widget, ChatLineContentProxyType type, int minWidth, float widthInPercent)
+    : widthPercent(widthInPercent)
+    , widthMin(minWidth)
+    , widgetType{type}
 {
     proxy = new QGraphicsProxyWidget(this);
     proxy->setWidget(widget);
+}
+
+ChatLineContentProxy::ChatLineContentProxy(QWidget* widget, int minWidth, float widthInPercent)
+    : ChatLineContentProxy(widget, GenericType, minWidth, widthInPercent)
+{
+}
+
+ChatLineContentProxy::ChatLineContentProxy(FileTransferWidget* widget, int minWidth, float widthInPercent)
+    : ChatLineContentProxy(widget, FileTransferWidgetType, minWidth, widthInPercent)
+{
 }
 
 QRectF ChatLineContentProxy::boundingRect() const
@@ -52,4 +69,9 @@ QWidget *ChatLineContentProxy::getWidget() const
 void ChatLineContentProxy::setWidth(qreal width)
 {
     proxy->widget()->setFixedWidth(qMax(static_cast<int>(width*widthPercent), widthMin));
+}
+
+ChatLineContentProxy::ChatLineContentProxyType ChatLineContentProxy::getWidgetType() const
+{
+    return widgetType;
 }
