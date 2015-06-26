@@ -1,5 +1,5 @@
 /*
-    Copyright © 2014 by The qTox Project
+    Copyright © 2014-2015 by The qTox Project
 
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
@@ -17,20 +17,34 @@
     along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADJUSTINGSCROLLAREA_H
-#define ADJUSTINGSCROLLAREA_H
+#ifndef ABOUTFORM_H
+#define ABOUTFORM_H
 
-#include <QScrollArea>
+#include "genericsettings.h"
 
-class AdjustingScrollArea : public QScrollArea
+class Core;
+
+namespace Ui {
+class AboutSettings;
+}
+
+class AboutForm final : public GenericForm
 {
     Q_OBJECT
 public:
-    explicit AdjustingScrollArea(QWidget *parent = 0);
+    AboutForm();
+    ~AboutForm();
+    virtual QString getFormName() final override {return tr("About");}
 
 protected:
-    virtual void resizeEvent(QResizeEvent *ev) override;
-    virtual QSize sizeHint() const final override;
+
+private slots:
+
+private:
+    void retranslateUi();
+
+private:
+    Ui::AboutSettings* bodyUI;
 };
 
-#endif // ADJUSTINGSCROLLAREA_H
+#endif // ABOUTFORM_H

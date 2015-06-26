@@ -1,3 +1,69 @@
+qtox (0.0.0+git20150625.r3186-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * Correct strange names is groups #1764
+
+  [ tux3 ]
+  * Fix SettingsSerializer not resetting after load
+
+  [ TheSpiritXIII ]
+  * Show edge markers for notifications
+  * Fix notification edge bound checking
+  * Don't track active chatrooms for notifications
+  * Plurilization capabilities for notification messages
+
+  [ An-dy ]
+  * Update INSTALL.md
+
+  [ Zetok Zalbavar ]
+  * Update INSTALL.md
+
+  [ Yuri ]
+  * Added missing include <errno.h>
+
+  [ PKEv ]
+  * Add friend name in removal dialog(fix #1860)
+
+  [ TheSpiritXIII ]
+  * Notifications Edge: Fix Valgrind invalid read
+
+  [ jx ]
+  * Add ffmpeg include to compile on Fedora 22
+
+  [ Zetok Zalbavar ]
+  * Improve explanations about Nospam
+
+  [ David Zero ]
+  * Added a proper About page. Closes #1668
+
+  [ Zetok Zalbavar ]
+  * README.md: fix link to wiki entry about bug reporting
+
+  [ David Zero ]
+  * Updated link to bug report guidelines
+  * Fixed commit hash translation issue
+
+  [ tux3 ]
+  * Remove old download links from README
+  * Add 'None' video device
+
+  [ Zetok Zalbavar ]
+  * Remove outdated and unmaintained mannol and Pirate translations
+
+  [ tux3 ]
+  * Update JENKINS linux build config
+
+  [ Сухарик ]
+  * fix qt 5.6 build
+
+  [ PKev ]
+  * translate "aboute page" in Russian
+
+  [ Kill Your TV ]
+  * New usptream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 25 Jun 2015 18:42:25 +0000
+
 qtox (0.0.0+git20150609.r3150-1ubuntu1) vivid; urgency=medium
 
   * Building for Vivid
