@@ -1,17 +1,21 @@
 /*
     Copyright (C) 2013 by Maxim Biro <nurupo.contributions@gmail.com>
+    Copyright © 2014-2015 by The qTox Project
 
-    This file is part of Tox Qt GUI.
+    This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CORE_HPP
@@ -27,13 +31,15 @@
 #include "corestructs.h"
 #include "coreav.h"
 #include "coredefines.h"
+#include "toxid.h"
 
+class Profile;
 template <typename T> class QList;
-class Camera;
 class QTimer;
 class QString;
 class CString;
 class VideoSource;
+class VideoFrame;
 #ifdef QTOX_FILTER_AUDIO
 class AudioFilterer;
 #endif
@@ -42,9 +48,7 @@ class Core : public QObject
 {
     Q_OBJECT
 public:
-    enum PasswordType {ptMain = 0, ptHistory, ptCounter};
-
-    explicit Core(Camera* cam, QThread* coreThread, QString initialLoadPath);
+    explicit Core(QThread* coreThread, Profile& profile);
     static Core* getInstance(); ///< Returns the global widget's Core instance
     ~Core();
 
@@ -55,14 +59,14 @@ public:
 
     static QByteArray getSaltFromFile(QString filename);
 
-    QString getPeerName(const ToxID& id) const;
+    QString getPeerName(const ToxId& id) const;
 
     QVector<uint32_t> getFriendList() const; ///< Returns the list of friendIds in our friendlist, an empty list on error
     int getGroupNumberPeers(int groupId) const; ///< Return the number of peers in the group chat on success, or -1 on failure
     QString getGroupPeerName(int groupId, int peerId) const; ///< Get the name of a peer of a group
-    ToxID getGroupPeerToxID(int groupId, int peerId) const; ///< Get the ToxID of a peer of a group
+    ToxId getGroupPeerToxId(int groupId, int peerId) const; ///< Get the public key of a peer of a group
     QList<QString> getGroupPeerNames(int groupId) const; ///< Get the names of the peers of a group
-    QString getFriendAddress(uint32_t friendId) const; ///< Get the full address if known, or Tox ID of a friend
+    QString getFriendAddress(uint32_t friendId) const; ///< Get the full address if known, or public key of a friend
     QString getFriendUsername(uint32_t friendId) const; ///< Get the username of a friend
     bool isFriendOnline(uint32_t friendId) const; ///< Check if a friend is online. Unknown friends are considered offline.
     bool hasFriendWithAddress(const QString &addr) const; ///< Check if we have a friend by address
@@ -74,25 +78,24 @@ public:
 
     QString getUsername() const; ///< Returns our username, or an empty string on failure
     QString getStatusMessage() const; ///< Returns our status message, or an empty string on failure
-    ToxID getSelfId() const; ///< Returns our Tox ID
+    ToxId getSelfId() const; ///< Returns our Tox ID
     QPair<QByteArray, QByteArray> getKeypair() const; ///< Returns our public and private keys
 
     VideoSource* getVideoSourceFromCall(int callNumber); ///< Get a call's video source
 
     static bool anyActiveCalls(); ///< true is any calls are currently active (note: a call about to start is not yet active)
-    bool isPasswordSet(PasswordType passtype);
+    bool isPasswordSet();
     bool isReady(); ///< Most of the API shouldn't be used until Core is ready, call start() first
 
     void resetCallSources(); ///< Forces to regenerate each call's audio sources
 
 public slots:
     void start(); ///< Initializes the core, must be called before anything else
+    void reset(); ///< Reinitialized the core. Must be called from the Core thread, with the GUI thread ready to process events.
     void process(); ///< Processes toxcore events and ensure we stay connected, called by its own timer
     void bootstrapDht(); ///< Connects us to the Tox network
 
-    void saveConfiguration();
-    void saveConfiguration(const QString& path);
-    void switchConfiguration(const QString& profile); ///< Load a different profile and restart the core
+    QByteArray getToxSaveData(); ///< Returns the unencrypted tox save data
 
     void acceptFriendRequest(const QString& userId);
     void requestFriendship(const QString& friendAddress, const QString& message);
@@ -145,16 +148,14 @@ public slots:
     static bool isGroupCallMicEnabled(int groupId);
     static bool isGroupCallVolEnabled(int groupId);
 
-    void setPassword(QString& password, PasswordType passtype, uint8_t* salt = nullptr);
-    void useOtherPassword(PasswordType type);
-    void clearPassword(PasswordType passtype);
-    QByteArray encryptData(const QByteArray& data, PasswordType passtype);
-    QByteArray decryptData(const QByteArray& data, PasswordType passtype);
+    void setPassword(const QString &password, uint8_t* salt = nullptr);
+    void clearPassword();
+    QByteArray encryptData(const QByteArray& data);
+    QByteArray decryptData(const QByteArray& data);
 
 signals:
     void connected();
     void disconnected();
-    void blockingClearContacts();
 
     void friendRequestReceived(const QString& userId, const QString& message);
     void friendMessageReceived(uint32_t friendId, const QString& message, bool isAction);
@@ -273,28 +274,26 @@ private:
     static void playAudioBuffer(ALuint alSource, const int16_t *data, int samples,
                                 unsigned channels, int sampleRate);
     static void playCallVideo(void *toxav, int32_t callId, const vpx_image_t* img, void *user_data);
-    void sendCallVideo(int callId);
+    static void sendCallVideo(int callId, ToxAv* toxav, std::shared_ptr<VideoFrame> frame);
 
     bool checkConnection();
 
-    QByteArray loadToxSave(QString path);
-    bool loadEncryptedSave(QByteArray& data);
     void checkEncryptedHistory();
-    void make_tox(QByteArray savedata);
+    void makeTox(QByteArray savedata);
     void loadFriends();
 
     void checkLastOnline(uint32_t friendId);
 
     void deadifyTox();
 
+private slots:
+    void killTimers(bool onlyStop); ///< Must only be called from the Core thread
+
 private:
     Tox* tox;
     ToxAv* toxav;
-    QTimer *toxTimer, *fileTimer; //, *saveTimer;
-    Camera* camera;
-    QString loadPath; // meaningless after start() is called
-    QList<DhtServer> dhtServerList;
-    int dhtServerId;
+    QTimer *toxTimer;
+    Profile& profile;
     static ToxCall calls[TOXAV_MAX_CALLS];
 #ifdef QTOX_FILTER_AUDIO
     static AudioFilterer * filterer[TOXAV_MAX_CALLS];
@@ -303,17 +302,7 @@ private:
     QMutex messageSendMutex;
     bool ready;
 
-    TOX_PASS_KEY* pwsaltedkeys[PasswordType::ptCounter] = {nullptr}; // use the pw's hash as the "pw"
-
-    // Hack for reloading current profile if switching to an encrypted one fails.
-    // Testing the passwords before killing the current profile is perfectly doable,
-    // however it would require major refactoring;
-    // the Core class as a whole also requires major refactoring (especially to support multiple IDs at once),
-    // so I'm punting on this until then, when it would get fixed anyways
-    TOX_PASS_KEY* backupkeys[PasswordType::ptCounter] = {nullptr};
-    QString* backupProfile = nullptr;
-    void saveCurrentInformation();
-    QString loadOldInformation();
+    static TOX_PASS_KEY* encryptionKey; // use the pw's hash as the "pw"
 
     static const int videobufsize;
     static uint8_t* videobuf;

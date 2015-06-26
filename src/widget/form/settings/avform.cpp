@@ -1,21 +1,30 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "avform.h"
 #include "ui_avsettings.h"
-#include "src/misc/settings.h"
-#include "src/audio.h"
+#include "src/persistence/settings.h"
+#include "src/audio/audio.h"
+#include "src/video/camerasource.h"
+#include "src/video/cameradevice.h"
+#include "src/video/videosurface.h"
+#include "src/widget/translator.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
  #include <OpenAL/al.h>
@@ -25,13 +34,15 @@
  #include <AL/al.h>
 #endif
 
+#include <QDebug>
+
 #ifndef ALC_ALL_DEVICES_SPECIFIER
 #define ALC_ALL_DEVICES_SPECIFIER ALC_DEVICE_SPECIFIER
 #endif
 
 AVForm::AVForm() :
-    GenericForm(tr("Audio/Video"), QPixmap(":/img/settings/av.png")),
-    CamVideoSurface{nullptr}
+    GenericForm(QPixmap(":/img/settings/av.png")),
+    camVideoSurface{nullptr}, camera{nullptr}
 {
     bodyUI = new Ui::AVSettings;
     bodyUI->setupUi(this);
@@ -42,12 +53,11 @@ AVForm::AVForm() :
     bodyUI->filterAudio->setDisabled(true);
 #endif
 
-    connect(Camera::getInstance(), &Camera::propProbingFinished, this, &AVForm::onPropProbingFinished);
-    connect(Camera::getInstance(), &Camera::resolutionProbingFinished, this, &AVForm::onResProbingFinished);
-
-    auto qcomboboxIndexChanged = (void(QComboBox::*)(const QString&)) &QComboBox::currentIndexChanged;
-    connect(bodyUI->inDevCombobox, qcomboboxIndexChanged, this, &AVForm::onInDevChanged);
-    connect(bodyUI->outDevCombobox, qcomboboxIndexChanged, this, &AVForm::onOutDevChanged);
+    auto qcbxIndexChangedStr = (void(QComboBox::*)(const QString&)) &QComboBox::currentIndexChanged;
+    auto qcbxIndexChangedInt = (void(QComboBox::*)(int)) &QComboBox::currentIndexChanged;
+    connect(bodyUI->inDevCombobox, qcbxIndexChangedStr, this, &AVForm::onInDevChanged);
+    connect(bodyUI->outDevCombobox, qcbxIndexChangedStr, this, &AVForm::onOutDevChanged);
+    connect(bodyUI->videoDevCombobox, qcbxIndexChangedInt, this, &AVForm::onVideoDevChanged);
     connect(bodyUI->filterAudio, &QCheckBox::toggled, this, &AVForm::onFilterAudioToggled);
     connect(bodyUI->rescanButton, &QPushButton::clicked, this, [=](){getAudioInDevices(); getAudioOutDevices();});
     bodyUI->playbackSlider->setValue(100);
@@ -58,78 +68,146 @@ AVForm::AVForm() :
         cb->installEventFilter(this);
         cb->setFocusPolicy(Qt::StrongFocus);
     }
+
+    Translator::registerHandler(std::bind(&AVForm::retranslateUi, this), this);
 }
 
 AVForm::~AVForm()
 {
+    Translator::unregister(this);
     delete bodyUI;
+    if (camera)
+    {
+        delete camera;
+        camera = nullptr;
+    }
 }
 
-void AVForm::present()
+void AVForm::showEvent(QShowEvent*)
 {
     getAudioOutDevices();
     getAudioInDevices();
-
     createVideoSurface();
-    CamVideoSurface->setSource(Camera::getInstance());
-
-    Camera::getInstance()->probeProp(Camera::SATURATION);
-    Camera::getInstance()->probeProp(Camera::CONTRAST);
-    Camera::getInstance()->probeProp(Camera::BRIGHTNESS);
-    Camera::getInstance()->probeProp(Camera::HUE);
-    Camera::getInstance()->probeResolutions();
-	
-	bodyUI->videoModescomboBox->blockSignals(true);
-	bodyUI->videoModescomboBox->addItem(tr("Initializing Camera..."));
-	bodyUI->videoModescomboBox->blockSignals(false);
-}
-
-void AVForm::on_ContrastSlider_sliderMoved(int position)
-{
-    Camera::getInstance()->setProp(Camera::CONTRAST, position / 100.0);
-}
-
-void AVForm::on_SaturationSlider_sliderMoved(int position)
-{
-    Camera::getInstance()->setProp(Camera::SATURATION, position / 100.0);
-}
-
-void AVForm::on_BrightnessSlider_sliderMoved(int position)
-{
-    Camera::getInstance()->setProp(Camera::BRIGHTNESS, position / 100.0);
-}
-
-void AVForm::on_HueSlider_sliderMoved(int position)
-{
-    Camera::getInstance()->setProp(Camera::HUE, position / 100.0);
+    getVideoDevices();
 }
 
 void AVForm::on_videoModescomboBox_currentIndexChanged(int index)
 {
-    QSize res = bodyUI->videoModescomboBox->itemData(index).toSize();
-    Settings::getInstance().setCamVideoRes(res);
-    Camera::getInstance()->setResolution(res);
+    if (index<0 || index>=videoModes.size())
+    {
+        qWarning() << "Invalid mode index";
+        return;
+    }
+    int devIndex = bodyUI->videoDevCombobox->currentIndex();
+    if (devIndex<0 || devIndex>=videoModes.size())
+    {
+        qWarning() << "Invalid device index";
+        return;
+    }
+    QString devName = videoDeviceList[devIndex].first;
+    VideoMode mode = videoModes[index];
+    Settings::getInstance().setCamVideoRes(QSize(mode.width, mode.height));
+    camVideoSurface->setSource(nullptr);
+    if (camera)
+        delete camera;
+    camera = new CameraSource(devName, mode);
+    camVideoSurface->setSource(camera);
 }
 
-void AVForm::onPropProbingFinished(Camera::Prop prop, double val)
+void AVForm::updateVideoModes(int curIndex)
 {
-    switch (prop)
+    if (curIndex<0 || curIndex>=videoDeviceList.size())
     {
-    case Camera::BRIGHTNESS:
-        bodyUI->BrightnessSlider->setValue(val*100);
-        break;
-    case Camera::CONTRAST:
-        bodyUI->ContrastSlider->setValue(val*100);
-        break;
-    case Camera::SATURATION:
-        bodyUI->SaturationSlider->setValue(val*100);
-        break;
-    case Camera::HUE:
-        bodyUI->HueSlider->setValue(val*100);
-        break;
-    default:
-        break;
+        qWarning() << "Invalid index";
+        return;
     }
+    QString devName = videoDeviceList[curIndex].first;
+    videoModes = CameraDevice::getVideoModes(devName);
+    std::sort(videoModes.begin(), videoModes.end(),
+        [](const VideoMode& a, const VideoMode& b)
+            {return a.width!=b.width ? a.width>b.width :
+                    a.height!=b.height ? a.height>b.height :
+                    a.FPS>b.FPS;});
+    bodyUI->videoModescomboBox->blockSignals(true);
+    bodyUI->videoModescomboBox->clear();
+    int prefResIndex = -1;
+    QSize prefRes = Settings::getInstance().getCamVideoRes();
+    for (int i=0; i<videoModes.size(); ++i)
+    {
+        VideoMode mode = videoModes[i];
+        if (mode.width==prefRes.width() && mode.height==prefRes.height() && prefResIndex==-1)
+            prefResIndex = i;
+        QString str;
+        if (mode.height && mode.width)
+            str += tr("%1x%2").arg(mode.width).arg(mode.height);
+        else
+            str += tr("Default resolution");
+        if (mode.FPS)
+            str += tr(" at %1 FPS").arg(mode.FPS);
+        bodyUI->videoModescomboBox->addItem(str);
+    }
+    if (videoModes.isEmpty())
+        bodyUI->videoModescomboBox->addItem(tr("Default resolution"));
+    bodyUI->videoModescomboBox->blockSignals(false);
+    if (prefResIndex != -1)
+    {
+        bodyUI->videoModescomboBox->setCurrentIndex(prefResIndex);
+    }
+    else
+    {
+        // If the user hasn't set a preffered resolution yet,
+        // we'll pick the resolution in the middle of the list,
+        // and the best FPS for that resolution.
+        // If we picked the lowest resolution, the quality would be awful
+        // but if we picked the largest, FPS would be bad and thus quality bad too.
+        int numRes=0;
+        QSize lastSize;
+        for (int i=0; i<videoModes.size(); i++)
+        {
+            if (lastSize != QSize{videoModes[i].width, videoModes[i].height})
+            {
+                numRes++;
+                lastSize = {videoModes[i].width, videoModes[i].height};
+            }
+        }
+        int target = numRes/2;
+        numRes=0;
+        for (int i=0; i<videoModes.size(); i++)
+        {
+            if (lastSize != QSize{videoModes[i].width, videoModes[i].height})
+            {
+                numRes++;
+                lastSize = {videoModes[i].width, videoModes[i].height};
+            }
+            if (numRes==target)
+            {
+                bodyUI->videoModescomboBox->setCurrentIndex(i);
+                break;
+            }
+        }
+    }
+
+
+}
+
+void AVForm::onVideoDevChanged(int index)
+{
+    if (index<0 || index>=videoDeviceList.size())
+    {
+        qWarning() << "Invalid index";
+        return;
+    }
+    camVideoSurface->setSource(nullptr);
+    if (camera)
+    {
+        delete camera;
+        camera = nullptr;
+    }
+    QString dev = videoDeviceList[index].first;
+    Settings::getInstance().setVideoDev(dev);
+    updateVideoModes(index);
+    camera = new CameraSource(dev);
+    camVideoSurface->setSource(camera);
 }
 
 void AVForm::onResProbingFinished(QList<QSize> res)
@@ -157,17 +235,38 @@ void AVForm::onResProbingFinished(QList<QSize> res)
 
 void AVForm::hideEvent(QHideEvent *)
 {
-    if (CamVideoSurface)
+    if (camVideoSurface)
     {
-        CamVideoSurface->setSource(nullptr);
+        camVideoSurface->setSource(nullptr);
         killVideoSurface();
     }
+    if (camera)
+    {
+        delete camera;
+        camera = nullptr;
+    }
+    videoDeviceList.clear();
 }
 
-void AVForm::showEvent(QShowEvent *)
+void AVForm::getVideoDevices()
 {
-    createVideoSurface();
-    CamVideoSurface->setSource(Camera::getInstance());
+    QString settingsInDev = Settings::getInstance().getVideoDev();
+    int videoDevIndex = 0;
+    videoDeviceList = CameraDevice::getDeviceList();
+    //prevent currentIndexChanged to be fired while adding items
+    bodyUI->videoDevCombobox->blockSignals(true);
+    bodyUI->videoDevCombobox->clear();
+    for (QPair<QString, QString> device : videoDeviceList)
+    {
+        bodyUI->videoDevCombobox->addItem(device.second);
+        if (device.first == settingsInDev)
+            videoDevIndex = bodyUI->videoDevCombobox->count()-1;
+    }
+    //addItem changes currentIndex -> reset
+    bodyUI->videoDevCombobox->setCurrentIndex(-1);
+    bodyUI->videoDevCombobox->blockSignals(false);
+    bodyUI->videoDevCombobox->setCurrentIndex(videoDevIndex);
+    updateVideoModes(videoDevIndex);
 }
 
 void AVForm::getAudioInDevices()
@@ -183,16 +282,14 @@ void AVForm::getAudioInDevices()
         while (*pDeviceList)
         {
             int len = strlen(pDeviceList);
-#ifdef Q_OS_WIN32			
+#ifdef Q_OS_WIN32
             QString inDev = QString::fromUtf8(pDeviceList,len);
 #else
 			QString inDev = QString::fromLocal8Bit(pDeviceList,len);
 #endif
             bodyUI->inDevCombobox->addItem(inDev);
             if (settingsInDev == inDev)
-            {
 				inDevIndex = bodyUI->inDevCombobox->count()-1;
-            }
             pDeviceList += len+1;
         }
 		//addItem changes currentIndex -> reset
@@ -219,7 +316,7 @@ void AVForm::getAudioOutDevices()
         while (*pDeviceList)
         {
             int len = strlen(pDeviceList);
-#ifdef Q_OS_WIN32			
+#ifdef Q_OS_WIN32
             QString outDev = QString::fromUtf8(pDeviceList,len);
 #else
 			QString outDev = QString::fromLocal8Bit(pDeviceList,len);
@@ -255,30 +352,6 @@ void AVForm::onFilterAudioToggled(bool filterAudio)
     Settings::getInstance().setFilterAudio(filterAudio);
 }
 
-void AVForm::on_HueSlider_valueChanged(int value)
-{
-    Camera::getInstance()->setProp(Camera::HUE, value / 100.0);
-    bodyUI->hueMax->setText(QString::number(value));
-}
-
-void AVForm::on_BrightnessSlider_valueChanged(int value)
-{
-    Camera::getInstance()->setProp(Camera::BRIGHTNESS, value / 100.0);
-    bodyUI->brightnessMax->setText(QString::number(value));
-}
-
-void AVForm::on_SaturationSlider_valueChanged(int value)
-{
-    Camera::getInstance()->setProp(Camera::SATURATION, value / 100.0);
-    bodyUI->saturationMax->setText(QString::number(value));
-}
-
-void AVForm::on_ContrastSlider_valueChanged(int value)
-{
-    Camera::getInstance()->setProp(Camera::CONTRAST, value / 100.0);
-    bodyUI->contrastMax->setText(QString::number(value));
-}
-
 void AVForm::on_playbackSlider_valueChanged(int value)
 {
     Audio::setOutputVolume(value / 100.0);
@@ -304,22 +377,27 @@ bool AVForm::eventFilter(QObject *o, QEvent *e)
 
 void AVForm::createVideoSurface()
 {
-    if (CamVideoSurface)
+    if (camVideoSurface)
         return;
-    CamVideoSurface = new VideoSurface(bodyUI->CamFrame);
-    CamVideoSurface->setObjectName(QStringLiteral("CamVideoSurface"));
-    CamVideoSurface->setMinimumSize(QSize(160, 120));
-    bodyUI->gridLayout->addWidget(CamVideoSurface, 0, 0, 1, 1);
+    camVideoSurface = new VideoSurface(bodyUI->CamFrame);
+    camVideoSurface->setObjectName(QStringLiteral("CamVideoSurface"));
+    camVideoSurface->setMinimumSize(QSize(160, 120));
+    bodyUI->gridLayout->addWidget(camVideoSurface, 0, 0, 1, 1);
 }
 
 void AVForm::killVideoSurface()
 {
-    if (!CamVideoSurface)
+    if (!camVideoSurface)
         return;
     QLayoutItem *child;
     while ((child = bodyUI->gridLayout->takeAt(0)) != 0)
         delete child;
-    
-    delete CamVideoSurface;
-    CamVideoSurface = nullptr;
+
+    delete camVideoSurface;
+    camVideoSurface = nullptr;
+}
+
+void AVForm::retranslateUi()
+{
+    bodyUI->retranslateUi(this);
 }

@@ -1,24 +1,29 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "groupwidget.h"
 #include "src/grouplist.h"
 #include "src/group.h"
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
 #include "form/groupchatform.h"
 #include "maskablepixmapwidget.h"
-#include "src/misc/style.h"
+#include "src/widget/style.h"
 #include "src/core/core.h"
 #include <QPalette>
 #include <QMenu>
@@ -155,21 +160,6 @@ void GroupWidget::dropEvent(QDropEvent *ev)
         int friendId = ev->mimeData()->data("friend").toInt();
         Core::getInstance()->groupInviteFriend(friendId, groupId);
     }
-}
-
-void GroupWidget::keyPressEvent(QKeyEvent* ev)
-{
-    Group* g = GroupList::findGroup(groupId);
-    if (g)
-        g->getChatForm()->keyPressEvent(ev);
-
-}
-
-void GroupWidget::keyReleaseEvent(QKeyEvent* ev)
-{
-    Group* g = GroupList::findGroup(groupId);
-    if (g)
-        g->getChatForm()->keyReleaseEvent(ev);
 }
 
 void GroupWidget::setName(const QString& name)

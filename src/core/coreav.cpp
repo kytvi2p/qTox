@@ -1,26 +1,33 @@
 /*
     Copyright (C) 2013 by Maxim Biro <nurupo.contributions@gmail.com>
+    Copyright © 2014-2015 by The qTox Project
 
-    This file is part of Tox Qt GUI.
+    This file is part of qTox, a Qt-based graphical interface for Tox.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "core.h"
-#include "src/video/camera.h"
-#include "src/audio.h"
+#include "src/video/camerasource.h"
+#include "src/video/corevideosource.h"
+#include "src/video/videoframe.h"
+#include "src/audio/audio.h"
 #ifdef QTOX_FILTER_AUDIO
-#include "src/audiofilterer.h"
+#include "src/audio/audiofilterer.h"
 #endif
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
+#include <assert.h>
 #include <QDebug>
 #include <QTimer>
 
@@ -71,12 +78,13 @@ void Core::prepareCall(uint32_t friendId, int32_t callId, ToxAv* toxav, bool vid
     calls[callId].sendAudioTimer->setSingleShot(true);
     connect(calls[callId].sendAudioTimer, &QTimer::timeout, [=](){sendCallAudio(callId,toxav);});
     calls[callId].sendAudioTimer->start();
-    calls[callId].sendVideoTimer->setInterval(50);
-    calls[callId].sendVideoTimer->setSingleShot(true);
     if (calls[callId].videoEnabled)
     {
-        calls[callId].sendVideoTimer->start();
-        Camera::getInstance()->subscribe();
+        calls[callId].videoSource = new CoreVideoSource;
+        calls[callId].camera = new CameraSource;
+        calls[callId].camera->subscribe();
+        connect(calls[callId].camera, &VideoSource::frameAvailable,
+                [=](std::shared_ptr<VideoFrame> frame){sendCallVideo(callId,toxav,frame);});
     }
 
 #ifdef QTOX_FILTER_AUDIO
@@ -109,17 +117,20 @@ void Core::onAvMediaChange(void* toxav, int32_t callId, void* core)
 
     if (cap == (av_VideoEncoding|av_VideoDecoding)) // Video call
     {
-        Camera::getInstance()->subscribe();
+        emit static_cast<Core*>(core)->avMediaChange(friendId, callId, true);
+        calls[callId].videoSource = new CoreVideoSource;
+        calls[callId].camera = new CameraSource;
+        calls[callId].camera->subscribe();
         calls[callId].videoEnabled = true;
-        calls[callId].sendVideoTimer->start();
-        emit ((Core*)core)->avMediaChange(friendId, callId, true);
     }
     else // Audio call
     {
+        emit static_cast<Core*>(core)->avMediaChange(friendId, callId, false);
         calls[callId].videoEnabled = false;
-        calls[callId].sendVideoTimer->stop();
-        Camera::getInstance()->unsubscribe();
-        emit ((Core*)core)->avMediaChange(friendId, callId, false);
+        delete calls[callId].camera;
+        calls[callId].camera = nullptr;
+        calls[callId].videoSource->setDeleteOnClose(true);
+        calls[callId].videoSource = nullptr;
     }
 
     return;
@@ -222,13 +233,21 @@ void Core::cancelCall(int32_t callId, uint32_t friendId)
 
 void Core::cleanupCall(int32_t callId)
 {
+    assert(calls[callId].active);
     qDebug() << QString("cleaning up call %1").arg(callId);
     calls[callId].active = false;
     disconnect(calls[callId].sendAudioTimer,0,0,0);
     calls[callId].sendAudioTimer->stop();
-    calls[callId].sendVideoTimer->stop();
     if (calls[callId].videoEnabled)
-        Camera::getInstance()->unsubscribe();
+    {
+        delete calls[callId].camera;
+        calls[callId].camera = nullptr;
+        if (calls[callId].videoSource)
+        {
+            calls[callId].videoSource->setDeleteOnClose(true);
+            calls[callId].videoSource = nullptr;
+        }
+    }
 
     Audio::unsuscribeInput();
     toxav_kill_transmission(Core::getInstance()->toxav, callId);
@@ -314,37 +333,35 @@ void Core::playCallVideo(void*, int32_t callId, const vpx_image_t* img, void *us
     if (!calls[callId].active || !calls[callId].videoEnabled)
         return;
 
-    calls[callId].videoSource.pushVPXFrame(img);
+    calls[callId].videoSource->pushFrame(img);
 }
 
-void Core::sendCallVideo(int32_t callId)
+void Core::sendCallVideo(int32_t callId, ToxAv* toxav, std::shared_ptr<VideoFrame> vframe)
 {
     if (!calls[callId].active || !calls[callId].videoEnabled)
         return;
 
-    vpx_image frame = camera->getLastFrame().createVpxImage();
-    if (frame.w && frame.h)
+    // This frame shares vframe's buffers, we don't call vpx_img_free but just delete it
+    vpx_image* frame = vframe->toVpxImage();
+    if (frame->fmt == VPX_IMG_FMT_NONE)
     {
-        int result;
-        if ((result = toxav_prepare_video_frame(toxav, callId, videobuf, videobufsize, &frame)) < 0)
-        {
-            qDebug() << QString("toxav_prepare_video_frame: error %1").arg(result);
-            vpx_img_free(&frame);
-            calls[callId].sendVideoTimer->start();
-            return;
-        }
-
-        if ((result = toxav_send_video(toxav, callId, (uint8_t*)videobuf, result)) < 0)
-            qDebug() << QString("toxav_send_video error: %1").arg(result);
-
-        vpx_img_free(&frame);
-    }
-    else
-    {
-        qDebug("sendCallVideo: Invalid frame (bad camera ?)");
+        qWarning() << "Invalid frame";
+        delete frame;
+        return;
     }
 
-    calls[callId].sendVideoTimer->start();
+    int result;
+    if ((result = toxav_prepare_video_frame(toxav, callId, videobuf, videobufsize, frame)) < 0)
+    {
+        qDebug() << QString("toxav_prepare_video_frame: error %1").arg(result);
+        delete frame;
+        return;
+    }
+
+    if ((result = toxav_send_video(toxav, callId, (uint8_t*)videobuf, result)) < 0)
+        qDebug() << QString("toxav_send_video error: %1").arg(result);
+
+    delete frame;
 }
 
 void Core::micMuteToggle(int32_t callId)
@@ -412,9 +429,10 @@ void Core::onAvEnd(void* _toxav, int32_t call_index, void* core)
     }
     qDebug() << QString("AV end from %1").arg(friendId);
 
-    cleanupCall(call_index);
-
     emit static_cast<Core*>(core)->avEnd(friendId, call_index);
+
+    if (calls[call_index].active)
+        cleanupCall(call_index);
 }
 
 void Core::onAvRinging(void* _toxav, int32_t call_index, void* core)
@@ -452,9 +470,10 @@ void Core::onAvRequestTimeout(void* _toxav, int32_t call_index, void* core)
     }
     qDebug() << QString("AV request timeout with %1").arg(friendId);
 
-    cleanupCall(call_index);
-
     emit static_cast<Core*>(core)->avRequestTimeout(friendId, call_index);
+
+    if (calls[call_index].active)
+        cleanupCall(call_index);
 }
 
 void Core::onAvPeerTimeout(void* _toxav, int32_t call_index, void* core)
@@ -469,9 +488,10 @@ void Core::onAvPeerTimeout(void* _toxav, int32_t call_index, void* core)
     }
     qDebug() << QString("AV peer timeout with %1").arg(friendId);
 
-    cleanupCall(call_index);
-
     emit static_cast<Core*>(core)->avPeerTimeout(friendId, call_index);
+
+    if (calls[call_index].active)
+        cleanupCall(call_index);
 }
 
 
@@ -593,7 +613,7 @@ void Core::playAudioBuffer(ALuint alSource, const int16_t *data, int samples, un
 
 VideoSource *Core::getVideoSourceFromCall(int callNumber)
 {
-    return &calls[callNumber].videoSource;
+    return calls[callNumber].videoSource;
 }
 
 void Core::joinGroupCall(int groupId)
@@ -629,6 +649,8 @@ void Core::leaveGroupCall(int groupId)
     groupCalls[groupId].active = false;
     disconnect(groupCalls[groupId].sendAudioTimer,0,0,0);
     groupCalls[groupId].sendAudioTimer->stop();
+    for (ALuint source : groupCalls[groupId].alSources)
+        alDeleteSources(1, &source);
     groupCalls[groupId].alSources.clear();
     Audio::unsuscribeInput();
     delete groupCalls[groupId].sendAudioTimer;
