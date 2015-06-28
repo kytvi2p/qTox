@@ -21,13 +21,58 @@
 ##Linux
 ###Simple install
 Easy qTox install is provided for variety of distributions:
-https://wiki.tox.im/Binaries#Apt.2FAptitude_.28Debian.2C_Ubuntu.2C_Mint.2C_etc..29
 
-If your distribution is not listed, or you want/need to compile qTox, there are provided instructions.
+* [Arch](#arch)
+* [Debian, Mint, Ubuntu, etc](#debian)
+* [Gentoo](#gentoo)
+* [Slackware](#slackware)
+
+
+#### Arch
 
 **Please note that installing toxcore/qTox from AUR is not supported**, although installing other dependencies, provided that they met requirements, should be fine, unless you are installing cryptography library from AUR, which should rise red flags by itself…
 
 That being said, there are supported PKGBUILDs at https://github.com/Tox/arch-repo-tox
+
+
+<a name="debian" />
+#### Debian, Mint, Ubuntu, etc
+
+Use this script to add repository:
+```bash
+sudo sh -c 'echo "deb https://pkg.tox.chat/ nightly main" > /etc/apt/sources.list.d/tox.list'
+wget -qO - https://pkg.tox.chat/pubkey.gpg | sudo apt-key add -
+sudo apt-get install apt-transport-https
+sudo apt-get update -qq
+echo "qTox Repository Installed."
+```
+
+
+#### Gentoo
+
+qTox ebuild is available in ``tox-overlay``. To add it and install qTox you will need to have installed ``layman``:
+```bash
+emerge layman
+```
+
+After that, add overlay and install qTox:
+```bash
+layman -f
+layman -a tox-overlay
+emerge qtox
+```
+
+
+#### Slackware
+
+qTox SlackBuild and all of its dependencies can be found here:
+```bash
+http://slackbuilds.org/repository/14.1/network/qTox/
+```
+
+
+If your distribution is not listed, or you want/need to compile qTox, there are provided instructions.
+
 
 ----
 
@@ -76,12 +121,12 @@ sudo pacman -S --needed base-devel qt5 openal libxss qrencode ffmpeg
 Debian <10 / Ubuntu <15.04:
 **Note that ffmpeg is not included in those distribution version(!).**
 ```bash
-sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libxss-dev qrencode libqrencode-dev
+sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libxss-dev qrencode libqrencode-dev libglib2.0-dev libgdk-pixbuf2.0-dev libgtk2.0-dev
 ```
 
 Debian >=10 / Ubuntu >=15.04:
 ```bash
-sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libxss-dev qrencode libqrencode-dev libavutil-ffmpeg-dev libswresample-ffmpeg-dev libavcodec-ffmpeg-dev libswscale-ffmpeg-dev libavfilter-ffmpeg-dev libavdevice-ffmpeg-dev
+sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libxss-dev qrencode libqrencode-dev libavutil-ffmpeg-dev libswresample-ffmpeg-dev libavcodec-ffmpeg-dev libswscale-ffmpeg-dev libavfilter-ffmpeg-dev libavdevice-ffmpeg-dev libglib2.0-dev libgdk-pixbuf2.0-dev libgtk2.0-dev
 ```
 
 
@@ -98,12 +143,10 @@ sudo zypper install patterns-openSUSE-devel_basis libqt5-qtbase-common-devel lib
 ```
 
 Slackware:
-```bash
-You can grab SlackBuilds of the needed dependencies here:
 
-http://slackbuilds.org/repository/14.1/libraries/OpenAL/
-http://slackbuilds.org/repository/14.1/libraries/qt5/
-http://slackbuilds.org/repository/14.1/graphics/qrencode/
+List of all the ``qTox`` dependencies and their SlackBuilds can be found here:
+```bash
+http://slackbuilds.org/repository/14.1/network/qTox/
 ```
 
 ###Tox Core
@@ -131,12 +174,10 @@ sudo zypper install libsodium-devel libvpx-devel libopus-devel patterns-openSUSE
 ```
 
 Slackware:
-```bash
-You can grab SlackBuilds of the needed dependencies here:
 
-http://slackbuilds.org/repository/14.1/audio/opus/
-http://slackbuilds.org/repository/14.1/libraries/libvpx/
-http://slackbuilds.org/repository/14.1/libraries/libsodium/
+List of all the ``toxcore`` dependencies and their SlackBuilds can be found here:
+```bash
+http://slackbuilds.org/repository/14.1/network/toxcore/
 ```
 
 Now you can either follow the instructions at https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix or use the "bootstrap.sh" script located at "/home/user/qTox".
