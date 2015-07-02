@@ -1,5 +1,5 @@
 /*
-    Copyright © 2014-2015 by The qTox Project
+    Copyright © 2015 by The qTox Project
 
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
@@ -17,34 +17,42 @@
     along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ABOUTFORM_H
-#define ABOUTFORM_H
+#ifndef GENERICCHATITEMWIDGET_H
+#define GENERICCHATITEMWIDGET_H
 
-#include "genericsettings.h"
+#include <QFrame>
+#include <QLabel>
 
-class Core;
+class CroppingLabel;
 
-namespace Ui {
-class AboutSettings;
-}
-
-class AboutForm  : public GenericForm
+class GenericChatItemWidget : public QFrame
 {
     Q_OBJECT
 public:
-    AboutForm();
-    ~AboutForm();
-    virtual QString getFormName() final override {return tr("About");}
+    enum ItemType
+    {
+        GroupItem,
+        FriendOfflineItem,
+        FriendOnlineItem
+    };
+
+    GenericChatItemWidget(QWidget *parent = 0);
+
+    bool isCompact() const;
+    void setCompact(bool compact);
+
+    QString getName() const;
+
+    void searchName(const QString &searchString, bool hideAll);
+
+    Q_PROPERTY(bool compact READ isCompact WRITE setCompact)
 
 protected:
-
-private slots:
-
-private:
-    void retranslateUi();
+    CroppingLabel* nameLabel;
+    QLabel statusPic;
 
 private:
-    Ui::AboutSettings* bodyUI;
+    bool compact;
 };
 
-#endif // ABOUTFORM_H
+#endif // GENERICCHATITEMWIDGET_H

@@ -1,3 +1,115 @@
+qtox (0.0.0+git20150701.r3263-1) unstable; urgency=medium
+
+  [ Tux3 / Mlkj / !Lev.uXFMLA ]
+  * Fix video not loading when A/V tab shown
+
+  [ tux3 ]
+  * Sleep while waiting for IPC events
+
+  [ PKev ]
+  * fix the names in the history fix #1943 #1787
+  * fix sorting "by activity" #1948 fix spaces
+
+  [ PKEv ]
+  * Update friendlistwidget.cpp
+
+  [ TheSpiritXIII ]
+  * Fix activity sorting out of bounds, update activity category when changed
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 01 Jul 2015 22:43:34 +0000
+
+qtox (0.0.0+git20150628.r3252-1) unstable; urgency=medium
+
+  [ agilob ]
+  * removed unused settings attributes
+  * fix issues with global autoaccept
+
+  [ kehugter ]
+  * Translation: Spanish update
+
+  [ Daniel Hrabovcak ]
+  * Basic contact grouping
+  * Fixed sorting within contact groups
+  * Search within contact groupings
+  * Update status on contact groupings
+  * Contact grouping deleting and renaming
+  * Circle context menus
+  * Compact settings and minor circle widget cleanup
+  * Fixed group and circle illegal chars, inline renaming for friend list
+    widgets, sort circles alphabetically
+  * Fixed circle compact mode and sort bugs, inline text editing stylesheet
+  * Fix circle white box glitch, circle cycling
+  * Store circle widgets, fixed related bugs
+  * Minor circle widget base class cleanup
+  * Fix friend widget right click crash
+
+  [ TheSpiritXIII ]
+  * Fix circle settings crash regression
+  * Don't show empty circles while searching
+  * Fix circle error?
+  * Fix right click friend in circle
+  * Fix sorting and cycling bugs for circles
+  * Save circle settings after each modification
+  * Search optimizations and bug fixes, rename focus fix
+  * Update renamed friends and groups during search
+  * Minor code cleanup for circles and related
+
+  [ tux3 ]
+  * Rebase on master
+  * Fix color of circle names
+
+  [ TheSpiritXIII ]
+  * Fix circle related rebase bugs
+  * Recent list (right click empty list to test)
+  * Switch between recent and alphabetical layouts
+  * Recent list selectable from drop list, bug fixes
+  * Update activity on AV and files
+  * Allow circles to be created while sorted by activity
+  * Update activity on friendship, fix category friend removing (circles and
+    activity)
+  * Fix circles: Fix rename on creation and graphical bug
+  * Circles: Fix memory leaks and extraneous saving
+  * Circles: Fix convention, crash and activity cycling
+  * Circles: Use history for activity, fix search
+  * Circles: Sort numbers at end, too
+  * Circles: Add while searching
+  * Circles: Fix quick switch crash, remove circle crash
+  * Circles: Fix crash when creating in category where it's not visible
+  * Circles: Fix sort circles on menus, fix groupchat rename through widget,
+    improve activity sort performance
+  * Circles: Fix circle color on theme change, remove debugging stuff
+
+  [ tux3 ]
+  * Refactor a strange return-early condition
+  * Make the video code a singleton, fix multithreading bugs
+  * Better freeing of CameraSource
+  * Link with -ffmpeg libav* sonames
+  * Fix #1919
+
+  [ urras ]
+  * Update Debian dependencies
+
+  [ Zetok Zalbavar ]
+  * Update install instructions
+
+  [ tux3 ]
+  * Fix raciness of encryption API
+  * Fix circles doubling when reloaded
+
+  [ Mario Preksavec ]
+  * Slackware install procedure update
+
+  [ PKev ]
+  * translate to russian "contacts groups"
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 28 Jun 2015 19:46:04 +0000
+
 qtox (0.0.0+git20150625.r3186-1~utopic+1) utopic; urgency=medium
 
   * Building for Utopic

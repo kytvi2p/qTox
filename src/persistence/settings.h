@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QPixmap>
 #include <QMutex>
+#include <QDate>
 #include "src/core/corestructs.h"
 
 class ToxId;
@@ -174,9 +175,6 @@ public:
     bool isCurstomEmojiFont() const;
     void setCurstomEmojiFont(bool value);
 
-    QString getEmojiFontFamily() const;
-    void setEmojiFontFamily(const QString &value);
-
     int getEmojiFontPointSize() const;
     void setEmojiFontPointSize(int value);
 
@@ -210,9 +208,6 @@ public:
     void setTypingNotification(bool enabled);
 
     // State
-    bool getUseNativeStyle() const;
-    void setUseNativeStyle(bool value);
-
     QByteArray getWindowGeometry() const;
     void setWindowGeometry(const QByteArray &value);
 
@@ -228,6 +223,12 @@ public:
     QString getFriendAlias(const ToxId &id) const;
     void setFriendAlias(const ToxId &id, const QString &alias);
 
+    int getFriendCircleID(const ToxId &id) const;
+    void setFriendCircleID(const ToxId &id, int circleID);
+
+    QDate getFriendActivity(const ToxId &id) const;
+    void setFriendActivity(const ToxId &id, const QDate &date);
+
     void removeFriendSettings(const ToxId &id);
 
     bool getFauxOfflineMessaging() const;
@@ -241,6 +242,14 @@ public:
 
     bool getAutoLogin() const;
     void setAutoLogin(bool state);
+
+    int getCircleCount() const;
+    int addCircle(const QString &name = QString());
+    int removeCircle(int id);
+    QString getCircleName(int id) const;
+    void setCircleName(int id, const QString &name);
+    bool getCircleExpanded(int id) const;
+    void setCircleExpanded(int id, bool expanded);
 
     // Assume all widgets have unique names
     // Don't use it to save every single thing you want to save, use it
@@ -319,13 +328,9 @@ private:
     QString globalAutoAcceptDir;
 
     // GUI
-    bool enableSmoothAnimation;
     QString smileyPack;
-    bool customEmojiFont;
-    QString emojiFontFamily;
-    int     emojiFontPointSize;
+    int emojiFontPointSize;
     bool minimizeOnClose;
-    bool useNativeStyle;
     QByteArray windowGeometry;
     QByteArray windowState;
     QByteArray splitterState;
@@ -357,9 +362,19 @@ private:
         QString alias;
         QString addr;
         QString autoAcceptDir;
+        int circleID = -1;
+        QDate activity = QDate();
+    };
+
+    struct circleProp
+    {
+        QString name;
+        bool expanded;
     };
 
     QHash<QString, friendProp> friendLst;
+
+    QVector<circleProp> circleLst;
 
     int themeColor;
 
