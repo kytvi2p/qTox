@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CHATLOG_H
@@ -56,6 +61,7 @@ public:
 
     ChatLine::Ptr getTypingNotification() const;
     QVector<ChatLine::Ptr> getLines();
+    ChatLine::Ptr getLatestLine() const;
     // repetition interval sender name (sec)
     const uint repNameAfter = 5*60;
 
@@ -79,15 +85,15 @@ protected:
     void scrollToBottom();
     void startResizeWorker();
 
-    virtual void mouseDoubleClickEvent(QMouseEvent* ev);
-    virtual void mousePressEvent(QMouseEvent* ev);
-    virtual void mouseReleaseEvent(QMouseEvent* ev);
-    virtual void mouseMoveEvent(QMouseEvent* ev);
-    virtual void scrollContentsBy(int dx, int dy);
-    virtual void resizeEvent(QResizeEvent* ev);
-    virtual void showEvent(QShowEvent*);
-    virtual void focusInEvent(QFocusEvent* ev);
-    virtual void focusOutEvent(QFocusEvent* ev);
+    virtual void mouseDoubleClickEvent(QMouseEvent* ev) final override;
+    virtual void mousePressEvent(QMouseEvent* ev) final override;
+    virtual void mouseReleaseEvent(QMouseEvent* ev) final override;
+    virtual void mouseMoveEvent(QMouseEvent* ev) final override;
+    virtual void scrollContentsBy(int dx, int dy) final override;
+    virtual void resizeEvent(QResizeEvent* ev) final override;
+    virtual void showEvent(QShowEvent*) final override;
+    virtual void focusInEvent(QFocusEvent* ev) final override;
+    virtual void focusOutEvent(QFocusEvent* ev) final override;
 
     void updateMultiSelectionRect();
     void updateTypingNotification();
@@ -98,6 +104,9 @@ protected:
 private slots:
     void onSelectionTimerTimeout();
     void onWorkerTimeout();
+
+private:
+    void retranslateUi();
 
 private:
     enum SelectionMode {
@@ -113,6 +122,7 @@ private:
     };
 
     QAction* copyAction = nullptr;
+    QAction* selectAllAction = nullptr;
     QGraphicsScene* scene = nullptr;
     QGraphicsScene* busyScene = nullptr;
     QVector<ChatLine::Ptr> lines;
@@ -141,9 +151,6 @@ private:
     // layout
     QMargins margins = QMargins(10,10,10,10);
     qreal lineSpacing = 5.0f;
-
-
-
 };
 
 #endif // CHATLOG_H

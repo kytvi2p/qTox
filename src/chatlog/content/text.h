@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef TEXT_H
@@ -31,27 +36,27 @@ public:
 
     void setText(const QString& txt);
 
-    virtual void setWidth(qreal width) override;
+    virtual void setWidth(qreal width) final;
 
-    virtual void selectionMouseMove(QPointF scenePos) override;
-    virtual void selectionStarted(QPointF scenePos) override;
-    virtual void selectionCleared() override;
-    virtual void selectionDoubleClick(QPointF scenePos) override;
-    virtual void selectionFocusChanged(bool focusIn) override;
-    virtual bool isOverSelection(QPointF scenePos) const override;
-    virtual QString getSelectedText() const override;
+    virtual void selectionMouseMove(QPointF scenePos) final;
+    virtual void selectionStarted(QPointF scenePos) final;
+    virtual void selectionCleared() final;
+    virtual void selectionDoubleClick(QPointF scenePos) final;
+    virtual void selectionFocusChanged(bool focusIn) final;
+    virtual bool isOverSelection(QPointF scenePos) const final;
+    virtual QString getSelectedText() const final;
 
-    virtual QRectF boundingRect() const override;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    virtual QRectF boundingRect() const final;
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) final;
 
-    virtual void visibilityChanged(bool keepInMemory) override;
+    virtual void visibilityChanged(bool keepInMemory) final;
 
-    virtual qreal getAscent() const override;
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
+    virtual qreal getAscent() const final;
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) final override;
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) final override;
+    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent* event) final override;
 
-    virtual QString getText() const override;
+    virtual QString getText() const final;
 
 protected:
     // dynamic resource management

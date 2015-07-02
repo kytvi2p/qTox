@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "group.h"
@@ -38,7 +43,7 @@ Group::Group(int GroupId, QString Name, bool IsAvGroupchat)
 Group::~Group()
 {
     delete chatForm;
-    delete widget;
+    widget->deleteLater();
 }
 
 /*
@@ -66,7 +71,7 @@ void Group::removePeer(int peerId)
 
 void Group::updatePeer(int peerId, QString name)
 {
-    ToxID id = Core::getInstance()->getGroupPeerToxID(groupId, peerId);
+    ToxId id = Core::getInstance()->getGroupPeerToxId(groupId, peerId);
     QString toxid = id.publicKey;
     peers[peerId] = name;
     toxids[toxid] = name;
@@ -83,7 +88,6 @@ void Group::updatePeer(int peerId, QString name)
 
 void Group::setName(const QString& name)
 {
-    widget->setName(name);
     chatForm->setName(name);
 
     if (widget->isActive())
@@ -97,8 +101,8 @@ void Group::regeneratePeerList()
     nPeers = peers.size();
     for (int i = 0; i < nPeers; i++)
     {
-        ToxID id = Core::getInstance()->getGroupPeerToxID(groupId, i);
-        if (id.isMine())
+        ToxId id = Core::getInstance()->getGroupPeerToxId(groupId, i);
+        if (id.isActiveProfile())
             selfPeerNum = i;
 
         QString toxid = id.publicKey;
@@ -170,7 +174,7 @@ int Group::getMentionedFlag() const
     return userWasMentioned;
 }
 
-QString Group::resolveToxID(const ToxID &id) const
+QString Group::resolveToxId(const ToxId &id) const
 {
     QString key = id.publicKey;
     auto it = toxids.find(key);

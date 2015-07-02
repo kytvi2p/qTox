@@ -12,7 +12,7 @@
 | Qt           | >= 5.2.0    | core, gui, network, opengl, sql, svg, widget, xml |
 | GCC/MinGW    | >= 4.8      | C++11 enabled                                     |
 | Tox Core     | most recent | core, av                                          |
-| OpenCV       | >= 2.4.9    | core, highgui, imgproc                            |
+| FFmpeg       | >= 2.6.0    | avformat, avdevice, avcodec, avutil, swscale      |
 | OpenAL Soft  | >= 1.16.0   |                                                   |
 | filter_audio | most recent |                                                   |
 | qrencode     | >= 3.0.3    |                                                   |
@@ -21,11 +21,58 @@
 ##Linux
 ###Simple install
 Easy qTox install is provided for variety of distributions:
-https://wiki.tox.im/Binaries#Apt.2FAptitude_.28Debian.2C_Ubuntu.2C_Mint.2C_etc..29
+
+* [Arch](#arch)
+* [Debian, Mint, Ubuntu, etc](#debian)
+* [Gentoo](#gentoo)
+* [Slackware](#slackware)
+
+
+#### Arch
+
+**Please note that installing toxcore/qTox from AUR is not supported**, although installing other dependencies, provided that they met requirements, should be fine, unless you are installing cryptography library from AUR, which should rise red flags by itself…
+
+That being said, there are supported PKGBUILDs at https://github.com/Tox/arch-repo-tox
+
+
+<a name="debian" />
+#### Debian, Mint, Ubuntu, etc
+
+Use this script to add repository:
+```bash
+sudo sh -c 'echo "deb https://pkg.tox.chat/ nightly main" > /etc/apt/sources.list.d/tox.list'
+wget -qO - https://pkg.tox.chat/pubkey.gpg | sudo apt-key add -
+sudo apt-get install apt-transport-https
+sudo apt-get update -qq
+echo "qTox Repository Installed."
+```
+
+
+#### Gentoo
+
+qTox ebuild is available in ``tox-overlay``. To add it and install qTox you will need to have installed ``layman``:
+```bash
+emerge layman
+```
+
+After that, add overlay and install qTox:
+```bash
+layman -f
+layman -a tox-overlay
+emerge qtox
+```
+
+
+#### Slackware
+
+qTox SlackBuild and all of its dependencies can be found here:
+```bash
+http://slackbuilds.org/repository/14.1/network/qTox/
+```
+
 
 If your distribution is not listed, or you want/need to compile qTox, there are provided instructions.
 
-**Please note that installing toxcore/qTox from AUR is not supported**, although installing other dependencies, provided that they met requirements, should be fine, unless you are installing cryptography library from AUR, which should rise red flags by itself…
 
 ----
 
@@ -64,47 +111,42 @@ git clone https://github.com/tux3/qTox.git qTox
 
 The following steps assumes that you cloned the repository at "/home/user/qTox". If you decided to choose another location, replace corresponding parts.
 
-###GCC, Qt, OpenCV, OpanAL Soft and QRCode
+###GCC, Qt, FFmpeg, OpanAL Soft and QRCode
 
 Arch Linux:
 ```bash
-sudo pacman -S --needed base-devel qt5 opencv openal libxss qrencode
+sudo pacman -S --needed base-devel qt5 openal libxss qrencode ffmpeg
 ```
 
-Debian / Ubuntu:
+Debian <10 / Ubuntu <15.04:
+**Note that ffmpeg is not included in those distribution version(!).**
 ```bash
-sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libopencv-dev libxss-dev qrencode libqrencode-dev
+sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libxss-dev qrencode libqrencode-dev libglib2.0-dev libgdk-pixbuf2.0-dev libgtk2.0-dev
 ```
+
+Debian >=10 / Ubuntu >=15.04:
+```bash
+sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5svg5-dev libopenal-dev libxss-dev qrencode libqrencode-dev libavutil-ffmpeg-dev libswresample-ffmpeg-dev libavcodec-ffmpeg-dev libswscale-ffmpeg-dev libavfilter-ffmpeg-dev libavdevice-ffmpeg-dev libglib2.0-dev libgdk-pixbuf2.0-dev libgtk2.0-dev
+```
+
 
 Fedora:
 ```bash
-dnf group install "Development Tools"
-dnf install qt-devel qt-doc qt-creator qt5-qtsvg opencv-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
+sudo dnf group install "Development Tools"
+sudo dnf install qt-devel qt-doc qt-creator qt5-qtsvg openal-soft-devel libXScrnSaver-devel qrencode-devel
 ```
 
 openSUSE:
 
-If you are running openSUSE 13.2 you have to add the following repository to be able to install opencv-qt5.
-
-WARNING: This may break other applications that are depending on opencv.
-
 ```bash
-sudo zypper ar http://download.opensuse.org/repositories/KDE:/Extra/openSUSE_13.2/ 'openSUSE BuildService - KDE:Extra'
-```
-
-With openSUSE Tumbleweed you can continue here:
-```bash
-sudo zypper install patterns-openSUSE-devel_basis libqt5-qtbase-common-devel libqt5-qtsvg-devel libqt5-linguist libQt5Network-devel libQt5OpenGL-devel libQt5Concurrent-devel libQt5Xml-devel libQt5Sql-devel openal-soft-devel qrencode-devel libXScrnSaver-devel libQt5Sql5-sqlite opencv-qt5-devel 
+sudo zypper install patterns-openSUSE-devel_basis libqt5-qtbase-common-devel libqt5-qtsvg-devel libqt5-linguist libQt5Network-devel libQt5OpenGL-devel libQt5Concurrent-devel libQt5Xml-devel libQt5Sql-devel openal-soft-devel qrencode-devel libXScrnSaver-devel libQt5Sql5-sqlite 
 ```
 
 Slackware:
-```bash
-You can grab SlackBuilds of the needed dependencies here:
 
-http://slackbuilds.org/repository/14.1/libraries/OpenAL/
-http://slackbuilds.org/repository/14.1/libraries/qt5/
-http://slackbuilds.org/repository/14.1/libraries/opencv/
-http://slackbuilds.org/repository/14.1/graphics/qrencode/
+List of all the ``qTox`` dependencies and their SlackBuilds can be found here:
+```bash
+http://slackbuilds.org/repository/14.1/network/qTox/
 ```
 
 ###Tox Core
@@ -113,17 +155,17 @@ First of all install the dependencies of Tox Core.
 
 Arch Linux:
 ```bash
-sudo pacman -S --needed opus libvpx
+sudo pacman -S --needed opus libvpx libsodium
 ```
 
 Debian / Ubuntu:
 ```bash
-sudo apt-get install libtool autotools-dev automake checkinstall check libopus-dev libvpx-dev
+sudo apt-get install libtool autotools-dev automake checkinstall check libopus-dev libvpx-dev libsodium-dev
 ```
 
 Fedora:
 ```bash
-sudo dnf install libtool autoconf automake check check-devel
+sudo dnf install libtool autoconf automake check check-devel libsodium-devel
 ```
 
 openSUSE:
@@ -132,15 +174,14 @@ sudo zypper install libsodium-devel libvpx-devel libopus-devel patterns-openSUSE
 ```
 
 Slackware:
-```bash
-You can grab SlackBuilds of the needed dependencies here:
 
-http://slackbuilds.org/repository/14.1/audio/opus/
-http://slackbuilds.org/repository/14.1/libraries/libvpx/
+List of all the ``toxcore`` dependencies and their SlackBuilds can be found here:
+```bash
+http://slackbuilds.org/repository/14.1/network/toxcore/
 ```
 
 Now you can either follow the instructions at https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix or use the "bootstrap.sh" script located at "/home/user/qTox".
-The script will automatically download and install Tox Core and libsodium to "/home/user/qTox/libs":
+The script will automatically download and install Tox Core and libfilteraudio:
 ```bash
 cd /home/user/qTox
 ./bootstrap.sh # use -h or --help for more information
@@ -155,7 +196,9 @@ make
 sudo make install
 ```
 
-After all the dependencies are installed, compiling should be as simple as:
+###Compiling
+**Make sure that all the dependencies are installed.**  
+Now go to `/home/user/qTox/qTox` (or where you cloned) and simply run :
 ```bash
 qmake
 make
@@ -166,6 +209,17 @@ for openSUSE you have to use:
 qmake-qt5
 make
 ```
+
+(Debian / Ubuntu / Mint)
+If the compiling process stops with a missing dependency like: `... libswscale/swscale.h missing` try:
+```
+apt-file search libswscale/swscale.h
+```
+And install the package that provides the missing file.
+Start make again. Repeat if nessary until all dependencies are installed.  If you can, please note down all additional dependencies you had to install that aren't listed here, and let us know what is missing `;)`
+
+
+
 
 ###Building packages
 
@@ -179,37 +233,25 @@ packages necessary for building .debs, so be prepared to type your password for 
 
 <a name="osx" />
 ##OS X
-Please be aware that if you've tried an earlier version of this set of instructions you may have 
-installed broken libraries and packages in the proces. Please delete them before continuing.
-
-Also, if you want to use qTox and are an end user download it by clicking the download button on tox.im, 
-as the copy you'll make by following this guide is only suitable for testing.
-
 Compiling qTox on OS X for development requires 3 tools, [Xcode](https://developer.apple.com/xcode/) and [Qt 5.4+](http://www.qt.io/qt5-4/), and [homebrew](http://brew.sh).
 
-###Required tools
+###Required Libraries
 
-First, let's install the dependencies
-* ```brew install git wget```
-* ``git clone https://github.com/tux3/qTox``
+First, let's install the dependencies available via brew.
+* ```brew install git ffmpeg qrencode```
+
+Next, install [filter_audio](https://github.com/irungentoo/filter_audio) (you may delete the directory it creates afterwards):
+* ```git clone https://github.com/irungentoo/filter_audio.git```
+* ```cd filter_audio```
+* ```sudo make install```
+* ```cd ../```
+
+Finally, clone qTox and copy all dependencies:
+* ```git clone https://github.com/tux3/qTox``
 * ```cd qTox```
 
-###Libraries required to compile
-
-Now we are in the qTox folder and need our library dependencies to actually build it.
-
-We've taken the time to prepare them automatically with our CI system so if you ever have issues redownload them.
-
-* ```wget https://jenkins.libtoxcore.so/job/qTox%20OS%20X/lastSuccessfulBuild/artifact/dep.zip```
-* ```unzip dep.zip```
-
-If you do not want to download our binaries, you must compile [opencv2](http://opencv.org), [toxcore](https://github.com/irungentoo/toxcore), [opus](https://www.opus-codec.org), [vpx](http://www.webmproject.org/tools/), [filteraudio](https://github.com/irungentoo/filter_audio), and our fork of [openal](https://github.com/irungentoo/openal-soft-tox) yourself with the prefix to the libs folder.
-
-Please be aware that no one has ever successfully got this working outside of on our CI system, but we encourage you to try and provide instructions on how you did so if you do.
-
-Please be aware that you shouldn't do this on your main Mac, as it's fairly hard to successfully do this without ruining a bunch of things in the process.
-
-Everything from opencv2 to filter_audio has now been installed in this library and is ready to go.
+Finally, copy all required files. Whenever you update your brew packages, you may skip all of the above steps and simply run the following script:
+* ```sudo bash bootstrap-osx.sh```
 
 ###Compiling
 
@@ -256,19 +298,20 @@ The following steps assume that Qt is installed at "C:\Qt". If you decided to ch
 Download the MinGW installer for Windows from [sourceforge.net](http://sourceforge.net/projects/mingw/files/Installer/).
 Make sure to install MSYS (a set of Unix tools for Windows).
 The following steps assume that MinGW is installed at "C:\MinGW". If you decided to choose another location, replace corresponding parts.
+Check that the version of MinGW, corresponds to the version of the QT component!
 
-###qrencode
-Download the qrencode from http://fukuchi.org/works/qrencode/ or direct from https://code.google.com/p/qrencode-win32/source/checkout ,
-build project "..\qrencode-win32\vc8\qrcodelib\", you must copy files from release in: "qrcodelib.dll" to \qTox\libs\bin\qrcodelib.dll";
-"qrencode.h" to \qTox\libs\include\qrencode.h"; "qrcodelib.lib" to "\qTox\libs\lib\qrencode.lib" with rename!!!
+###WGet
+Download the WGet installer for Windows from(
+http://gnuwin32.sourceforge.net/packages/wget.htm).
+Install them. The following steps assume that WGet is installed at "C:\Program Files\GnuWin32\". If you decided to choose another location, replace corresponding parts.
 
 ###Setting up Path
 
 Add MinGW/MSYS/CMake binaries to the system path to make them globally accessible. 
-Open Control Panel -> System and Security -> System -> Advanced system settings -> Environment Variables...
+Open Control Panel -> System and Security -> System -> Advanced system settings -> Environment Variables...(or run "sysdm.cpl" select tab "Advanced system settings" -> button "Environment Variables")
 In the second box search for the PATH variable and press Edit...
 The input box "Variable value:" should already contain some directories. Each directory is separated with a semicolon.
-Extend the input box by adding ";C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\Program Files (x86)\CMake 2.8\bin".
+Extend the input box by adding ";C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\Program Files (x86)\CMake 2.8\bin;C:\Program Files\GnuWin32\bin".
 The very first semicolon must only be added if it is missing. CMake may be added by installer automatically.
 
 ###Cloning the Repository

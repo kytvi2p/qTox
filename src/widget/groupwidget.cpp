@@ -1,34 +1,35 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "groupwidget.h"
+#include "maskablepixmapwidget.h"
 #include "src/grouplist.h"
 #include "src/group.h"
-#include "src/misc/settings.h"
 #include "form/groupchatform.h"
-#include "maskablepixmapwidget.h"
-#include "src/misc/style.h"
+#include "src/widget/style.h"
 #include "src/core/core.h"
+#include "tool/croppinglabel.h"
 #include <QPalette>
 #include <QMenu>
 #include <QContextMenuEvent>
-#include <QMimeData>
 #include <QDragEnterEvent>
-#include <QInputDialog>
-
-#include "ui_mainwindow.h"
-
+#include <QMimeData>
 
 GroupWidget::GroupWidget(int GroupId, QString Name)
     : groupId{GroupId}
@@ -38,23 +39,39 @@ GroupWidget::GroupWidget(int GroupId, QString Name)
     statusPic.setMargin(3);
     nameLabel->setText(Name);
 
-    Group* g = GroupList::findGroup(groupId);
-    if (g)
-        statusMessageLabel->setText(GroupWidget::tr("%1 users in chat").arg(g->getPeersCount()));
-    else
-        statusMessageLabel->setText(GroupWidget::tr("0 users in chat"));
+    onUserListChanged();
 
     setAcceptDrops(true);
+
+    connect(nameLabel, &CroppingLabel::editFinished, [this](const QString &newName)
+    {
+        if (!newName.isEmpty())
+        {
+            Group* g = GroupList::findGroup(groupId);
+            emit renameRequested(this, newName);
+            emit g->getChatForm()->groupTitleChanged(groupId, newName.left(128));
+        }
+    });
 }
 
-void GroupWidget::contextMenuEvent(QContextMenuEvent * event)
+void GroupWidget::contextMenuEvent(QContextMenuEvent* event)
 {
-    QPoint pos = event->globalPos();
-    QMenu menu;
+    if (!active)
+        setBackgroundRole(QPalette::Highlight);
+
+    installEventFilter(this); // Disable leave event.
+
+    QMenu menu(this);
     QAction* setTitle = menu.addAction(tr("Set title..."));
     QAction* quitGroup = menu.addAction(tr("Quit group","Menu to quit a groupchat"));
 
-    QAction* selectedItem = menu.exec(pos);
+    QAction* selectedItem = menu.exec(event->globalPos());
+
+    removeEventFilter(this);
+
+    if (!active)
+        setBackgroundRole(QPalette::Window);
+
     if (selectedItem)
     {
         if (selectedItem == quitGroup)
@@ -63,21 +80,7 @@ void GroupWidget::contextMenuEvent(QContextMenuEvent * event)
         }
         else if (selectedItem == setTitle)
         {
-            bool ok;
-            Group* g = GroupList::findGroup(groupId);
-
-            QString alias = QInputDialog::getText(nullptr, tr("Group title"), tr("You can also set this by clicking the chat form name.\nTitle:"), QLineEdit::Normal,
-                                          nameLabel->fullText(), &ok);
-
-            if (ok && alias != nameLabel->fullText())
-                emit g->getChatForm()->groupTitleChanged(groupId, alias.left(128));
-            /* according to agilob:
-	     * “Moving mouse pointer over groupwidget results in CSS effect
-	     * mouse-over(?). Changing group title repaints only changed
-	     * element - title, the rest of the widget stays in the same CSS as it
-	     * was on mouse over. Repainting whole widget fixes style problem.”
-	     */
-            this->repaint();
+            editName();
         }
     }
 }
@@ -129,6 +132,11 @@ QString GroupWidget::getStatusString()
         return "New Message";
 }
 
+void GroupWidget::editName()
+{
+    nameLabel->editBegin();
+}
+
 void GroupWidget::setChatForm(Ui::MainWindow &ui)
 {
     Group* g = GroupList::findGroup(groupId);
@@ -146,6 +154,15 @@ void GroupWidget::dragEnterEvent(QDragEnterEvent *ev)
 {
     if (ev->mimeData()->hasFormat("friend"))
         ev->acceptProposedAction();
+
+    if (!active)
+        setBackgroundRole(QPalette::Highlight);
+}
+
+void GroupWidget::dragLeaveEvent(QDragLeaveEvent *)
+{
+    if (!active)
+        setBackgroundRole(QPalette::Window);
 }
 
 void GroupWidget::dropEvent(QDropEvent *ev)
@@ -154,22 +171,10 @@ void GroupWidget::dropEvent(QDropEvent *ev)
     {
         int friendId = ev->mimeData()->data("friend").toInt();
         Core::getInstance()->groupInviteFriend(friendId, groupId);
+
+        if (!active)
+            setBackgroundRole(QPalette::Window);
     }
-}
-
-void GroupWidget::keyPressEvent(QKeyEvent* ev)
-{
-    Group* g = GroupList::findGroup(groupId);
-    if (g)
-        g->getChatForm()->keyPressEvent(ev);
-
-}
-
-void GroupWidget::keyReleaseEvent(QKeyEvent* ev)
-{
-    Group* g = GroupList::findGroup(groupId);
-    if (g)
-        g->getChatForm()->keyReleaseEvent(ev);
 }
 
 void GroupWidget::setName(const QString& name)

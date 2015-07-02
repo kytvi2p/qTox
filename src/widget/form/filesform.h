@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FILESFORM_H
@@ -37,28 +42,20 @@ public:
 public slots:
     void onFileDownloadComplete(const QString& path);
     void onFileUploadComplete(const QString& path);
-    
+
 private slots:
     void onFileActivated(QListWidgetItem* item);
 
 private:
+    void retranslateUi();
+
+private:
     QWidget* head;
+    QIcon doneIcon;
     QLabel headLabel;
     QVBoxLayout headLayout;
-
-    /* If we really do go whole hog with listing in progress transers,
-    I should really look into the new fangled list thingy, to deactivate
-    specific items in the list */
     QTabWidget main;
     QListWidget* sent, * recvd;
-
-};
-
-class ListWidgetItem : public QListWidgetItem
-{
-    using QListWidgetItem::QListWidgetItem;
-  public:
-    QString path;
 };
 
 #endif // FILESFORM_H

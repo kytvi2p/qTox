@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "genericchatform.h"
@@ -19,12 +24,13 @@
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QShortcut>
+#include <QKeyEvent>
 
-#include "src/misc/smileypack.h"
+#include "src/persistence/smileypack.h"
 #include "src/widget/emoticonswidget.h"
-#include "src/misc/style.h"
+#include "src/widget/style.h"
 #include "src/widget/widget.h"
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/maskablepixmapwidget.h"
 #include "src/core/core.h"
@@ -35,6 +41,7 @@
 #include "src/chatlog/chatlog.h"
 #include "src/chatlog/content/timestamp.h"
 #include "src/widget/tool/flyoutoverlaywidget.h"
+#include "src/widget/translator.h"
 
 GenericChatForm::GenericChatForm(QWidget *parent)
   : QWidget(parent)
@@ -69,28 +76,22 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     msgEdit = new ChatTextEdit();
 
     sendButton = new QPushButton();
-    sendButton->setToolTip(tr("Send message"));
     emoteButton = new QPushButton();
-    emoteButton->setToolTip(tr("Smileys"));
 
     // Setting the sizes in the CSS doesn't work (glitch with high DPIs)
     fileButton = new QPushButton();
-    fileButton->setToolTip(tr("Send file(s)"));
     screenshotButton = new QPushButton;
-    screenshotButton->setToolTip(tr("Send a screenshot"));
     callButton = new QPushButton();
     callButton->setFixedSize(50,40);
-    callButton->setToolTip(tr("Start an audio call"));
     videoButton = new QPushButton();
     videoButton->setFixedSize(50,40);
-    videoButton->setToolTip(tr("Start a video call"));
     volButton = new QPushButton();
     //volButton->setFixedSize(25,20);
     volButton->setToolTip("");
     micButton = new QPushButton();
     // micButton->setFixedSize(25,20);
     micButton->setToolTip("");
-    
+
     fileFlyout = new FlyoutOverlayWidget;
     QHBoxLayout *fileLayout = new QHBoxLayout(fileFlyout);
     fileLayout->addWidget(screenshotButton);
@@ -172,8 +173,8 @@ GenericChatForm::GenericChatForm(QWidget *parent)
 
     menu.addActions(chatWidget->actions());
     menu.addSeparator();
-    menu.addAction(QIcon::fromTheme("document-save"), tr("Save chat log"), this, SLOT(onSaveLogClicked()));
-    menu.addAction(QIcon::fromTheme("edit-clear"), tr("Clear displayed messages"), this, SLOT(clearChatArea(bool)));
+    saveChatAction = menu.addAction(QIcon::fromTheme("document-save"), QString(), this, SLOT(onSaveLogClicked()));
+    clearAction = menu.addAction(QIcon::fromTheme("edit-clear"), QString(), this, SLOT(clearChatArea(bool)));
     menu.addSeparator();
 
     connect(emoteButton, &QPushButton::clicked, this, &GenericChatForm::onEmoteButtonClicked);
@@ -183,11 +184,19 @@ GenericChatForm::GenericChatForm(QWidget *parent)
 
     chatWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatArea.css"));
     headWidget->setStyleSheet(Style::getStylesheet(":/ui/chatArea/chatHead.css"));
-    
+
     fileFlyout->setFixedSize(24, 24);
     fileFlyout->setParent(this);
     fileButton->installEventFilter(this);
     fileFlyout->installEventFilter(this);
+
+    retranslateUi();
+    Translator::registerHandler(std::bind(&GenericChatForm::retranslateUi, this), this);
+}
+
+GenericChatForm::~GenericChatForm()
+{
+    Translator::unregister(this);
 }
 
 void GenericChatForm::adjustFileMenuPosition()
@@ -202,7 +211,7 @@ void GenericChatForm::showFileMenu()
     if (!fileFlyout->isShown() && !fileFlyout->isBeingShown()) {
         adjustFileMenuPosition();
     }
-    
+
     fileFlyout->animateShow();
 }
 
@@ -210,7 +219,7 @@ void GenericChatForm::hideFileMenu()
 {
     if(fileFlyout->isShown() || fileFlyout->isBeingShown())
         fileFlyout->animateHide();
-    
+
 }
 
 bool GenericChatForm::isEmpty()
@@ -221,6 +230,23 @@ bool GenericChatForm::isEmpty()
 ChatLog *GenericChatForm::getChatLog() const
 {
     return chatWidget;
+}
+
+QDate GenericChatForm::getLatestDate() const
+{
+    ChatLine::Ptr chatLine = chatWidget->getLatestLine();
+
+    if (chatLine)
+    {
+        Timestamp* timestamp = dynamic_cast<Timestamp*>(chatLine->getContent(2));
+
+        if (timestamp)
+            return timestamp->getTime().date();
+        else
+            return QDate::currentDate();
+    }
+
+    return QDate();
 }
 
 void GenericChatForm::setName(const QString &newName)
@@ -237,6 +263,24 @@ void GenericChatForm::show(Ui::MainWindow &ui)
     QWidget::show();
 }
 
+void GenericChatForm::showEvent(QShowEvent *)
+{
+    msgEdit->setFocus();
+}
+
+bool GenericChatForm::event(QEvent* e)
+{
+    // If the user accidentally starts typing outside of the msgEdit, focus it automatically
+    if (e->type() == QEvent::KeyRelease && !msgEdit->hasFocus())
+    {
+        QKeyEvent* ke = static_cast<QKeyEvent*>(e);
+        if ((ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier)
+                && !ke->text().isEmpty())
+            msgEdit->setFocus();
+    }
+    return QWidget::event(e);
+}
+
 void GenericChatForm::onChatContextMenuRequested(QPoint pos)
 {
     QWidget* sender = (QWidget*)QObject::sender();
@@ -245,10 +289,10 @@ void GenericChatForm::onChatContextMenuRequested(QPoint pos)
     menu.exec(pos);
 }
 
-ChatMessage::Ptr GenericChatForm::addMessage(const ToxID& author, const QString &message, bool isAction,
+ChatMessage::Ptr GenericChatForm::addMessage(const ToxId& author, const QString &message, bool isAction,
                                              const QDateTime &datetime, bool isSent)
 {
-    QString authorStr = author.isMine() ? Core::getInstance()->getUsername() : resolveToxID(author);
+    QString authorStr = author.isActiveProfile() ? Core::getInstance()->getUsername() : resolveToxId(author);
 
     ChatMessage::Ptr msg;
     if (isAction)
@@ -258,7 +302,7 @@ ChatMessage::Ptr GenericChatForm::addMessage(const ToxID& author, const QString 
     }
     else
     {
-        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::NORMAL, author.isMine());
+        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::NORMAL, author.isActiveProfile());
         if ( (author == previousId) && (prevMsgDateTime.secsTo(QDateTime::currentDateTime()) < getChatLog()->repNameAfter) )
             msg->hideSender();
 
@@ -279,10 +323,10 @@ ChatMessage::Ptr GenericChatForm::addSelfMessage(const QString &message, bool is
     return addMessage(Core::getInstance()->getSelfId(), message, isAction, datetime, isSent);
 }
 
-void GenericChatForm::addAlertMessage(const ToxID &author, QString message, QDateTime datetime)
+void GenericChatForm::addAlertMessage(const ToxId &author, QString message, QDateTime datetime)
 {
-    QString authorStr = resolveToxID(author);
-    ChatMessage::Ptr msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ALERT, author.isMine(), datetime);
+    QString authorStr = resolveToxId(author);
+    ChatMessage::Ptr msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ALERT, author.isActiveProfile(), datetime);
     insertChatMessage(msg);
 
     if ((author == previousId) && (prevMsgDateTime.secsTo(QDateTime::currentDateTime()) < getChatLog()->repNameAfter))
@@ -334,6 +378,10 @@ void GenericChatForm::onSaveLogClicked()
     for (ChatLine::Ptr l : lines)
     {
         Timestamp* rightCol = dynamic_cast<Timestamp*>(l->getContent(2));
+
+        if (!rightCol)
+            return;
+
         ChatLineContent* middleCol = l->getContent(1);
         ChatLineContent* leftCol = l->getContent(0);
 
@@ -372,7 +420,7 @@ void GenericChatForm::clearChatArea()
 void GenericChatForm::clearChatArea(bool notinform)
 {
     chatWidget->clear();
-    previousId = ToxID();
+    previousId = ToxId();
 
     if (!notinform)
         addSystemInfoMessage(tr("Cleared"), ChatMessage::INFO, QDateTime::currentDateTime());
@@ -388,7 +436,7 @@ void GenericChatForm::onSelectAllClicked()
     chatWidget->selectAll();
 }
 
-QString GenericChatForm::resolveToxID(const ToxID &id)
+QString GenericChatForm::resolveToxId(const ToxId &id)
 {
     Friend *f = FriendList::findFriend(id);
     if (f)
@@ -399,7 +447,7 @@ QString GenericChatForm::resolveToxID(const ToxID &id)
     {
         for (auto it : GroupList::getAllGroups())
         {
-            QString res = it->resolveToxID(id);
+            QString res = it->resolveToxId(id);
             if (res.size())
                 return res;
         }
@@ -429,33 +477,45 @@ bool GenericChatForm::eventFilter(QObject* object, QEvent* event)
 {
     if (object != this->fileButton && object != this->fileFlyout)
         return false;
-    
+
     if (!qobject_cast<QWidget*>(object)->isEnabled())
         return false;
-    
+
     switch(event->type())
     {
     case QEvent::Enter:
         showFileMenu();
         break;
-        
+
     case QEvent::Leave: {
         QPoint pos = mapFromGlobal(QCursor::pos());
         QRect fileRect(fileFlyout->pos(), fileFlyout->size());
         fileRect = fileRect.united(QRect(fileButton->pos(), fileButton->size()));
-        
+
         if (!fileRect.contains(pos))
             hideFileMenu();
-        
+
     } break;
-        
+
     case QEvent::MouseButtonPress:
         hideFileMenu();
         break;
-        
+
     default:
         break;
     }
-    
+
     return false;
+}
+
+void GenericChatForm::retranslateUi()
+{
+    sendButton->setToolTip(tr("Send message"));
+    emoteButton->setToolTip(tr("Smileys"));
+    fileButton->setToolTip(tr("Send file(s)"));
+    screenshotButton->setToolTip(tr("Send a screenshot"));
+    callButton->setToolTip(tr("Start an audio call"));
+    videoButton->setToolTip(tr("Start a video call"));
+    saveChatAction->setText(tr("Save chat log"));
+    clearAction->setText(tr("Clear displayed messages"));
 }

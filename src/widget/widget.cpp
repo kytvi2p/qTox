@@ -1,21 +1,26 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "widget.h"
 #include "ui_mainwindow.h"
 #include "src/core/core.h"
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
 #include "src/friend.h"
 #include "src/friendlist.h"
 #include "tool/friendrequestdialog.h"
@@ -24,19 +29,24 @@
 #include "src/group.h"
 #include "groupwidget.h"
 #include "form/groupchatform.h"
-#include "src/misc/style.h"
+#include "circlewidget.h"
+#include "src/widget/style.h"
 #include "friendlistwidget.h"
-#include "src/video/camera.h"
 #include "form/chatform.h"
 #include "maskablepixmapwidget.h"
-#include "src/historykeeper.h"
-#include "src/autoupdate.h"
-#include "src/audio.h"
+#include "src/persistence/historykeeper.h"
+#include "src/net/autoupdate.h"
+#include "src/audio/audio.h"
 #include "src/platform/timer.h"
 #include "systemtrayicon.h"
 #include "src/nexus.h"
 #include "src/widget/gui.h"
-#include "src/offlinemsgengine.h"
+#include "src/persistence/offlinemsgengine.h"
+#include "src/widget/translator.h"
+#include "src/widget/form/addfriendform.h"
+#include "src/widget/form/filesform.h"
+#include "src/widget/form/profileform.h"
+#include "src/widget/form/settingswidget.h"
 #include <cassert>
 #include <QMessageBox>
 #include <QDebug>
@@ -51,14 +61,12 @@
 #include <QShortcut>
 #include <QTimer>
 #include <QStyleFactory>
-#include <QTranslator>
 #include <QString>
 #include <QByteArray>
 #include <QImageReader>
 #include <QList>
 #include <QDesktopServices>
 #include <QProcess>
-#include <QLibraryInfo>
 #include <tox/tox.h>
 
 #ifdef Q_OS_ANDROID
@@ -80,14 +88,14 @@ Widget *Widget::instance{nullptr};
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),
       icon{nullptr},
+      trayMenu{nullptr},
       ui(new Ui::MainWindow),
       activeChatroomWidget{nullptr},
       eventFlag(false),
       eventIcon(false)
 {
     installEventFilter(this);
-    translator = new QTranslator;
-    setTranslation();
+    Translator::translate();
 }
 
 void Widget::init()
@@ -104,13 +112,13 @@ void Widget::init()
     restoreState(Settings::getInstance().getWindowState());
     ui->mainSplitter->restoreState(Settings::getInstance().getSplitterState());
 
-    statusOnline = new QAction(tr("Online", "Button to set your status to 'Online'"), this);
+    statusOnline = new QAction(this);
     statusOnline->setIcon(getStatusIcon(Status::Online, 10, 10));
     connect(statusOnline, SIGNAL(triggered()), this, SLOT(setStatusOnline()));
-    statusAway = new QAction(tr("Away", "Button to set your status to 'Away'"), this);
+    statusAway = new QAction(this);
     statusAway->setIcon(getStatusIcon(Status::Away, 10, 10));
     connect(statusAway, SIGNAL(triggered()), this, SLOT(setStatusAway()));
-    statusBusy = new QAction(tr("Busy", "Button to set your status to 'Busy'"), this);
+    statusBusy = new QAction(this);
     statusBusy->setIcon(getStatusIcon(Status::Busy, 10, 10));
     connect(statusBusy, SIGNAL(triggered()), this, SLOT(setStatusBusy()));
 
@@ -126,18 +134,49 @@ void Widget::init()
     ui->myProfile->insertWidget(0, profilePicture);
     ui->myProfile->insertSpacing(1, 7);
 
+    filterMenu = new QMenu(this);
+    filterGroup = new QActionGroup(this);
+    filterDisplayGroup = new QActionGroup(this);
+
+    filterDisplayName = new QAction(this);
+    filterDisplayName->setCheckable(true);
+    filterDisplayName->setChecked(true);
+    filterDisplayGroup->addAction(filterDisplayName);
+    filterMenu->addAction(filterDisplayName);
+    filterDisplayActivity = new QAction(this);
+    filterDisplayActivity->setCheckable(true);
+    filterDisplayGroup->addAction(filterDisplayActivity);
+    filterMenu->addAction(filterDisplayActivity);
+    filterMenu->addSeparator();
+
+    filterAllAction = new QAction(this);
+    filterAllAction->setCheckable(true);
+    filterAllAction->setChecked(true);
+    filterGroup->addAction(filterAllAction);
+    filterMenu->addAction(filterAllAction);
+    filterOnlineAction = new QAction(this);
+    filterOnlineAction->setCheckable(true);
+    filterGroup->addAction(filterOnlineAction);
+    filterMenu->addAction(filterOnlineAction);
+    filterOfflineAction = new QAction(this);
+    filterOfflineAction->setCheckable(true);
+    filterGroup->addAction(filterOfflineAction);
+    filterMenu->addAction(filterOfflineAction);
+    filterFriendsAction = new QAction(this);
+    filterFriendsAction->setCheckable(true);
+    filterGroup->addAction(filterFriendsAction);
+    filterMenu->addAction(filterFriendsAction);
+    filterGroupsAction = new QAction(this);
+    filterGroupsAction->setCheckable(true);
+    filterGroup->addAction(filterGroupsAction);
+    filterMenu->addAction(filterGroupsAction);
+
+    ui->searchContactFilterBox->setMenu(filterMenu);
+
     ui->mainContent->setLayout(new QVBoxLayout());
     ui->mainHead->setLayout(new QVBoxLayout());
     ui->mainHead->layout()->setMargin(0);
     ui->mainHead->layout()->setSpacing(0);
-
-    ui->searchContactFilterCBox->addItem(tr("All"));
-    ui->searchContactFilterCBox->addItem(tr("Online"));
-    ui->searchContactFilterCBox->addItem(tr("Offline"));
-    ui->searchContactFilterCBox->addItem(tr("Friends"));
-    ui->searchContactFilterCBox->addItem(tr("Groups"));
-
-    ui->searchContactText->setPlaceholderText("Search Contacts");
 
     if (QStyleFactory::keys().contains(Settings::getInstance().getStyle())
             && Settings::getInstance().getStyle() != "None")
@@ -153,9 +192,10 @@ void Widget::init()
     ui->statusPanel->setStyleSheet(Style::getStylesheet(":/ui/window/statusPanel.css"));
 #endif
 
-    contactListWidget = new FriendListWidget(0, Settings::getInstance().getGroupchatPosition());
+    contactListWidget = new FriendListWidget(this, Settings::getInstance().getGroupchatPosition());
     ui->friendList->setWidget(contactListWidget);
     ui->friendList->setLayoutDirection(Qt::RightToLeft);
+    ui->friendList->setContextMenuPolicy(Qt::CustomContextMenu);
 
     ui->statusLabel->setEditable(true);
 
@@ -196,7 +236,7 @@ void Widget::init()
     connect(ui->settingsButton, &QPushButton::clicked, this, &Widget::onSettingsClicked);
     connect(profilePicture, &MaskablePixmapWidget::clicked, this, &Widget::showProfile);
     connect(ui->nameLabel, &CroppingLabel::clicked, this, &Widget::showProfile);
-    connect(ui->statusLabel, &CroppingLabel::textChanged, this, &Widget::onStatusMessageChanged);
+    connect(ui->statusLabel, &CroppingLabel::editFinished, this, &Widget::onStatusMessageChanged);
     connect(ui->mainSplitter, &QSplitter::splitterMoved, this, &Widget::onSplitterMoved);
     connect(addFriendForm, &AddFriendForm::friendRequested, this, &Widget::friendRequested);
     connect(timer, &QTimer::timeout, this, &Widget::onUserAwayCheck);
@@ -204,7 +244,9 @@ void Widget::init()
     connect(timer, &QTimer::timeout, this, &Widget::onTryCreateTrayIcon);
     connect(offlineMsgTimer, &QTimer::timeout, this, &Widget::processOfflineMsgs);
     connect(ui->searchContactText, &QLineEdit::textChanged, this, &Widget::searchContacts);
-    connect(ui->searchContactFilterCBox, &QComboBox::currentTextChanged, this, &Widget::searchContacts);
+    connect(filterGroup, &QActionGroup::triggered, this, &Widget::searchContacts);
+    connect(filterDisplayGroup, &QActionGroup::triggered, this, &Widget::changeDisplayMode);
+    connect(ui->friendList, &QWidget::customContextMenuRequested, this, &Widget::friendListContextMenu);
 
     // keyboard shortcuts
     new QShortcut(Qt::CTRL + Qt::Key_Q, this, SLOT(close()));
@@ -220,48 +262,18 @@ void Widget::init()
     ui->settingsButton->setCheckable(true);
     setActiveToolMenuButton(Widget::AddButton);
 
+    connect(settingsWidget, &SettingsWidget::compactToggled, contactListWidget, &FriendListWidget::onCompactChanged);
     connect(settingsWidget, &SettingsWidget::groupchatPositionToggled, contactListWidget, &FriendListWidget::onGroupchatPositionChanged);
 #if (AUTOUPDATE_ENABLED)
     if (Settings::getInstance().getCheckUpdates())
         AutoUpdater::checkUpdatesAsyncInteractive();
 #endif
+
+    retranslateUi();
+    Translator::registerHandler(std::bind(&Widget::retranslateUi, this), this);
+
     if (!Settings::getInstance().getShowSystemTray())
         show();
-}
-
-void Widget::setTranslation()
-{
-    // Load translations
-    QCoreApplication::removeTranslator(translator);
-    QString locale;
-    if ((locale = Settings::getInstance().getTranslation()).isEmpty())
-        locale = QLocale::system().name().section('_', 0, 0);
-
-    if (locale == "en")
-        return;
-
-    if (translator->load(locale, ":translations/"))
-    {
-        qDebug() << "Loaded translation" << locale;
-
-        // system menu translation
-        QTranslator *qtTranslator = new QTranslator();
-        QString s_locale = "qt_"+locale;
-        if (qtTranslator->load(s_locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
-        {
-            QApplication::installTranslator(qtTranslator);
-            qDebug() << "System translation loaded" << locale;
-        }
-        else
-        {
-            qDebug() << "System translation not loaded" << locale;
-        }
-    }
-    else
-    {
-        qDebug() << "Error loading translation" << locale;
-    }
-    QCoreApplication::installTranslator(translator);
 }
 
 bool Widget::eventFilter(QObject *obj, QEvent *event)
@@ -301,7 +313,7 @@ void Widget::updateIcons()
     if (ico.isNull())
     {
         QString color = Settings::getInstance().getLightTrayIcon() ? "light" : "dark";
-        ico = QIcon(":/img/taskbar/" + color + "/taskbar_" + status + ".svg");
+        ico = QIcon(":img/taskbar/" + color + "/taskbar_" + status + ".svg");
     }
 
     setWindowIcon(ico);
@@ -312,6 +324,7 @@ void Widget::updateIcons()
 Widget::~Widget()
 {
     qDebug() << "Deleting Widget";
+    Translator::unregister(this);
     AutoUpdater::abortUpdates();
     if (icon)
         icon->hide();
@@ -328,7 +341,6 @@ Widget::~Widget()
     GroupList::clear();
     delete trayMenu;
     delete ui;
-    delete translator;
     instance = nullptr;
 }
 
@@ -414,6 +426,7 @@ void Widget::onFailedToStartCore()
 
 void Widget::onBadProxyCore()
 {
+    Settings::getInstance().setProxyType(0);
     QMessageBox critical(this);
     critical.setText(tr("toxcore failed to start with your proxy settings. qTox cannot run; please modify your "
                "settings and restart.", "popup text"));
@@ -491,11 +504,6 @@ void Widget::onIconClick(QSystemTrayIcon::ActivationReason reason)
     {
         case QSystemTrayIcon::Trigger:
         {
-            #if defined(Q_OS_MAC)
-                // We don't want to raise/minimize a window on icon click in OS X
-                break;
-            #endif
-
             if (isHidden())
             {
                 show();
@@ -588,10 +596,9 @@ void Widget::setUsername(const QString& username)
     sanitizedNameMention = QRegExp("\\b" + QRegExp::escape(sanename) + "\\b", Qt::CaseInsensitive);
 }
 
-void Widget::onStatusMessageChanged(const QString& newStatusMessage, const QString& oldStatusMessage)
+void Widget::onStatusMessageChanged(const QString& newStatusMessage)
 {
-    ui->statusLabel->setText(oldStatusMessage); // restore old status message until Core tells us to set it
-    ui->statusLabel->setToolTip(oldStatusMessage); // for overlength messsages
+    // Keep old status message until Core tells us to set it.
     Nexus::getCore()->setStatusMessage(newStatusMessage);
 }
 
@@ -609,13 +616,20 @@ void Widget::reloadHistory()
 
 void Widget::addFriend(int friendId, const QString &userId)
 {
-    ToxID userToxId = ToxID::fromString(userId);
+    ToxId userToxId = ToxId(userId);
     Friend* newfriend = FriendList::addFriend(friendId, userToxId);
-    contactListWidget->moveWidget(newfriend->getFriendWidget(),Status::Offline);
+
+    QDate activityDate = Settings::getInstance().getFriendActivity(newfriend->getToxId());
+    QDate chatDate = newfriend->getChatForm()->getLatestDate();
+
+    if (chatDate > activityDate && chatDate.isValid())
+        Settings::getInstance().setFriendActivity(newfriend->getToxId(), chatDate);
+
+    contactListWidget->addFriendWidget(newfriend->getFriendWidget(),Status::Offline,Settings::getInstance().getFriendCircleID(newfriend->getToxId()));
 
     Core* core = Nexus::getCore();
-    connect(newfriend, &Friend::displayedNameChanged, contactListWidget, &FriendListWidget::moveWidget);
-    connect(settingsWidget, &SettingsWidget::compactToggled, newfriend->getFriendWidget(), &GenericChatroomWidget::onCompactChanged);
+    connect(newfriend, &Friend::displayedNameChanged, this, &Widget::onFriendDisplayChanged);
+    connect(settingsWidget, &SettingsWidget::compactToggled, newfriend->getFriendWidget(), &GenericChatroomWidget::compactChange);
     connect(newfriend->getFriendWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*)));
     connect(newfriend->getFriendWidget(), SIGNAL(removeFriend(int)), this, SLOT(removeFriend(int)));
     connect(newfriend->getFriendWidget(), SIGNAL(copyFriendIdToClipboard(int)), this, SLOT(copyFriendIdToClipboard(int)));
@@ -657,7 +671,9 @@ void Widget::addFriend(int friendId, const QString &userId)
         newfriend->getFriendWidget()->onAvatarChange(friendId, avatar);
     }
 
-    searchContacts();
+    int filter = getFilterCriteria();
+    newfriend->getFriendWidget()->search(ui->searchContactText->text(), filterOffline(filter));
+
 }
 
 void Widget::addFriendFailed(const QString&, const QString& errorInfo)
@@ -668,6 +684,12 @@ void Widget::addFriendFailed(const QString&, const QString& errorInfo)
     }
 
     QMessageBox::critical(0,"Error",info);
+}
+
+void Widget::onFriendshipChanged(int friendId)
+{
+    Friend* who = FriendList::findFriend(friendId);
+    updateFriendActivity(who);
 }
 
 void Widget::onFriendStatusChanged(int friendId, Status status)
@@ -745,18 +767,32 @@ void Widget::onFriendUsernameChanged(int friendId, const QString& username)
     QString str = username; str.replace('\n', ' ');
     str.remove('\r'); str.remove(QChar((char)0)); // null terminator...
     f->setName(str);
-    searchContacts();
+}
+
+void Widget::onFriendDisplayChanged(FriendWidget *friendWidget, Status s)
+{
+    contactListWidget->moveWidget(friendWidget, s);
+    int filter = getFilterCriteria();
+    switch (s)
+    {
+        case Status::Offline:
+            friendWidget->searchName(ui->searchContactText->text(), filterOffline(filter));
+        default:
+            friendWidget->searchName(ui->searchContactText->text(), filterOnline(filter));
+    }
+
 }
 
 void Widget::onChatroomWidgetClicked(GenericChatroomWidget *widget)
 {
     hideMainForms();
-    widget->setChatForm(*ui);
+
     if (activeChatroomWidget != nullptr)
         activeChatroomWidget->setAsInactiveChatroom();
-
     activeChatroomWidget = widget;
+
     widget->setAsActiveChatroom();
+    widget->setChatForm(*ui);
     setWindowTitle(widget->getName());
     widget->resetEventFlags();
     widget->updateStatusLight();
@@ -764,7 +800,6 @@ void Widget::onChatroomWidgetClicked(GenericChatroomWidget *widget)
     if (!widget->getStatusString().isNull())
         windowTitle += " (" + widget->getStatusString() + ")";
     setWindowTitle(windowTitle);
-
 }
 
 void Widget::onFriendMessageReceived(int friendId, const QString& message, bool isAction)
@@ -774,10 +809,10 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
         return;
 
     QDateTime timestamp = QDateTime::currentDateTime();
-    f->getChatForm()->addMessage(f->getToxID(), message, isAction, timestamp, true);
+    f->getChatForm()->addMessage(f->getToxId(), message, isAction, timestamp, true);
 
-    HistoryKeeper::getInstance()->addChatEntry(f->getToxID().publicKey, isAction ? "/me " + f->getDisplayedName() + " " + message : message,
-                                               f->getToxID().publicKey, timestamp, true);
+    HistoryKeeper::getInstance()->addChatEntry(f->getToxId().publicKey, isAction ? "/me " + f->getDisplayedName() + " " + message : message,
+                                               f->getToxId().publicKey, timestamp, true);
 
     f->setEventFlag(f->getFriendWidget() != activeChatroomWidget);
     newMessageAlert(f->getFriendWidget());
@@ -835,6 +870,9 @@ void Widget::newMessageAlert(GenericChatroomWidget* chat)
 
         Audio::playMono16Sound(sndData);
     }
+
+    if (activeChatroomWidget != chat)
+        ui->friendList->trackWidget(chat);
 }
 
 void Widget::playRingtone()
@@ -864,37 +902,51 @@ void Widget::onFriendRequestReceived(const QString& userId, const QString& messa
         emit friendRequestAccepted(userId);
 }
 
+void Widget::updateFriendActivity(Friend *frnd)
+{
+    QDate date = Settings::getInstance().getFriendActivity(frnd->getToxId());
+    if (date != QDate::currentDate())
+    {
+        // Update old activity before after new one. Store old date first.
+        QDate oldDate = Settings::getInstance().getFriendActivity(frnd->getToxId());
+        Settings::getInstance().setFriendActivity(frnd->getToxId(), QDate::currentDate());
+        contactListWidget->moveWidget(frnd->getFriendWidget(), frnd->getStatus());
+        contactListWidget->updateActivityDate(oldDate);
+    }
+}
+
 void Widget::removeFriend(Friend* f, bool fake)
 {
     if (!fake)
     {
         QMessageBox::StandardButton removeFriendMB;
         removeFriendMB = QMessageBox::question(0,
-                                    tr("Remove history"),
+                                    tr("Removal of friend ")+"\""+ f->getDisplayedName()+"\"",
                                     tr("Do you want to remove history as well?"),
                                     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
         if (removeFriendMB == QMessageBox::Cancel)
                return;
         else if (removeFriendMB == QMessageBox::Yes)
-            HistoryKeeper::getInstance()->removeFriendHistory(f->getToxID().publicKey);
+            HistoryKeeper::getInstance()->removeFriendHistory(f->getToxId().publicKey);
     }
-        
+
     f->getFriendWidget()->setAsInactiveChatroom();
     if (static_cast<GenericChatroomWidget*>(f->getFriendWidget()) == activeChatroomWidget)
     {
         activeChatroomWidget = nullptr;
         onAddClicked();
     }
-    
+
+    contactListWidget->removeFriendWidget(f->getFriendWidget());
+
     FriendList::removeFriend(f->getFriendID(), fake);
     Nexus::getCore()->removeFriend(f->getFriendID(), fake);
-    
+
     delete f;
     if (ui->mainHead->layout()->isEmpty())
         onAddClicked();
 
-    contactListWidget->hide();
-    contactListWidget->show();
+    contactListWidget->reDraw();
 }
 
 void Widget::removeFriend(int friendId)
@@ -904,6 +956,8 @@ void Widget::removeFriend(int friendId)
 
 void Widget::clearContactsList()
 {
+    assert(QThread::currentThread() == qApp->thread());
+
     QList<Friend*> friends = FriendList::getAllFriends();
     for (Friend* f : friends)
         removeFriend(f, true);
@@ -950,8 +1004,8 @@ void Widget::onGroupMessageReceived(int groupnumber, int peernumber, const QStri
     if (!g)
         return;
 
-    ToxID author = Core::getInstance()->getGroupPeerToxID(groupnumber, peernumber);
-    bool targeted = !author.isMine() && (message.contains(nameMention) || message.contains(sanitizedNameMention));
+    ToxId author = Core::getInstance()->getGroupPeerToxId(groupnumber, peernumber);
+    bool targeted = !author.isActiveProfile() && (message.contains(nameMention) || message.contains(sanitizedNameMention));
     if (targeted && !isAction)
         g->getChatForm()->addAlertMessage(author, message, QDateTime::currentDateTime());
     else
@@ -1015,10 +1069,13 @@ void Widget::onGroupTitleChanged(int groupnumber, const QString& author, const Q
     if (!g)
         return;
 
-    g->setName(title);
     if (!author.isEmpty())
         g->getChatForm()->addSystemInfoMessage(tr("%1 has set the title to %2").arg(author, title), ChatMessage::INFO, QDateTime::currentDateTime());
-    searchContacts();
+
+    contactListWidget->renameGroupWidget(g->getGroupWidget(), title);
+    g->setName(title);
+    int filter = getFilterCriteria();
+    g->getGroupWidget()->searchName(ui->searchContactText->text(), filterGroups(filter));
 }
 
 void Widget::onGroupPeerAudioPlaying(int groupnumber, int peernumber)
@@ -1044,8 +1101,7 @@ void Widget::removeGroup(Group* g, bool fake)
     if (ui->mainHead->layout()->isEmpty())
         onAddClicked();
 
-    contactListWidget->hide();
-    contactListWidget->show();
+    contactListWidget->reDraw();
 }
 
 void Widget::removeGroup(int groupId)
@@ -1066,32 +1122,39 @@ Group *Widget::createGroup(int groupId)
 
     QString groupName = QString("Groupchat #%1").arg(groupId);
     Group* newgroup = GroupList::addGroup(groupId, groupName, core->isGroupAvEnabled(groupId));
-    QLayout* layout = contactListWidget->getGroupLayout();
-    layout->addWidget(newgroup->getGroupWidget());
+
+    contactListWidget->addGroupWidget(newgroup->getGroupWidget());
     newgroup->getGroupWidget()->updateStatusLight();
 
-    connect(settingsWidget, &SettingsWidget::compactToggled, newgroup->getGroupWidget(), &GenericChatroomWidget::onCompactChanged);
+    connect(settingsWidget, &SettingsWidget::compactToggled, newgroup->getGroupWidget(), &GenericChatroomWidget::compactChange);
     connect(newgroup->getGroupWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*)));
     connect(newgroup->getGroupWidget(), SIGNAL(removeGroup(int)), this, SLOT(removeGroup(int)));
     connect(newgroup->getGroupWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), newgroup->getChatForm(), SLOT(focusInput()));
     connect(newgroup->getChatForm(), &GroupChatForm::sendMessage, core, &Core::sendGroupMessage);
     connect(newgroup->getChatForm(), &GroupChatForm::sendAction, core, &Core::sendGroupAction);
     connect(newgroup->getChatForm(), &GroupChatForm::groupTitleChanged, core, &Core::changeGroupTitle);
-    searchContacts();
+
+    int filter = getFilterCriteria();
+    newgroup->getGroupWidget()->searchName(ui->searchContactText->text(), filterGroups(filter));
+
     return newgroup;
 }
 
 void Widget::onEmptyGroupCreated(int groupId)
 {
-    createGroup(groupId);
+    Group* group = createGroup(groupId);
+
+    // Only rename group if groups are visible.
+    if (Widget::getInstance()->groupsVisible())
+        group->getGroupWidget()->editName();
 }
 
-bool Widget::isFriendWidgetCurActiveWidget(Friend* f)
+bool Widget::isFriendWidgetCurActiveWidget(const Friend* f) const
 {
     if (!f)
         return false;
 
-    return (activeChatroomWidget == static_cast<GenericChatroomWidget*>(f->getFriendWidget()));
+    return (activeChatroomWidget == static_cast<const GenericChatroomWidget*>(f->getFriendWidget()));
 }
 
 bool Widget::event(QEvent * e)
@@ -1287,21 +1350,45 @@ void Widget::onSplitterMoved(int pos, int index)
     saveSplitterGeometry();
 }
 
-void Widget::cycleContacts(int offset)
+void Widget::cycleContacts(bool forward)
 {
-    if (!activeChatroomWidget)
-        return;
+    contactListWidget->cycleContacts(activeChatroomWidget, forward);
+}
 
-    FriendListWidget* friendList = static_cast<FriendListWidget*>(ui->friendList->widget());
-    QList<GenericChatroomWidget*> friends = friendList->getAllFriends();
+bool Widget::filterGroups(int index)
+{
+    switch (index)
+    {
+        case FilterCriteria::Offline:
+        case FilterCriteria::Friends:
+            return true;
+        default:
+            return false;
+    }
+}
 
-    int activeIndex = friends.indexOf(activeChatroomWidget);
-    int bounded = (activeIndex + offset) % friends.length();
+bool Widget::filterOffline(int index)
+{
+    switch (index)
+    {
+        case FilterCriteria::Online:
+        case FilterCriteria::Groups:
+            return true;
+        default:
+            return false;
+    }
+}
 
-    if(bounded < 0)
-        bounded += friends.length();
-
-    emit friends[bounded]->chatroomWidgetClicked(friends[bounded]);
+bool Widget::filterOnline(int index)
+{
+    switch (index)
+    {
+        case FilterCriteria::Offline:
+        case FilterCriteria::Groups:
+            return true;
+        default:
+            return false;
+    }
 }
 
 void Widget::processOfflineMsgs()
@@ -1331,6 +1418,7 @@ void Widget::reloadTheme()
     ui->statusHead->setStyleSheet(statusPanelStyle);
     ui->friendList->setStyleSheet(Style::getStylesheet(":ui/friendList/friendList.css"));
     ui->statusButton->setStyleSheet(Style::getStylesheet(":ui/statusButton/statusButton.css"));
+    contactListWidget->reDraw();
 
     for (Friend* f : FriendList::getAllFriends())
         f->getFriendWidget()->reloadTheme();
@@ -1341,12 +1429,12 @@ void Widget::reloadTheme()
 
 void Widget::nextContact()
 {
-    cycleContacts(1);
+    cycleContacts(true);
 }
 
 void Widget::previousContact()
 {
-    cycleContacts(-1);
+    cycleContacts(false);
 }
 
 QString Widget::getStatusIconPath(Status status)
@@ -1411,80 +1499,87 @@ Status Widget::getStatusFromString(QString status)
 void Widget::searchContacts()
 {
     QString searchString = ui->searchContactText->text();
-    int filter = ui->searchContactFilterCBox->currentIndex();
+    int filter = getFilterCriteria();
 
-    switch(filter)
+    contactListWidget->searchChatrooms(searchString, filterOnline(filter), filterOffline(filter), filterGroups(filter));
+
+    updateFilterText();
+
+    contactListWidget->reDraw();
+}
+
+void Widget::changeDisplayMode()
+{
+    filterDisplayGroup->setEnabled(false);
+
+    if (filterDisplayGroup->checkedAction() == filterDisplayActivity)
+        contactListWidget->setMode(FriendListWidget::Activity);
+    else if (filterDisplayGroup->checkedAction() == filterDisplayName)
+        contactListWidget->setMode(FriendListWidget::Name);
+
+    searchContacts();
+    filterDisplayGroup->setEnabled(true);
+
+    updateFilterText();
+}
+
+void Widget::updateFilterText()
+{
+     ui->searchContactFilterBox->setText(filterDisplayGroup->checkedAction()->text() + QStringLiteral(" | ") + filterGroup->checkedAction()->text());
+}
+
+int Widget::getFilterCriteria() const
+{
+    QAction* checked = filterGroup->checkedAction();
+
+    if (checked == filterOnlineAction)
+        return Online;
+    else if (checked == filterOfflineAction)
+        return Offline;
+    else if (checked == filterFriendsAction)
+        return Friends;
+    else if (checked == filterGroupsAction)
+        return Groups;
+
+    return All;
+}
+
+void Widget::searchCircle(CircleWidget *circleWidget)
+{
+    int filter = getFilterCriteria();
+    circleWidget->search(ui->searchContactText->text(), true, filterOnline(filter), filterOffline(filter));
+}
+
+void Widget::searchItem(GenericChatItemWidget *chatItem, GenericChatItemWidget::ItemType type)
+{
+    bool hide;
+    int filter = getFilterCriteria();
+    switch (type)
     {
-        case FilterCriteria::All:
-            hideFriends(searchString, Status::Online);
-            hideFriends(searchString, Status::Offline);
-
-            hideGroups(searchString);
-            break;
-        case FilterCriteria::Online:
-            hideFriends(searchString, Status::Online);
-            hideFriends(QString(), Status::Offline, true);
-
-            hideGroups(searchString);
-            break;
-        case FilterCriteria::Offline:
-            hideFriends(QString(), Status::Online, true);
-            hideFriends(searchString, Status::Offline);
-
-            hideGroups(QString(), true);
-            break;
-        case FilterCriteria::Friends:
-            hideFriends(searchString, Status::Online);
-            hideFriends(searchString, Status::Offline);
-
-            hideGroups(QString(), true);
-            break;
-        case FilterCriteria::Groups:
-            hideFriends(QString(), Status::Online, true);
-            hideFriends(QString(), Status::Offline, true);
-
-            hideGroups(searchString);
+        case GenericChatItemWidget::GroupItem:
+            hide = filterGroups(filter);
             break;
         default:
-            return;
+            hide = true;
     }
 
-    contactListWidget->hide();
-    contactListWidget->show();
+    chatItem->searchName(ui->searchContactText->text(), hide);
 }
 
-void Widget::hideFriends(QString searchString, Status status, bool hideAll)
+bool Widget::groupsVisible() const
 {
-    QVBoxLayout* friends = contactListWidget->getFriendLayout(status);
-    int friendCount = friends->count(), index;
-
-    for (index = 0; index<friendCount; index++)
-    {
-        FriendWidget* friendWidget = static_cast<FriendWidget*>(friends->itemAt(index)->widget());
-        QString friendName = friendWidget->getName();
-
-        if (!friendName.contains(searchString, Qt::CaseInsensitive) | hideAll)
-            friendWidget->setVisible(false);
-        else
-            friendWidget->setVisible(true);
-    }
+    int filter = getFilterCriteria();
+    return !filterGroups(filter);
 }
 
-void Widget::hideGroups(QString searchString, bool hideAll)
+void Widget::friendListContextMenu(const QPoint &pos)
 {
-    QVBoxLayout* groups = contactListWidget->getGroupLayout();
-    int groupCount = groups->count(), index;
+    QMenu menu(this);
+    QAction *addCircleAction = menu.addAction(tr("Add new circle..."));
+    QAction *chosenAction = menu.exec(ui->friendList->mapToGlobal(pos));
 
-    for (index = 0; index<groupCount; index++)
-    {
-        GroupWidget* groupWidget = static_cast<GroupWidget*>(groups->itemAt(index)->widget());
-        QString groupName = groupWidget->getName();
-
-        if (!groupName.contains(searchString, Qt::CaseInsensitive) | hideAll)
-            groupWidget->setVisible(false);
-        else
-            groupWidget->setVisible(true);
-    }
+    if (chosenAction == addCircleAction)
+        contactListWidget->addCircleWidget();
 }
 
 void Widget::setActiveToolMenuButton(ActiveToolMenuButton newActiveButton)
@@ -1497,4 +1592,28 @@ void Widget::setActiveToolMenuButton(ActiveToolMenuButton newActiveButton)
     ui->transferButton->setDisabled(newActiveButton == Widget::TransferButton);
     ui->settingsButton->setChecked(newActiveButton == Widget::SettingButton);
     ui->settingsButton->setDisabled(newActiveButton == Widget::SettingButton);
+}
+
+void Widget::retranslateUi()
+{
+    QString name = ui->nameLabel->text(), status = ui->statusLabel->text();
+    ui->retranslateUi(this);
+    ui->nameLabel->setText(name);
+    ui->statusLabel->setText(status);
+
+    filterDisplayName->setText(tr("By Name"));
+    filterDisplayActivity->setText(tr("By Activity"));
+    filterAllAction->setText(tr("All"));
+    filterOnlineAction->setText(tr("Online"));
+    filterOfflineAction->setText(tr("Offline"));
+    filterFriendsAction->setText(tr("Friends"));
+    filterGroupsAction->setText(tr("Groups"));
+    ui->searchContactText->setPlaceholderText(tr("Search Contacts"));
+    updateFilterText();
+
+    ui->searchContactText->setPlaceholderText(tr("Search Contacts"));
+    statusOnline->setText(tr("Online", "Button to set your status to 'Online'"));
+    statusAway->setText(tr("Away", "Button to set your status to 'Away'"));
+    statusBusy->setText(tr("Busy", "Button to set your status to 'Busy'"));
+    setWindowTitle(tr("Settings"));
 }

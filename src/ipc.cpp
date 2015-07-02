@@ -1,24 +1,28 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "src/ipc.h"
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
 #include <QDebug>
 #include <QCoreApplication>
+#include <random>
 #include <unistd.h>
-
 
 IPC::IPC()
     : globalMemory{"qtox-" IPC_PROTOCOL_VERSION}
@@ -35,8 +39,9 @@ IPC::IPC()
     // This is a safety measure, in case one of the clients crashes
     // If the owner exits normally, it can set the timestamp to 0 first to immediately give ownership
 
-    qsrand(time(0));
-    globalId = ((uint64_t)qrand()) * ((uint64_t)qrand()) * ((uint64_t)qrand());
+    std::default_random_engine randEngine((std::random_device())());
+    std::uniform_int_distribution<uint64_t> distribution;
+    globalId = distribution(randEngine);
     qDebug() << "Our global ID is " << globalId;
     if (globalMemory.create(sizeof(IPCMemory)))
     {
@@ -174,10 +179,6 @@ bool IPC::isEventAccepted(time_t time)
         }
         globalMemory.unlock();
     }
-    else
-    {
-        qWarning() << "isEventAccepted failed to lock, returning false";
-    }
     return result;
 }
 
@@ -188,6 +189,7 @@ bool IPC::waitUntilAccepted(time_t postTime, int32_t timeout/*=-1*/)
     while (!(result = isEventAccepted(postTime)))
     {
         qApp->processEvents();
+        QThread::sleep(10);
         if (timeout > 0 && difftime(time(0), start) >= timeout)
             break;
     }

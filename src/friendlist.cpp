@@ -1,20 +1,25 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "friend.h"
 #include "friendlist.h"
-#include "src/misc/settings.h"
+#include "src/persistence/settings.h"
 #include <QMenu>
 #include <QDebug>
 #include <QHash>
@@ -22,7 +27,7 @@
 QHash<int, Friend*> FriendList::friendList;
 QHash<QString, int> FriendList::tox2id;
 
-Friend* FriendList::addFriend(int friendId, const ToxID& userId)
+Friend* FriendList::addFriend(int friendId, const ToxId& userId)
 {
     auto friendChecker = friendList.find(friendId);
     if (friendChecker != friendList.end())
@@ -54,7 +59,7 @@ void FriendList::removeFriend(int friendId, bool fake)
     if (f_it != friendList.end())
     {
         if (!fake)
-            Settings::getInstance().removeFriendSettings(f_it.value()->getToxID());
+            Settings::getInstance().removeFriendSettings(f_it.value()->getToxId());
         friendList.erase(f_it);
     }
 }
@@ -66,7 +71,7 @@ void FriendList::clear()
     friendList.clear();
 }
 
-Friend* FriendList::findFriend(const ToxID& userId)
+Friend* FriendList::findFriend(const ToxId& userId)
 {
     auto id = tox2id.find(userId.publicKey);
     if (id != tox2id.end())
@@ -74,7 +79,7 @@ Friend* FriendList::findFriend(const ToxID& userId)
         Friend *f = findFriend(*id);
         if (!f)
             return nullptr;
-        if (f->getToxID() == userId)
+        if (f->getToxId() == userId)
             return f;
     }
 

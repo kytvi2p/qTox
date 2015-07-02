@@ -1,20 +1,26 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "chatlog.h"
 #include "chatmessage.h"
 #include "chatlinecontent.h"
+#include "src/widget/translator.h"
 
 #include <QDebug>
 #include <QScrollBar>
@@ -61,7 +67,6 @@ ChatLog::ChatLog(QWidget* parent)
     // copy action (ie. Ctrl+C)
     copyAction = new QAction(this);
     copyAction->setIcon(QIcon::fromTheme("edit-copy"));
-    copyAction->setText(tr("Copy"));
     copyAction->setShortcut(QKeySequence::Copy);
     copyAction->setEnabled(false);
     connect(copyAction, &QAction::triggered, this, [this]() { copySelectedText(); });
@@ -74,9 +79,8 @@ ChatLog::ChatLog(QWidget* parent)
 #endif
 
     // select all action (ie. Ctrl+A)
-    QAction* selectAllAction = new QAction(this);
+    selectAllAction = new QAction(this);
     selectAllAction->setIcon(QIcon::fromTheme("edit-select-all"));
-    selectAllAction->setText(tr("Select all"));
     selectAllAction->setShortcut(QKeySequence::SelectAll);
     connect(selectAllAction, &QAction::triggered, this, [this]() { selectAll(); });
     addAction(selectAllAction);
@@ -103,10 +107,15 @@ ChatLog::ChatLog(QWidget* parent)
         copySelectedText(true);
 #endif
     });
+
+    retranslateUi();
+    Translator::registerHandler(std::bind(&ChatLog::retranslateUi, this), this);
 }
 
 ChatLog::~ChatLog()
 {
+    Translator::unregister(this);
+
     // Remove chatlines from scene
     for (ChatLine::Ptr l : lines)
         l->removeFromScene();
@@ -524,6 +533,15 @@ QVector<ChatLine::Ptr> ChatLog::getLines()
     return lines;
 }
 
+ChatLine::Ptr ChatLog::getLatestLine() const
+{
+    if (!lines.empty())
+    {
+        return lines.last();
+    }
+    return nullptr;
+}
+
 void ChatLog::clear()
 {
     clearSelection();
@@ -811,4 +829,10 @@ void ChatLog::focusOutEvent(QFocusEvent* ev)
         for (int i=selFirstRow; i<=selLastRow; ++i)
             lines[i]->selectionFocusChanged(false);
     }
+}
+
+void ChatLog::retranslateUi()
+{
+    copyAction->setText(tr("Copy"));
+    selectAllAction->setText(tr("Select all"));
 }

@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FRIEND_H
@@ -18,15 +23,16 @@
 #include <QObject>
 #include <QString>
 #include "src/core/corestructs.h"
+#include "core/toxid.h"
 
-struct FriendWidget;
+class FriendWidget;
 class ChatForm;
 
 class Friend : public QObject
 {
     Q_OBJECT
 public:
-    Friend(uint32_t FriendId, const ToxID &UserId);
+    Friend(uint32_t FriendId, const ToxId &UserId);
     Friend(const Friend& other)=delete;
     ~Friend();
     Friend& operator=(const Friend& other)=delete;
@@ -43,7 +49,7 @@ public:
     void setEventFlag(int f);
     int getEventFlag() const;
 
-    const ToxID &getToxID() const;
+    const ToxId &getToxId() const;
     uint32_t getFriendID() const;
 
     void setStatus(Status s);
@@ -51,13 +57,14 @@ public:
 
     ChatForm *getChatForm();
     FriendWidget *getFriendWidget();
+    const FriendWidget *getFriendWidget() const;
 
 signals:
     void displayedNameChanged(FriendWidget* widget, Status s, int hasNewEvents);
 
 private:
     QString userAlias, userName;
-    ToxID userID;
+    ToxId userID;
     uint32_t friendId;
     int hasNewEvents;
     Status friendStatus;

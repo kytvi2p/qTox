@@ -1,29 +1,34 @@
 /*
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "friendwidget.h"
 #include "src/group.h"
 #include "src/grouplist.h"
 #include "groupwidget.h"
+#include "circlewidget.h"
+#include "friendlistwidget.h"
 #include "src/friendlist.h"
 #include "src/friend.h"
 #include "src/core/core.h"
 #include "form/chatform.h"
 #include "maskablepixmapwidget.h"
-#include "croppinglabel.h"
-#include "src/misc/style.h"
-#include "src/misc/settings.h"
+#include "src/widget/tool/croppinglabel.h"
+#include "src/widget/style.h"
+#include "src/persistence/settings.h"
 #include "src/widget/widget.h"
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -34,6 +39,8 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QInputDialog>
+#include <QCollator>
+#include <cassert>
 
 FriendWidget::FriendWidget(int FriendId, QString id)
     : friendId(FriendId)
@@ -45,28 +52,78 @@ FriendWidget::FriendWidget(int FriendId, QString id)
     statusPic.setMargin(3);
     nameLabel->setText(id);
     nameLabel->setTextFormat(Qt::PlainText);
+    connect(nameLabel, &CroppingLabel::editFinished, this, &FriendWidget::setAlias);
     statusMessageLabel->setTextFormat(Qt::PlainText);
 }
 
 void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
 {
+    if (!active)
+        setBackgroundRole(QPalette::Highlight);
+
+    installEventFilter(this); // Disable leave event.
+
     QPoint pos = event->globalPos();
-    ToxID id = FriendList::findFriend(friendId)->getToxID();
+    ToxId id = FriendList::findFriend(friendId)->getToxId();
     QString dir = Settings::getInstance().getAutoAcceptDir(id);
     QMenu menu;
     QMenu* inviteMenu = menu.addMenu(tr("Invite to group","Menu to invite a friend to a groupchat"));
-    QAction* copyId = menu.addAction(tr("Copy friend ID","Menu to copy the Tox ID of that friend"));
     QMap<QAction*, Group*> groupActions;
-    
+
     for (Group* group : GroupList::getAllGroups())
     {
         QAction* groupAction = inviteMenu->addAction(group->getGroupWidget()->getName());
         groupActions[groupAction] =  group;
     }
-    
+
     if (groupActions.isEmpty())
         inviteMenu->setEnabled(false);
-    
+
+    int circleId = Settings::getInstance().getFriendCircleID(FriendList::findFriend(friendId)->getToxId());
+    CircleWidget *circleWidget = CircleWidget::getFromID(circleId);
+
+    QMenu* circleMenu = nullptr;
+    QAction* newCircleAction = nullptr;
+    QAction *removeCircleAction = nullptr;
+    QMap<QAction*, int> circleActions;
+
+    FriendListWidget *friendList;
+
+    if (circleWidget == nullptr)
+        friendList = dynamic_cast<FriendListWidget*>(parentWidget());
+    else
+        friendList = dynamic_cast<FriendListWidget*>(circleWidget->parentWidget());
+
+    circleMenu = menu.addMenu(tr("Move to circle...", "Menu to move a friend into a different circle"));
+
+    newCircleAction = circleMenu->addAction(tr("To new circle"));
+
+    if (circleId != -1)
+        removeCircleAction = circleMenu->addAction(tr("Remove from circle '%1'").arg(Settings::getInstance().getCircleName(circleId)));
+
+    circleMenu->addSeparator();
+
+    QList<QAction*> circleActionList;
+
+    for (int i = 0; i < Settings::getInstance().getCircleCount(); ++i)
+    {
+        if (i != circleId)
+        {
+            circleActionList.push_back(new QAction(tr("Move  to circle \"%1\"").arg(Settings::getInstance().getCircleName(i)), circleMenu));
+            circleActions[circleActionList.back()] = i;
+        }
+    }
+
+    std::sort(circleActionList.begin(), circleActionList.end(), [](const QAction* lhs, const QAction* rhs) -> bool
+    {
+        QCollator collator;
+        collator.setNumericMode(true);
+        return collator.compare(lhs->text(), rhs->text()) < 0;
+    });
+
+    circleMenu->addActions(circleActionList);
+
+    QAction* copyId = menu.addAction(tr("Copy friend ID","Menu to copy the Tox ID of that friend"));
     QAction* setAlias = menu.addAction(tr("Set alias..."));
 
     menu.addSeparator();
@@ -74,10 +131,16 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
     autoAccept->setCheckable(true);
     autoAccept->setChecked(!dir.isEmpty());
     menu.addSeparator();
-    
+
     QAction* removeFriendAction = menu.addAction(tr("Remove friend", "Menu to remove the friend from our friendlist"));
 
     QAction* selectedItem = menu.exec(pos);
+
+    removeEventFilter(this);
+
+    if (!active)
+        setBackgroundRole(QPalette::Window);
+
     if (selectedItem)
     {
         if (selectedItem == copyId)
@@ -86,7 +149,7 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
             return;
         } else if (selectedItem == setAlias)
         {
-            setFriendAlias();
+            nameLabel->editBegin();
         }
         else if (selectedItem == removeFriendAction)
         {
@@ -102,7 +165,7 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
                 autoAccept->setChecked(false);
                 Settings::getInstance().setAutoAcceptDir(id, "");
             }
-            
+
             if (autoAccept->isChecked())
             {
                 dir = QFileDialog::getExistingDirectory(0, tr("Choose an auto accept directory","popup title"), dir);
@@ -111,10 +174,53 @@ void FriendWidget::contextMenuEvent(QContextMenuEvent * event)
                 Settings::getInstance().setAutoAcceptDir(id, dir);
             }
         }
+        else if (selectedItem == newCircleAction)
+        {
+            if (circleWidget != nullptr)
+                circleWidget->updateStatus();
+
+            if (friendList != nullptr)
+                friendList->addCircleWidget(this);
+            else
+                Settings::getInstance().setFriendCircleID(id, Settings::getInstance().addCircle());
+        }
         else if (groupActions.contains(selectedItem))
         {
             Group* group = groupActions[selectedItem];
             Core::getInstance()->groupInviteFriend(friendId, group->getGroupId());
+        }
+        else if (removeCircleAction != nullptr && selectedItem == removeCircleAction)
+        {
+            if (friendList != nullptr)
+                friendList->moveWidget(this, FriendList::findFriend(friendId)->getStatus(), true);
+            else
+                Settings::getInstance().setFriendCircleID(id, -1);
+
+            if (circleWidget)
+            {
+                circleWidget->updateStatus();
+                Widget::getInstance()->searchCircle(circleWidget);
+            }
+        }
+        else if (circleActions.contains(selectedItem))
+        {
+            CircleWidget* circle = CircleWidget::getFromID(circleActions[selectedItem]);
+
+            if (circle != nullptr)
+            {
+                circle->addFriendWidget(this, FriendList::findFriend(friendId)->getStatus());
+                circle->setExpanded(true);
+                Widget::getInstance()->searchCircle(circle);
+                Settings::getInstance().savePersonal();
+            }
+            else
+                Settings::getInstance().setFriendCircleID(id, circleActions[selectedItem]);
+
+            if (circleWidget != nullptr)
+            {
+                circleWidget->updateStatus();
+                Widget::getInstance()->searchCircle(circleWidget);
+            }
         }
     }
 }
@@ -157,6 +263,15 @@ void FriendWidget::updateStatusLight()
     else if (status == Status::Offline && f->getEventFlag() == 1)
         statusPic.setPixmap(QPixmap(":img/status/dot_offline_notification.svg"));
 
+    if (f->getEventFlag())
+    {
+        CircleWidget* circleWidget = CircleWidget::getFromID(Settings::getInstance().getFriendCircleID(FriendList::findFriend(friendId)->getToxId()));
+        if (circleWidget != nullptr)
+            circleWidget->setExpanded(true);
+
+        Widget::getInstance()->updateFriendActivity(FriendList::findFriend(friendId));
+    }
+
     if (!f->getEventFlag())
         statusPic.setMargin(3);
     else
@@ -179,6 +294,14 @@ QString FriendWidget::getStatusString()
     else if (status == Status::Offline)
         return tr("Offline");
     return QString::null;
+}
+
+void FriendWidget::search(const QString &searchString, bool hide)
+{
+    searchName(searchString, hide);
+    CircleWidget* circleWidget = CircleWidget::getFromID(Settings::getInstance().getFriendCircleID(FriendList::findFriend(friendId)->getToxId()));
+    if (circleWidget != nullptr)
+        circleWidget->search(searchString);
 }
 
 void FriendWidget::setChatForm(Ui::MainWindow &ui)
@@ -220,6 +343,8 @@ void FriendWidget::mousePressEvent(QMouseEvent *ev)
 {
     if (ev->button() == Qt::LeftButton)
         dragStartPos = ev->pos();
+
+    GenericChatroomWidget::mousePressEvent(ev);
 }
 
 void FriendWidget::mouseMoveEvent(QMouseEvent *ev)
@@ -242,25 +367,9 @@ void FriendWidget::mouseMoveEvent(QMouseEvent *ev)
 
 void FriendWidget::setAlias(const QString& _alias)
 {
-    QString alias = _alias.trimmed();
-    alias.remove(QRegExp("[\\t\\n\\v\\f\\r\\x0000]")); // we should really treat regular names this way as well (*ahem* zetok)
-    alias = alias.left(128); // same as TOX_MAX_NAME_LENGTH
+    QString alias = _alias.left(128); // same as TOX_MAX_NAME_LENGTH
     Friend* f = FriendList::findFriend(friendId);
     f->setAlias(alias);
-    Settings::getInstance().setFriendAlias(f->getToxID(), alias);
-    Settings::getInstance().save(true);
-    hide();
-    show();
-}
-
-void FriendWidget::setFriendAlias()
-{
-    bool ok;
-    Friend* f = FriendList::findFriend(friendId);
-
-    QString alias = QInputDialog::getText(nullptr, tr("User alias"), tr("You can also set this by clicking the chat form name.\nAlias:"), QLineEdit::Normal,
-                                          f->getDisplayedName(), &ok);
-
-    if (ok)
-        setAlias(alias);
+    Settings::getInstance().setFriendAlias(f->getToxId(), alias);
+    Settings::getInstance().savePersonal();
 }

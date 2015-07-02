@@ -1,15 +1,20 @@
 /*
+    Copyright © 2014-2015 by The qTox Project
+
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
-    This program is libre software: you can redistribute it and/or modify
+    qTox is libre software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the COPYING file for more details.
+    qTox is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef ADDFRIENDFORM_H
@@ -28,6 +33,8 @@ class AddFriendForm : public QObject
     Q_OBJECT
 public:
     AddFriendForm();
+    AddFriendForm(const AddFriendForm&) = delete;
+    AddFriendForm& operator=(const AddFriendForm&) = delete;
     ~AddFriendForm();
 
     void show(Ui::MainWindow &ui);
@@ -43,6 +50,9 @@ private slots:
     void onSendTriggered();
 
 private:
+    void retranslateUi();
+
+private:
     void setIdFromClipboard();
     QLabel headLabel, toxIdLabel, messageLabel;
     QPushButton sendButton;
@@ -50,6 +60,7 @@ private:
     QTextEdit message;
     QVBoxLayout layout, headLayout;
     QWidget *head, *main;
+    QString lastUsername; // Cached username so we can retranslate the invite message
 };
 
 #endif // ADDFRIENDFORM_H
