@@ -1,3 +1,18 @@
+qtox (0.0.0+git20150706.r3269-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * INSTALL.md: fix links; make it possible to click them
+
+  [ PKEv ]
+  * add max size of emoji fix #1691 max size is calculated  from the
+    possibility of fully display the selection window of emoji and value
+    Qt::AA_UseHighDpiPixmaps.
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 07 Jul 2015 13:13:20 +0000
+
 qtox (0.0.0+git20150701.r3263-1~trusty+1) trusty; urgency=medium
 
   * Backport to Trusty

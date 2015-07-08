@@ -11,11 +11,13 @@
 |--------------|-------------|-------------------------------------------------- |
 | Qt           | >= 5.2.0    | core, gui, network, opengl, sql, svg, widget, xml |
 | GCC/MinGW    | >= 4.8      | C++11 enabled                                     |
-| Tox Core     | most recent | core, av                                          |
+| toxcore      | most recent | core, av                                          |
 | FFmpeg       | >= 2.6.0    | avformat, avdevice, avcodec, avutil, swscale      |
 | OpenAL Soft  | >= 1.16.0   |                                                   |
 | filter_audio | most recent |                                                   |
 | qrencode     | >= 3.0.3    |                                                   |
+
+Note to Fedora users: check qt5 version before building default is 4.8 on fedora 21 / 22, everything up until qmake-qt5 will build fine but then  qmake-qt5 will freak out.
 
 <a name="linux" />
 ##Linux
@@ -65,18 +67,16 @@ emerge qtox
 
 #### Slackware
 
-qTox SlackBuild and all of its dependencies can be found here:
-```bash
-http://slackbuilds.org/repository/14.1/network/qTox/
-```
+qTox SlackBuild and all of its dependencies can be found here: http://slackbuilds.org/repository/14.1/network/qTox/
 
+----
 
 If your distribution is not listed, or you want/need to compile qTox, there are provided instructions.
 
 
 ----
 
-Most of the dependencies should be available through your package manger. You may either follow the directions below, or simply run `./simple_make.sh` after cloning, which will attempt to automatically download dependencies followed by compilation.
+Most of the dependencies should be available through your package manger. You may either follow the directions below, or simply run `./simple_make.sh` after cloning this repository, which will attempt to automatically download dependencies followed by compilation.
 
 
 ###Cloning the Repository
@@ -133,7 +133,7 @@ sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools li
 Fedora:
 ```bash
 sudo dnf group install "Development Tools"
-sudo dnf install qt-devel qt-doc qt-creator qt5-qtsvg openal-soft-devel libXScrnSaver-devel qrencode-devel
+sudo dnf install qt-devel qt-doc qt-creator qt5-qtsvg qt5-qtsvg-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
 ```
 
 openSUSE:
@@ -144,14 +144,12 @@ sudo zypper install patterns-openSUSE-devel_basis libqt5-qtbase-common-devel lib
 
 Slackware:
 
-List of all the ``qTox`` dependencies and their SlackBuilds can be found here:
-```bash
-http://slackbuilds.org/repository/14.1/network/qTox/
-```
+List of all the ``qTox`` dependencies and their SlackBuilds can be found here: http://slackbuilds.org/repository/14.1/network/qTox/
 
-###Tox Core
 
-First of all install the dependencies of Tox Core.
+### toxcore
+
+First of all install the dependencies of toxcore.
 
 Arch Linux:
 ```bash
@@ -175,27 +173,34 @@ sudo zypper install libsodium-devel libvpx-devel libopus-devel patterns-openSUSE
 
 Slackware:
 
-List of all the ``toxcore`` dependencies and their SlackBuilds can be found here:
-```bash
-http://slackbuilds.org/repository/14.1/network/toxcore/
-```
+List of all the ``toxcore`` dependencies and their SlackBuilds can be found here: http://slackbuilds.org/repository/14.1/network/toxcore/
 
-Now you can either follow the instructions at https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix or use the "bootstrap.sh" script located at "/home/user/qTox".
-The script will automatically download and install Tox Core and libfilteraudio:
-```bash
-cd /home/user/qTox
-./bootstrap.sh # use -h or --help for more information
-```
-
+----
 ###filter_audio
 You also need to install filter_audio library separately if you did not run ``./bootstrap.sh``.
+
+This step is  best done before compiling Toxcore if not  using package manager. This also follows the flow of the homebrew instructions and reduces the likelihood of  later finding errors for  libavcodec compiling toxcore.
+
 ```bash
 git clone https://github.com/irungentoo/filter_audio
 cd filter_audio
 make
 sudo make install
+
+Now you can either follow the instructions at https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix
+or use the "bootstrap.sh" script located at "/home/user/qTox".
+The script will automatically download and install toxcore and libfilteraudio:
+
+```bash
+cd /home/user/qTox
+./bootstrap.sh # use -h or --help for more information
+
+
+if  using  /usr/local/bin for final build make sure to follow advise here: https://github.com/irungentoo/toxcore/blob/master/INSTALL.md#unix, regarding  sudo ldconfig
 ```
 
+
+```
 ###Compiling
 **Make sure that all the dependencies are installed.**  
 Now go to `/home/user/qTox/qTox` (or where you cloned) and simply run :
@@ -204,7 +209,7 @@ qmake
 make
 ```
 
-for openSUSE you have to use:
+for openSUSE / Fedora you have to use:
 ```bash
 qmake-qt5
 make
@@ -217,7 +222,6 @@ apt-file search libswscale/swscale.h
 ```
 And install the package that provides the missing file.
 Start make again. Repeat if nessary until all dependencies are installed.  If you can, please note down all additional dependencies you had to install that aren't listed here, and let us know what is missing `;)`
-
 
 
 
