@@ -1,3 +1,25 @@
+qtox (0.0.0+git20150715.r3286-1) unstable; urgency=medium
+
+  [ agilob ]
+  * connect signal-slot in profileform
+
+  [ minj ]
+  * update Lithuanian strings
+
+  [ Jookia ]
+  * core: TOX_ERR_NEW_LOAD_BAD_FORMAT is non-fatal.
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 15 Jul 2015 22:01:41 +0000
+
 qtox (0.0.0+git20150706.r3269-1~deb8u+1) stable; urgency=medium
 
   * Backport to Jessie
