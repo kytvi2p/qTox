@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150716.r3290-1~utopic+1) utopic; urgency=medium
+
+  * Building for Utopic
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 17 Jul 2015 02:21:51 +0000
+
 qtox (0.0.0+git20150716.r3290-1) unstable; urgency=medium
 
   [ sudden6 ]
@@ -11,13 +17,7 @@ qtox (0.0.0+git20150716.r3290-1) unstable; urgency=medium
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 16 Jul 2015 21:50:42 +0000
 
-qtox (0.0.0+git20150715.r3286-1~utopic+1) utopic; urgency=medium
-
-  * Building for Utopic
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 16 Jul 2015 13:11:54 +0000
-
-qtox (0.0.0+git20150715.r3286-1) unstable; urgency=medium
+qtox (0.0.0+git2015071qtox (0.0.0+git20150715.r3286-1) unstable; urgency=medium
 
   [ agilob ]
   * connect signal-slot in profileform
