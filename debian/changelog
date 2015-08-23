@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150823.r3338-1~deb8u+1) stable; urgency=medium
+
+  * Backport to Jessie
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 23 Aug 2015 22:20:53 +0000
+
 qtox (0.0.0+git20150823.r3338-1) unstable; urgency=medium
 
   [ Marcelo Garlet Millani ]
@@ -11,12 +17,6 @@ qtox (0.0.0+git20150823.r3338-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 23 Aug 2015 13:12:25 +0000
-
-qtox (0.0.0+git20150820.r3319-1~deb8u+1) stable; urgency=medium
-
-  * Backport to Jessie
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 21 Aug 2015 09:18:20 +0000
 
 qtox (0.0.0+git20150820.r3319-1) unstable; urgency=medium
 
