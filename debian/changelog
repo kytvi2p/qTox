@@ -1,3 +1,36 @@
+qtox (0.0.0+git20150903.r3403-1) unstable; urgency=medium
+
+  [ Spagy ]
+  * Remove call to ProfileLocker::clearAllLocks()
+
+  [ TheSpiritXIII ]
+  * Store friend requests
+  * Remove dialog for group invites
+  * Fix request translations and make group button stay down
+
+  [ tetraf ]
+  * French translation update
+
+  [ PKEv ]
+  * add Ability to unhide qTox window in screenshot mode fix #2139 fix #2127
+
+  [ ProMcTagonist ]
+  * Fix confusing statement
+  * Compress string
+  * matchy tooltips no linedowns
+
+  [ agilob ]
+  * change logging, typing notification and compact layout to enabled
+
+  [ tux3 ]
+  * Profile locks are only stale if orphaned
+  * Remove unused clearAllLocks function
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 04 Sep 2015 02:26:35 +0000
+
 qtox (0.0.0+git20150829.r3379-1) unstable; urgency=medium
 
   [ PKEv ]
