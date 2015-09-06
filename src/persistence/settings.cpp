@@ -93,7 +93,6 @@ void Settings::loadGlobal()
         return;
 
     createSettingsDir();
-    QDir dir(getSettingsDirPath());
 
     if (QFile(globalSettingsFile).exists())
     {
@@ -107,6 +106,7 @@ void Settings::loadGlobal()
         makeToxPortable = false;
     }
 
+    QDir dir(getSettingsDirPath());
     QString filePath = dir.filePath(globalSettingsFile);
 
     // If no settings file exist -- use the default one
@@ -232,7 +232,6 @@ void Settings::loadGlobal()
     // Read the embedded DHT bootsrap nodes list if needed
     if (dhtServerList.isEmpty())
     {
-        qDebug() << "Using embeded bootstrap nodes list";
         QSettings rcs(":/conf/settings.ini", QSettings::IniFormat);
         rcs.beginGroup("DHT Server");
             int serverListSize = rcs.beginReadArray("dhtServerList");
@@ -1292,7 +1291,6 @@ void Settings::setFriendActivity(const ToxId &id, const QDate &activity)
         fp.activity = activity;
         friendLst[key] = fp;
     }
-    savePersonal();
 }
 
 void Settings::removeFriendSettings(const ToxId &id)
