@@ -1,3 +1,35 @@
+qtox (0.0.0+git20150906.r3420-1) unstable; urgency=medium
+
+  [ agilob ]
+  * set one global initial file accept directory for all file transfers
+  * fix opening directory/file in file transfer widger
+  * revert change history to -7
+
+  [ Zetok Zalbavar ]
+  * Show toxcore version
+  * Improve wording of login page: "Create Account" → "Create Profile"
+
+  [ David Wolfgang ]
+  * Fixing some typos at spanish translation
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ tux3 ]
+  * Fix portable mode settings loading
+
+  [ kehugter ]
+  * Spanish translation update
+
+  [ tux3 ]
+  * Remove some debug output fluff
+  * Don't save settings a billion times on startup
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 06 Sep 2015 08:31:07 +0000
+
 qtox (0.0.0+git20150903.r3403-1) unstable; urgency=medium
 
   [ Spagy ]
