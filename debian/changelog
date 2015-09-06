@@ -1,3 +1,130 @@
+qtox (0.0.0+git20150906.r3420-1) unstable; urgency=medium
+
+  [ agilob ]
+  * set one global initial file accept directory for all file transfers
+  * fix opening directory/file in file transfer widger
+  * revert change history to -7
+
+  [ Zetok Zalbavar ]
+  * Show toxcore version
+  * Improve wording of login page: "Create Account" → "Create Profile"
+
+  [ David Wolfgang ]
+  * Fixing some typos at spanish translation
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ tux3 ]
+  * Fix portable mode settings loading
+
+  [ kehugter ]
+  * Spanish translation update
+
+  [ tux3 ]
+  * Remove some debug output fluff
+  * Don't save settings a billion times on startup
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 06 Sep 2015 08:31:07 +0000
+
+qtox (0.0.0+git20150903.r3403-1) unstable; urgency=medium
+
+  [ Spagy ]
+  * Remove call to ProfileLocker::clearAllLocks()
+
+  [ TheSpiritXIII ]
+  * Store friend requests
+  * Remove dialog for group invites
+  * Fix request translations and make group button stay down
+
+  [ tetraf ]
+  * French translation update
+
+  [ PKEv ]
+  * add Ability to unhide qTox window in screenshot mode fix #2139 fix #2127
+
+  [ ProMcTagonist ]
+  * Fix confusing statement
+  * Compress string
+  * matchy tooltips no linedowns
+
+  [ agilob ]
+  * change logging, typing notification and compact layout to enabled
+
+  [ tux3 ]
+  * Profile locks are only stale if orphaned
+  * Remove unused clearAllLocks function
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 04 Sep 2015 02:26:35 +0000
+
+qtox (0.0.0+git20150829.r3379-1) unstable; urgency=medium
+
+  [ PKEv ]
+  * Add way to delete whole history #1871
+
+  [ PKev ]
+  * Add profile file name in profile page fix #1951
+  * Added indication of the profile folder on the profile page
+
+  [ PKEv ]
+  * fix #1977 not link if no GIT_VERSION
+
+  [ Impyy ]
+  * Fixed issue #2048
+
+  [ PKEv ]
+  * Correct strings
+
+  [ rku ]
+  * This dialog solves all confusion that arose from current verification
+    method and is accident-proof. Current method asks if user also wants to
+    remove chat history. However confused user may not carefully read message
+    and click "no" because he does not want to remve contact. However in this
+    case contact is in fact removed but history is preserved. It is also open
+    to possiblity that key smashing deletes contact by accident. This is very
+    inconvenient because tox ids are long and hard to memorize. If someone
+    removes contact by accident then he would need to find id of that contact
+    in order to contact him/her. Sometimes this may be difficult.
+
+  [ PKEv ]
+  * fix #2089 (copy QR image)
+  * fix #2103 ability to hide the window during a screenshot
+
+  [ Impyy ]
+  * Added toxme.io to the pinned servers list
+
+  [ kehugter ]
+  * Spanish translation update
+
+  [ ovalseven8 ]
+  * Update generalsettings.ui
+
+  [ Zetok Zalbavar ]
+  * Simplyfy advanced settings - DB setting
+
+  [ Evstifeev Roman ]
+  * White text on white bg on login screen is invisible
+
+  [ Zetok Zalbavar ]
+  * Update list of bootstrap nodes
+
+  [ agilob ]
+  * better, more flexible about page, versions section
+  * hide toxcore version
+  * fix uri parsing and tox URI detection, closes #2118
+  * fix uri detection, puts dots between toxcore versions
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 29 Aug 2015 23:48:07 +0000
+
 qtox (0.0.0+git20150823.r3338-1~deb8u+1) stable; urgency=medium
 
   * Backport to Jessie
