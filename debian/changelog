@@ -1,3 +1,9 @@
+qtox (0.0.0+git20150908.r3431-1~deb8u+1) stable; urgency=medium
+
+  * Backport to Jessie
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 10 Sep 2015 22:18:07 +0000
+
 qtox (0.0.0+git20150908.r3431-1) unstable; urgency=medium
 
   [ tetraf ]
@@ -17,12 +23,6 @@ qtox (0.0.0+git20150908.r3431-1) unstable; urgency=medium
   * New  upstream Git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 10 Sep 2015 11:49:13 +0000
-
-qtox (0.0.0+git20150906.r3420-1~deb8u+1) stable; urgency=medium
-
-  * Backport to Jessie
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 06 Sep 2015 15:30:32 +0000
 
 qtox (0.0.0+git20150906.r3420-1) unstable; urgency=medium
 
