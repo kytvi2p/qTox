@@ -1,3 +1,23 @@
+qtox (0.0.0+git20150908.r3431-1) unstable; urgency=medium
+
+  [ tetraf ]
+  * French translation (small update)
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ aaannndddyyy ]
+  * correct a typo
+
+  [ ovalseven8 ]
+  * Up-to-date German translation file
+  * Replace char in file
+
+  [ Kill Your TV ]
+  * New  upstream Git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 10 Sep 2015 11:49:13 +0000
+
 qtox (0.0.0+git20150906.r3420-1~vivid+1) vivid; urgency=medium
 
   * Building for Vivid
