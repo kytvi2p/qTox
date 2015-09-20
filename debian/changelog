@@ -1,3 +1,123 @@
+qtox (0.0.0+git20150919.r3512-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Change wording "tox{1,3}" → "toxdns{1,3}"
+  * More visually appealing wording for DB writing mode
+
+  [ Ilya87 ]
+  * Russian translation update
+
+  [ Impyy ]
+  * Update nl.ts
+
+  [ TheSpiritXIII ]
+  * Multi-window capabilities for all chats and menus
+  * Multi-window: Tabbed interface
+  * Multi-window: Alert window storing chat, add group widgets, update
+    statuses and avatars
+  * Multi-window: Add drag/drop friends to windows, fix call confirm widget
+  * Multi-window: Allow opening new window when already open, fix drop when
+    already open
+  * Multi-window: Sort window chat list, fix group window bugs
+  * Multi-window: Cycle widgets in opened windows
+  * Multi-window: Keep window size, fix segfault, circle integration, changed
+    defaults
+  * Multi-window: Normalize window size on separate change, notification
+    separate fix, segfault groupchat fix
+  * Multi-window: Fix dialog null states/geometry
+  * Multi-window: Fix segfault on removing groups and friends who are also in
+    active windows
+  * Multi-window: Dispaly own username on detached windows, fix log out while
+    having detached windows
+  * Multi-window: Translate all dialogs correctly, don't allow remove friend
+    on dialogs
+  * Multi-window: Fix segfault for removing last friend on window friend list
+  * Multiwindow: Fix segfault on quiting groups, remove dead code
+  * Multi-window: Fix circle modified from dialog window, fix groupchat leave
+    warnings, flip dialog window title
+  * Multi-window: Fix buttons staying pressed while in separate window mode,
+    make dialogs alert, fix group chat event flags
+  * Multi-window: Fix open group in separate window when already open
+  * Multi-window: OS X window list, fix OS X translations
+  * Multi-window: Fix compile for non-OS X
+  * Multi-window: Fix group chat event flag regression
+  * Multi-window: Unminimize requested window
+  * Multi-window: Fix blinking tray icon regression
+
+  [ tux3 ]
+  * Don't reload content dialog if nothing changed
+  * nsis: Don't fail if no Qt plugins are found
+  * nsis: Use File directly instead of macro
+
+  [ ovalseven8 ]
+  * Remove link to libtoxcore.so
+
+  [ Nils Fenner ]
+  * fix faulty parented QFileDialog
+  * fix virtual overrides
+
+  [ PKEv ]
+  * save alias
+
+  [ Corey Sheldon ]
+  * Fedora Hard Deps (again)
+
+  [ tux3 ]
+  * Remove 'Open Chat' menu action
+  * Fix group name changes not displaying
+
+  [ TheNain38 ]
+  * Update fr.ts
+  * Update fr.ts
+
+  [ tux3 ]
+  * Remove broken 'Copy friend ID' feature
+
+  [ Zetok Zalbavar ]
+  * Correct support channel
+
+  [ aaannndddyyy ]
+  * Update es.ts
+  * Update pt.ts
+  * Update fr.ts
+  * rename two options
+
+  [ PKEv ]
+  * Update translation RU fix #2234
+
+  [ PKev ]
+  * fix some bugs + correct after #2250 + change translation for "chats"
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ Zetok Zalbavar ]
+  * Reword login window: "Login" → "Load Profile"
+
+  [ TheNain38 ]
+  * More consistent translation strings in groupchatform.cpp
+
+  [ Zetok Zalbavar ]
+  * INSTALL.md: fix typo in a link to section
+  * Make 'None' and 'Desktop' camera device names translatable
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ Zetok Zalbavar ]
+  * Change references to tox.im to tox.chat
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ aaannndddyyy ]
+  * Update German translation
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 19 Sep 2015 19:52:44 +0000
+
 qtox (0.0.0+git20150908.r3431-1~vivid+1) vivid; urgency=medium
 
   * Building for Vivid

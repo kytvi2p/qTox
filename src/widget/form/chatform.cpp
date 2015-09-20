@@ -216,13 +216,7 @@ void ChatForm::onFileRecvRequest(ToxFile file)
     if (file.friendId != f->getFriendID())
         return;
 
-    Widget* w = Widget::getInstance();
-    if (!w->isFriendWidgetCurActiveWidget(f)|| w->isMinimized() || !w->isActiveWindow())
-    {
-        w->newMessageAlert(f->getFriendWidget());
-        f->setEventFlag(true);
-        f->getFriendWidget()->updateStatusLight();
-    }
+    Widget::getInstance()->newFriendMessageAlert(file.friendId);
 
     QString name;
     ToxId friendId = f->getToxId();
@@ -265,7 +259,7 @@ void ChatForm::onAvInvite(uint32_t FriendId, int CallId, bool video)
     if (video)
     {
         callConfirm = new CallConfirmWidget(videoButton, *f);
-        if (Widget::getInstance()->isFriendWidgetCurActiveWidget(f))
+        if (f->getFriendWidget()->chatFormIsSet(false))
             callConfirm->show();
 
         connect(callConfirm, &CallConfirmWidget::accepted, this, &ChatForm::onAnswerCallTriggered);
@@ -280,7 +274,7 @@ void ChatForm::onAvInvite(uint32_t FriendId, int CallId, bool video)
     else
     {
         callConfirm = new CallConfirmWidget(callButton, *f);
-        if (Widget::getInstance()->isFriendWidgetCurActiveWidget(f))
+        if (f->getFriendWidget()->chatFormIsSet(false))
             callConfirm->show();
 
         connect(callConfirm, &CallConfirmWidget::accepted, this, &ChatForm::onAnswerCallTriggered);
@@ -292,6 +286,7 @@ void ChatForm::onAvInvite(uint32_t FriendId, int CallId, bool video)
         videoButton->setToolTip("");
         connect(callButton, &QPushButton::clicked, this, &ChatForm::onAnswerCallTriggered);
     }
+
     callButton->style()->polish(callButton);
     videoButton->style()->polish(videoButton);
 
@@ -299,13 +294,7 @@ void ChatForm::onAvInvite(uint32_t FriendId, int CallId, bool video)
                                                          ChatMessage::INFO,
                                                          QDateTime::currentDateTime()));
 
-    Widget* w = Widget::getInstance();
-    if (!w->isFriendWidgetCurActiveWidget(f)|| w->isMinimized() || !w->isActiveWindow())
-    {
-        w->newMessageAlert(f->getFriendWidget());
-        f->setEventFlag(true);
-        f->getFriendWidget()->updateStatusLight();
-    }
+    Widget::getInstance()->newFriendMessageAlert(FriendId);
 }
 
 void ChatForm::onAvStart(uint32_t FriendId, int CallId, bool video)
@@ -851,7 +840,7 @@ void ChatForm::loadHistory(QDateTime since, bool processUndelivered)
 
         // Show each messages
         ToxId authorId = ToxId(it.sender);
-        QString authorStr = authorId.isActiveProfile() ? Core::getInstance()->getUsername() : resolveToxId(authorId);
+        QString authorStr = !it.dispName.isEmpty() ? it.dispName : (authorId.isActiveProfile() ? Core::getInstance()->getUsername() : resolveToxId(authorId));
         bool isAction = it.message.startsWith("/me ", Qt::CaseInsensitive);
 
         ChatMessage::Ptr msg = ChatMessage::createChatMessage(authorStr,
@@ -1009,9 +998,9 @@ void ChatForm::setFriendTyping(bool isTyping)
     text->setText("<div class=typing>" + QString("%1 is typing").arg(f->getDisplayedName()) + "</div>");
 }
 
-void ChatForm::show(Ui::MainWindow &ui)
+void ChatForm::show(ContentLayout* contentLayout)
 {
-    GenericChatForm::show(ui);
+    GenericChatForm::show(contentLayout);
 
     if (callConfirm)
         callConfirm->show();
@@ -1060,7 +1049,7 @@ void ChatForm::SendMessageStr(QString msg)
         bool status = !Settings::getInstance().getFauxOfflineMessaging();
 
         int id = HistoryKeeper::getInstance()->addChatEntry(f->getToxId().publicKey, qt_msg_hist,
-                                                            Core::getInstance()->getSelfId().publicKey, timestamp, status);
+                                                            Core::getInstance()->getSelfId().publicKey, timestamp, status, Core::getInstance()->getUsername());
 
         ChatMessage::Ptr ma = addSelfMessage(qt_msg, isAction, timestamp, false);
 
