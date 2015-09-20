@@ -125,7 +125,7 @@ sudo pacman -S --needed git
 sudo apt-get install git
 ```
 
-<a name="fedore-git" />
+<a name="fedora-git" />
 #### Fedora:
 *`yum` is now officially deprecated by `dnf`. using `yum` will redirect to `dnf` on Fedora 21 and fail on future versions.*
 ```bash
@@ -183,7 +183,7 @@ sudo apt-get install build-essential qt5-qmake qt5-default qttools5-dev-tools li
 #### Fedora:
 ```bash
 sudo dnf group install "Development Tools"
-sudo dnf install qt-devel qt-doc qt-creator qt5-qtsvg qt5-qtsvg-devel openal-soft-devel libXScrnSaver-devel qrencode-devel
+sudo dnf install qt-devel qt-doc qt-creator qt5-qtsvg qt5-qtsvg-devel openal-soft-devel libXScrnSaver-devel qrencode-devel ffmpeg-devel qtsingleapplication
 ```
 
 <a name="opensuse-other-deps" />
