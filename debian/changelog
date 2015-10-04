@@ -1,3 +1,98 @@
+qtox (0.0.0+git20151002.r3565-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Make whole icon change colour to orange when blinking on new event
+
+  [ Nils Fenner ]
+  * fix window buttons in "multi-window" mode
+
+  [ PKEv ]
+  * correct remove profile fix #2284
+
+  [ Nils Fenner ]
+  * fix screen grabbing for screenshots
+
+  [ Zetok Zalbavar ]
+  * Add old, small taskbar icons back
+
+  [ PKev ]
+  * Added support for local links in messages and correct detect links like
+    "www.123.com"
+
+  [ Nils Fenner ]
+  * resize screen grabber window to pixmap size
+
+  [ Impyy ]
+  * Load user status from data file
+
+  [ Nils Fenner ]
+  * fix positioning of screen grabber window
+  * fix inheritance of ScreenShotGrabber
+
+  [ TheNain38 ]
+  * Display correclty what the user write and open correctly link with
+    'http://'
+  * Added dynamic translation to status and username
+
+  [ tux3 ]
+  * Fix #2310 caused by #2309
+  * Refactor code duplication in Widget::retranslateUi
+
+  [ Nils Fenner ]
+  * fix screenshot grabber for windows
+
+  [ tux3 ]
+  * Further cleanup Widget::retranslateUi
+
+  [ Dmytro Shynkevych ]
+  * genericchatroomwidget: fixed memory leak if compact view enabled
+  * contentlayout: items are now properly deallocated on clear
+  * systemtrayicon: fixed minor memory leak
+
+  [ TheNain38 ]
+  * Update fr.ts
+
+  [ PKev ]
+  * add mail link support fix #2318
+
+  [ PKEv ]
+  * add 150ms for hiding & restoring window fix #2290
+
+  [ Dmytro Shynkevych ]
+  * statusnotifier: fixed a memory leak in get_prop()
+
+  [ aaannndddyyy ]
+  * Update translation es.ts
+
+  [ Dmytro Shynkevych ]
+  * systemtrayicon: image is now stack-allocated
+
+  [ Zetok Zalbavar ]
+  * Update Polish translation
+
+  [ flan ]
+  * translation fixups
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 02 Oct 2015 22:32:36 +0000
+
+qtox (0.0.0+git20150923.r3523-1) unstable; urgency=medium
+
+  [ PKev ]
+  * correct screenshot tooltip fix #2267
+
+  [ Impyy ]
+  * Made the 'remove friend dialog' userfriendly
+  * Changed the buttons back to 'Cancel' and 'Remove'
+  * Make the cancel button the default button
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 23 Sep 2015 21:31:55 +0000
+
 qtox (0.0.0+git20150921.r3516-1ubuntu1) wily; urgency=medium
 
   * Building for Wily
