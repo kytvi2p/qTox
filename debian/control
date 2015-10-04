@@ -9,6 +9,7 @@ Build-Depends: debhelper (>= 9)
  ,dh-exec
  ,libappindicator-dev
  ,libfilteraudio-dev (>= 0.0.0+git20150516)
+ ,libswscale-dev
  ,libopenal-dev
  ,libavdevice-dev
  ,libqrencode-dev
