@@ -1,3 +1,73 @@
+qtox (0.0.0+git20151010.r3607-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Fix audio not working on 64-bit windows with non-latin audio device names
+
+  [ TheNain38 ]
+  * Better translations with plural and fix something not being translated
+    dynamically
+  * Add dynamic translation to db write type
+
+  [ PKEv ]
+  * Fix dir to user profile fix #2183 (for portable mode)
+
+  [ Nils Fenner ]
+  * fix position of tooltip in screen grabber
+
+  [ TheNain38 ]
+  * Dynamic translation of call, video, mute, unmute
+
+  [ PKEv ]
+  * Program crashes after switching the display view of contacts, from compact
+    to normal view
+
+  [ TheNain38 ]
+  * Fix ACTION messages, status, username HTML parsing
+  * Fix another parsing bug, fix Action message bold
+
+  [ Zetok Zalbavar ]
+  * Make screenshot names use ~ISO 8601 (timestamp) instead of random string
+  * Fix incorrect copyright headers
+  * [windows/bootstrap.sh] remove deprecated opencv part
+
+  [ PKev ]
+  * fix: save position when moving widget fix #2063
+
+  [ tux3 ]
+  * Fix #2228: Friendlist too wide on first start
+
+  [ sternenseemann ]
+  * adds japanese versions of the cat text smiley
+
+  [ Impyy ]
+  * Fixed #2294 - Remember proxy type after retranslation
+
+  [ Zetok Zalbavar ]
+  * TwitterEmojiSVG: make only 😊 (1f60a) to be associated with `^_^`
+
+  [ tux3 ]
+  * Sleep 10ms in IPC wait loop, not 10 SECONDS!
+
+  [ bitok ]
+  * Fixed FriendListLayout constructor delegation fix
+
+  [ Zetok Zalbavar ]
+  * [README.md] inform that osx maintainer is wanted
+
+  [ bitok ]
+  * 2257 Fix and Style comboBox fix
+
+  [ tux3 ]
+  * Small startup speed improvement
+
+  [ TheNain38 ]
+  * Fixdisplaying Pub key when name empty
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 10 Oct 2015 15:41:28 +0000
+
 qtox (0.0.0+git20151002.r3565-1~deb8u+1) stable; urgency=medium
 
   * Backport to Jessie

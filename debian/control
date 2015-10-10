@@ -6,7 +6,6 @@ Standards-Version: 3.9.6
 Homepage: http://utoxisfinished.info/
 Build-Depends: debhelper (>= 9)
  ,dh-apparmor
- ,dh-exec
  ,libappindicator-dev
  ,libfilteraudio-dev (>= 0.0.0+git20150516)
  ,libswscale-dev
