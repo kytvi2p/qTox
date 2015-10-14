@@ -63,8 +63,36 @@ qtox (0.0.0+git20151014.r3626-1) unstable; urgency=medium
   [ TheNain38 ]
   * Fixdisplaying Pub key when name empty
 
+  [ Impyy ]
+  * Added a context menu to edit/remove the avatar
+
+  [ Nils Fenner ]
+  * cleanup includes
+  * simplify graphics scene initialization
+  * ScreenshotGrabber::showGrabber isn't a slot
+  * add methods to hide & restore currently visible qTox windows
+  * fix hide/restore qTox windows with space key
+  * no need to install an event filter on "this"
+
+  [ Zetok Zalbavar ]
+  * Make `Change password` dialog ~consistent with login page password form
+
+  [ bitok ]
+  * Added clear button for search field #2015
+
+  [ Nils Fenner ]
+  * set login dialog style via css stylesheet
+
+  [ Corey Sheldon ]
+  * ADDDING two deps needed for lrelease
+
+  [ Zetok Zalbavar ]
+  * Fix travis
+  * INSTALL.md: Fix fedora dependencies (fix #2399)
+
   [ Kill Your TV ]
   * New upstream git snapshot
+
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 14 Oct 2015 22:03:37 +0000
 
