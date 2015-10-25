@@ -1,5 +1,5 @@
 /*
-    Copyright © 2014-2015 by The qTox Project
+    Copyright © 2015 by The qTox Project
 
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
@@ -17,43 +17,26 @@
     along with qTox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETCAMVIEW_H
-#define NETCAMVIEW_H
+#ifndef MICFEEDBACKWIDGET_H
+#define MICFEEDBACKWIDGET_H
 
-#include "genericnetcamview.h"
+#include <QWidget>
 
-class QHBoxLayout;
-struct vpx_image;
-class VideoSource;
-class QFrame;
-class MovableWidget;
-
-class NetCamView : public GenericNetCamView
+class MicFeedbackWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    NetCamView(int friendId, QWidget *parent=0);
-
-    virtual void show(VideoSource* source, const QString& title);
-    virtual void hide();
-
-    void setSource(VideoSource* s);
-    void setTitle(const QString& title);
+    explicit MicFeedbackWidget(QWidget *parent = 0);
 
 protected:
-    void showEvent(QShowEvent* event) final override;
-
-private slots:
-    void updateRatio();
+    void paintEvent(QPaintEvent* event) override;
+    void timerEvent(QTimerEvent* event) override;
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 
 private:
-    void updateFrameSize(QSize size);
-
-    VideoSurface* selfVideoSurface;
-    MovableWidget* selfFrame;
-    int friendId;
-    bool e = false;
+    double current;
+    int timerId;
 };
 
-#endif // NETCAMVIEW_H
+#endif // MICFEEDBACKWIDGET_H
