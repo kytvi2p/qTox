@@ -29,6 +29,7 @@
 #include "src/persistence/historykeeper.h"
 #include "src/widget/flowlayout.h"
 #include "src/widget/translator.h"
+#include "src/video/groupnetcamview.h"
 #include <QDebug>
 #include <QTimer>
 #include <QPushButton>
@@ -164,7 +165,11 @@ void GroupChatForm::onSendTriggered()
 
 void GroupChatForm::onUserListChanged()
 {
-    nusersLabel->setText(tr("%1 users in chat", "Number of users in chat").arg(group->getPeersCount()));
+    int peersCount = group->getPeersCount();
+    if (peersCount == 1)
+        nusersLabel->setText(tr("1 user in chat", "Number of users in chat"));
+    else
+        nusersLabel->setText(tr("%1 users in chat", "Number of users in chat").arg(peersCount));
 
     QLayoutItem *child;
     while ((child = namesListLayout->takeAt(0)))
@@ -191,7 +196,14 @@ void GroupChatForm::onUserListChanged()
         orderizer[names[i]] = peerLabels[i];
         if (group->isSelfPeerNumber(i))
             peerLabels[i]->setStyleSheet("QLabel {color : green;}");
+
+        if (netcam && !group->isSelfPeerNumber(i))
+            static_cast<GroupNetCamView*>(netcam)->addPeer(i, names[i]);
     }
+
+    if (netcam)
+        static_cast<GroupNetCamView*>(netcam)->clearPeers();
+
     // now alphabetize and add to layout
     names.sort(Qt::CaseInsensitive);
     for (unsigned i=0; i<nNames; ++i)
@@ -204,7 +216,7 @@ void GroupChatForm::onUserListChanged()
     }
 
     // Enable or disable call button
-    if (group->getPeersCount() != 1)
+    if (peersCount != 1)
     {
         callButton->setEnabled(true);
         callButton->setObjectName("green");
@@ -227,9 +239,24 @@ void GroupChatForm::peerAudioPlaying(int peer)
     {
         peerAudioTimers[peer] = new QTimer(this);
         peerAudioTimers[peer]->setSingleShot(true);
-        connect(peerAudioTimers[peer], &QTimer::timeout, [=]{this->peerLabels[peer]->setStyleSheet("");
-                                                             delete this->peerAudioTimers[peer];
-                                                             this->peerAudioTimers[peer] = nullptr;});
+        connect(peerAudioTimers[peer], &QTimer::timeout, [this, peer]
+        {
+            if (netcam)
+                static_cast<GroupNetCamView*>(netcam)->removePeer(peer);
+
+            if (peer >= peerLabels.size())
+                return;
+
+            peerLabels[peer]->setStyleSheet("");
+            delete peerAudioTimers[peer];
+            peerAudioTimers[peer] = nullptr;
+        });
+
+        if (netcam)
+        {
+            static_cast<GroupNetCamView*>(netcam)->removePeer(peer);
+            static_cast<GroupNetCamView*>(netcam)->addPeer(peer, group->getPeerList()[peer]);
+        }
     }
     peerAudioTimers[peer]->start(500);
 }
@@ -308,6 +335,7 @@ void GroupChatForm::onCallClicked()
         volButton->style()->polish(volButton);
         volButton->setToolTip(tr("Mute call"));
         inCall = true;
+        showNetcam();
     }
     else
     {
@@ -324,7 +352,22 @@ void GroupChatForm::onCallClicked()
         volButton->style()->polish(volButton);
         volButton->setToolTip("");
         inCall = false;
+        hideNetcam();
     }
+}
+
+GenericNetCamView *GroupChatForm::createNetcam()
+{
+    GroupNetCamView* view = new GroupNetCamView(group->getGroupId(), this);
+
+    QStringList names = group->getPeerList();
+    for (int i = 0; i<names.size(); ++i)
+    {
+        if (!group->isSelfPeerNumber(i))
+            static_cast<GroupNetCamView*>(view)->addPeer(i, names[i]);
+    }
+
+    return view;
 }
 
 void GroupChatForm::keyPressEvent(QKeyEvent* ev)
@@ -367,5 +410,9 @@ void GroupChatForm::keyReleaseEvent(QKeyEvent* ev)
 
 void GroupChatForm::retranslateUi()
 {
-    nusersLabel->setText(GroupChatForm::tr("%1 users in chat", "Number of users in chat").arg(group->getPeersCount()));
+    int peersCount = group->getPeersCount();
+    if (peersCount == 1)
+        nusersLabel->setText(tr("1 user in chat", "Number of users in chat"));
+    else
+        nusersLabel->setText(tr("%1 users in chat", "Number of users in chat").arg(peersCount));
 }

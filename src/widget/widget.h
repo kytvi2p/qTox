@@ -85,7 +85,7 @@ public:
     ContentDialog* createContentDialog() const;
     ContentLayout* createContentDialog(DialogType type);
 
-    static void confirmExecutableOpen(const QFileInfo file);
+    static void confirmExecutableOpen(const QFileInfo &file);
 
     void clearAllReceipts();
     void reloadHistory();
@@ -157,6 +157,7 @@ protected:
     virtual void closeEvent(QCloseEvent *event) final override;
     virtual void changeEvent(QEvent *event) final override;
     virtual void resizeEvent(QResizeEvent *event) final override;
+    virtual void moveEvent(QMoveEvent *event) final override;
 
 private slots:
     void onAddClicked();
@@ -180,6 +181,9 @@ private slots:
     void onSplitterMoved(int pos, int index);
     void processOfflineMsgs();
     void friendListContextMenu(const QPoint &pos);
+
+private:
+    int icon_size;
 
 private:
     enum ActiveToolMenuButton {
@@ -224,6 +228,7 @@ private:
     QAction *statusOnline;
     QAction *statusAway;
     QAction *statusBusy;
+    QAction *actionLogout;
     QAction *actionQuit;
 
     QMenu* filterMenu;

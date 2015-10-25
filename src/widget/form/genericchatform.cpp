@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QShortcut>
 #include <QKeyEvent>
+#include <QSplitter>
 
 #include "src/persistence/smileypack.h"
 #include "src/widget/emoticonswidget.h"
@@ -44,6 +45,7 @@
 #include "src/widget/contentlayout.h"
 #include "src/widget/tool/croppinglabel.h"
 #include <QPushButton>
+#include "src/video/genericnetcamview.h"
 
 GenericChatForm::GenericChatForm(QWidget *parent)
   : QWidget(parent, Qt::Window)
@@ -73,7 +75,8 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     chatWidget = new ChatLog(this);
     chatWidget->setBusyNotification(ChatMessage::createBusyNotification());
 
-    connect(&Settings::getInstance(), &Settings::emojiFontChanged, this, [this]() { chatWidget->forceRelayout(); });
+    connect(&Settings::getInstance(), &Settings::emojiFontChanged,
+            this, [this]() { chatWidget->forceRelayout(); });
 
     msgEdit = new ChatTextEdit();
 
@@ -127,8 +130,17 @@ GenericChatForm::GenericChatForm(QWidget *parent)
     micButton->setStyleSheet(micButtonStylesheet);
 
     setLayout(mainLayout);
-    mainLayout->addWidget(chatWidget);
-    mainLayout->addLayout(mainFootLayout);
+
+    bodySplitter = new QSplitter(Qt::Vertical, this);
+    connect(bodySplitter, &QSplitter::splitterMoved, this, &GenericChatForm::onSplitterMoved);
+
+    QWidget* contentWidget = new QWidget(this);
+    QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
+    contentLayout->addWidget(chatWidget);
+    contentLayout->addLayout(mainFootLayout);
+    bodySplitter->addWidget(contentWidget);
+
+    mainLayout->addWidget(bodySplitter);
     mainLayout->setMargin(0);
 
     footButtonsSmall->addWidget(emoteButton);
@@ -175,12 +187,16 @@ GenericChatForm::GenericChatForm(QWidget *parent)
 
     menu.addActions(chatWidget->actions());
     menu.addSeparator();
-    saveChatAction = menu.addAction(QIcon::fromTheme("document-save"), QString(), this, SLOT(onSaveLogClicked()));
-    clearAction = menu.addAction(QIcon::fromTheme("edit-clear"), QString(), this, SLOT(clearChatArea(bool)));
+    saveChatAction = menu.addAction(QIcon::fromTheme("document-save"),
+                                    QString(), this, SLOT(onSaveLogClicked()));
+    clearAction = menu.addAction(QIcon::fromTheme("edit-clear"),
+                                 QString(), this, SLOT(clearChatArea(bool)));
     menu.addSeparator();
 
-    connect(emoteButton, &QPushButton::clicked, this, &GenericChatForm::onEmoteButtonClicked);
-    connect(chatWidget, &ChatLog::customContextMenuRequested, this, &GenericChatForm::onChatContextMenuRequested);
+    connect(emoteButton, &QPushButton::clicked,
+            this, &GenericChatForm::onEmoteButtonClicked);
+    connect(chatWidget, &ChatLog::customContextMenuRequested,
+            this, &GenericChatForm::onChatContextMenuRequested);
 
     new QShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_L, this, SLOT(clearChatArea()));
 
@@ -194,6 +210,8 @@ GenericChatForm::GenericChatForm(QWidget *parent)
 
     retranslateUi();
     Translator::registerHandler(std::bind(&GenericChatForm::retranslateUi, this), this);
+
+    netcam = nullptr;
 }
 
 GenericChatForm::~GenericChatForm()
@@ -254,7 +272,7 @@ QDate GenericChatForm::getLatestDate() const
 void GenericChatForm::setName(const QString &newName)
 {
     nameLabel->setText(newName);
-    nameLabel->setToolTip(newName); // for overlength names
+    nameLabel->setToolTip(newName.toHtmlEscaped()); // for overlength names
 }
 
 void GenericChatForm::show(ContentLayout* contentLayout)
@@ -294,17 +312,18 @@ void GenericChatForm::onChatContextMenuRequested(QPoint pos)
 ChatMessage::Ptr GenericChatForm::addMessage(const ToxId& author, const QString &message, bool isAction,
                                              const QDateTime &datetime, bool isSent)
 {
-    QString authorStr = author.isActiveProfile() ? Core::getInstance()->getUsername() : resolveToxId(author);
+    bool authorIsActiveProfile = author.isActiveProfile();
+    QString authorStr = authorIsActiveProfile ? Core::getInstance()->getUsername() : resolveToxId(author);
 
     ChatMessage::Ptr msg;
     if (isAction)
     {
-        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ACTION, false);
+        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ACTION, authorIsActiveProfile);
         previousId.clear();
     }
     else
     {
-        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::NORMAL, author.isActiveProfile());
+        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::NORMAL, authorIsActiveProfile);
         if ( (author == previousId) && (prevMsgDateTime.secsTo(QDateTime::currentDateTime()) < getChatLog()->repNameAfter) )
             msg->hideSender();
 
@@ -461,6 +480,7 @@ QString GenericChatForm::resolveToxId(const ToxId &id)
 void GenericChatForm::insertChatMessage(ChatMessage::Ptr msg)
 {
     chatWidget->insertChatlineAtBottom(std::dynamic_pointer_cast<ChatLine>(msg));
+    emit messageInserted();
 }
 
 void GenericChatForm::hideEvent(QHideEvent* event)
@@ -510,14 +530,71 @@ bool GenericChatForm::eventFilter(QObject* object, QEvent* event)
     return false;
 }
 
+void GenericChatForm::onSplitterMoved(int, int)
+{
+    if (netcam)
+        netcam->setShowMessages(bodySplitter->sizes()[1] == 0);
+}
+
+void GenericChatForm::onShowMessagesClicked()
+{
+    if (netcam)
+    {
+        if (bodySplitter->sizes()[1] == 0)
+            bodySplitter->setSizes({1, 1});
+        else
+            bodySplitter->setSizes({1, 0});
+
+        onSplitterMoved(0, 0);
+    }
+}
+
 void GenericChatForm::retranslateUi()
 {
+    QString callObjectName = callButton->objectName();
+    QString videoObjectName = videoButton->objectName();
+
+    if (callObjectName == QStringLiteral("green"))
+        callButton->setToolTip(tr("Start audio call"));
+    else if (callObjectName == QStringLiteral("yellow"))
+        callButton->setToolTip(tr("Accept audio call"));
+    else if (callObjectName == QStringLiteral("red"))
+        callButton->setToolTip(tr("End audio call"));
+
+    if (videoObjectName == QStringLiteral("green"))
+        videoButton->setToolTip(tr("Start video call"));
+    else if (videoObjectName == QStringLiteral("yellow"))
+        videoButton->setToolTip(tr("Accept video call"));
+    else if (videoObjectName == QStringLiteral("red"))
+        videoButton->setToolTip(tr("End video call"));
+
     sendButton->setToolTip(tr("Send message"));
     emoteButton->setToolTip(tr("Smileys"));
     fileButton->setToolTip(tr("Send file(s)"));
     screenshotButton->setToolTip(tr("Send a screenshot"));
-    callButton->setToolTip(tr("Start an audio call"));
-    videoButton->setToolTip(tr("Start a video call"));
     saveChatAction->setText(tr("Save chat log"));
     clearAction->setText(tr("Clear displayed messages"));
+}
+
+void GenericChatForm::showNetcam()
+{
+    if (!netcam)
+        netcam = createNetcam();
+
+    connect(netcam, &GenericNetCamView::showMessageClicked,
+            this, &GenericChatForm::onShowMessagesClicked);
+
+    bodySplitter->insertWidget(0, netcam);
+    bodySplitter->setCollapsible(0, false);
+}
+
+void GenericChatForm::hideNetcam()
+{
+    if (!netcam)
+        return;
+
+    netcam->close();
+    netcam->hide();
+    delete netcam;
+    netcam = nullptr;
 }
