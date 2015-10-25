@@ -1,3 +1,9 @@
+qtox (0.0.0+git20151024.r3747-1~vivid+1) vivid; urgency=medium
+
+  * Building for Vivid
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 25 Oct 2015 18:50:37 +0000
+
 qtox (0.0.0+git20151024.r3747-1) unstable; urgency=medium
 
   [ TheSpiritXIII ]
