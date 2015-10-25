@@ -1,3 +1,192 @@
+qtox (0.0.0+git20151024.r3747-1) unstable; urgency=medium
+
+  [ TheSpiritXIII ]
+  * Video: Embed video into chat
+  * Video: View self video during video call
+  * Video: Add collapse/expand button, expand all the way, better self video
+    output location
+  * Keep aspect ratio of inner video
+  * Video: Show avatar, clean ups
+  * Video: Group audio view avatars
+  * Video: Initial video when call starts
+  * Video: resizable group avatar, synchronize avatar
+  * Video: Cleanup
+
+  [ Dmytro Shynkevych ]
+  * statusnotifier: fixed pointer type
+  * settings: fixed check on an uninitialized value
+  * systemtrayicon: fixed multiple gdk_pixbuf memory leaks
+  * cameradevice: fixed a major leak: avformat_context not always freed
+  * profileform: fixed leaky toxId field
+  * systemtrayicon: fixed multiple small leaks
+  * cameradevice: fixed a regression
+
+  [ PKev ]
+  * fix write to DB fix #2292, please test i don't sure
+
+  [ Dmytro Shynkevych ]
+  * cameradevice: fixed a double free
+
+  [ agilob ]
+  * remove menubar and status bar
+
+  [ bitok ]
+  * #2167 fix: qTox should check if string in "Add friend" input field is 64
+    chars long
+
+  [ agilob ]
+  * fix closing video device after changing tab
+
+  [ bitok ]
+  * Migration to QRegularExpression and text formulation fix
+
+  [ agilob ]
+  * add debugging messages to camerasource, code reformatting to make it more
+    readable and ogranized better
+  * nicely close camera when quitting qtox from opened av tab, fixes #2037
+  * update video mode on manual change , closes #2046
+  * Video: fix sgefault when disconnecting from video call
+
+  [ Nils Fenner ]
+  * remove obsolete QThread::msleep completely
+  * cleanup inheritance QThread --> QObject and includes
+
+  [ agilob ]
+  * reorganize generalsettings:
+  * generalsettings form: removed empty label
+
+  [ Nils Fenner ]
+  * remove dead code
+  * fix #2360
+  * initialize IPC on first call
+  * readd msleep with lowest possible sleep time
+
+  [ bitok ]
+  * Error display more explicit
+  * Fix formulation
+
+  [ agilob ]
+  * generalsetting layout: change indentation method
+
+  [ bitok ]
+  * Fix performance issues detected with static analyze
+
+  [ agilob ]
+  * remove slash
+
+  [ Nils Fenner ]
+  * style login screen completely via css
+
+  [ PKev ]
+  * Save avatar in DB Partially addresses an issue #1656
+
+  [ PKEv ]
+  * add import avatars
+  * update delete avatar action
+
+  [ kehugter ]
+  * Spanish translation update
+
+  [ Zetok Zalbavar ]
+  * Fix indentation for `Focus window` setting
+
+  [ Matthieu Baerts ]
+  * Autorun:xdg: create autostart dir if needed
+
+  [ Dmytro Shynkevych ]
+  * systemtrayicon: optimized QImage <-> GdkPixbuf conversion
+
+  [ Zetok Zalbavar ]
+  * Make text about not long enough password disappear if no password given
+  * Display correct error message when trying to load non-existent profile
+
+  [ agilob ]
+  * remove unused code, removed unused checks
+  * one more line to remove
+  * remove qdebug from audio.cpp:270
+  * qunused on event
+
+  [ PKEv ]
+  * correct import avatar for user without history
+
+  [ Zetok Zalbavar ]
+  * Remove an empty line and unneeded slash
+
+  [ PKEv ]
+  * add multithreaded
+
+  [ Alexey Suvorov ]
+  * Update Russian translation
+
+  [ PKEv ]
+  * make import run once and rename function
+
+  [ Nils Fenner ]
+  * use native dialog buttons in message boxes
+  * fix warnings
+  * Audio: persistent volume sliders, mic feedback and volume
+
+  [ TheSpiritXIII ]
+  * Audio: Open output only when necessary
+  * Audio: Fix crash when no devices available
+  * Audio: Don't need this?
+  * Audio: Only open mic when requested
+  * Audio: Fix unclosed audio when hanging up
+
+  [ Nils Fenner ]
+  * Audio: Fix device open only when needed
+  * remove outcommented code
+  * the big code cleanup
+  * move docs to cpp
+  * fix asserts when (un-)subscribing input
+  * further cleanup
+  * remove dead & unfinished code
+  * change wording in docs
+  * warn when trying to start audio thread twice
+  * Get rid of static methods and bugs
+  * don't open audio in/out twice
+  * cleanup Audio::openInput
+  * cleanup Audio::openOutput
+  * switch colors in mic gain indicator gradient
+
+  [ codedust ]
+  * Add :focus selector for the login button in loginScreen.css
+
+  [ Zetok Zalbavar ]
+  * Unlock mutex before returning history instance
+  * README.md: correct location of the Gentoo overlay
+
+  [ Nils Fenner ]
+  * remove unused include and forward declarations
+
+  [ Dmytro Shynkevych ]
+  * systemtrayicon: switched to manual memory management for pixmap data
+
+  [ Rowen Stipe ]
+  * Compile on Mac
+
+  [ tux3 ]
+  * Fix qTox on OSX, closes #2447
+
+  [ agilob ]
+  * use Qt backend of KDE5
+  * fix icon scaling on gnome3 by scaling icons down
+  * remove dependency injection from systemtrayicon
+  * core review changes - formatting
+  * add quit role to quit action in trayicon
+  * add logout action to tray menu
+  * use plaintext label for username and status in header
+  * remove unused code, better logging for systray, removed KDE5 from enum
+  * change default quit icon in tray menu
+
+  [ Zetok Zalbavar ]
+  * Remove ~duplicated code for tray backed selection
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 25 Oct 2015 17:04:50 +0000
+
 qtox (0.0.0+git20151014.r3626-1) unstable; urgency=medium
 
   [ Zetok Zalbavar ]
