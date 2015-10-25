@@ -1,3 +1,9 @@
+qtox (0.0.0+git20151024.r3747-1ubuntu1) wily; urgency=medium
+
+  * Building for Wily
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 25 Oct 2015 18:42:17 +0000
+
 qtox (0.0.0+git20151024.r3747-1) unstable; urgency=medium
 
   [ TheSpiritXIII ]
@@ -284,12 +290,6 @@ qtox (0.0.0+git20151014.r3626-1) unstable; urgency=medium
 
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 14 Oct 2015 22:03:37 +0000
-
-qtox (0.0.0+git20151002.r3565-1ubuntu1) wily; urgency=medium
-
-  * Building for wily
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 04 Oct 2015 00:38:23 +0000
 
 qtox (0.0.0+git20151002.r3565-1) unstable; urgency=medium
 
