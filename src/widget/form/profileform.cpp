@@ -79,7 +79,7 @@ ProfileForm::ProfileForm(QWidget *parent) :
     toxId->setToolTip(bodyUI->toxId->toolTip());
 
     QVBoxLayout *toxIdGroup = qobject_cast<QVBoxLayout*>(bodyUI->toxGroup->layout());
-    toxIdGroup->replaceWidget(bodyUI->toxId, toxId);
+    delete toxIdGroup->replaceWidget(bodyUI->toxId, toxId);     // Original toxId is in heap, delete it
     bodyUI->toxId->hide();
 
     bodyUI->qrLabel->setWordWrap(true);
@@ -184,18 +184,13 @@ void ProfileForm::showProfilePictureContextMenu(const QPoint &point)
     QPoint pos = profilePicture->mapToGlobal(point);
 
     QMenu contextMenu;
-    QAction *removeAction = contextMenu.addAction(tr("Remove"));
+    QAction *removeAction = contextMenu.addAction(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Remove"));
     QAction *selectedItem = contextMenu.exec(pos);
 
     if (selectedItem == removeAction)
     {
         QString selfPubKey = Core::getInstance()->getSelfId().publicKey;
-        if (!QFile::remove(Settings::getInstance().getSettingsDirPath()+"avatars/"+selfPubKey.left(64)+".png"))
-        {
-            GUI::showError(tr("Error"), tr("Could not remove avatar."));
-            return;
-        }
-
+        HistoryKeeper::getInstance()->removeAvatar(selfPubKey);
         Core::getInstance()->setAvatar({});
     }
 }
@@ -256,7 +251,7 @@ void ProfileForm::onAvatarClicked()
         return bytes;
     };
 
-    QString filename = QFileDialog::getOpenFileName(0,
+    QString filename = QFileDialog::getOpenFileName(this,
         tr("Choose a profile picture"),
         QDir::homePath(),
         Nexus::getSupportedImageFilter());
@@ -296,8 +291,9 @@ void ProfileForm::onAvatarClicked()
     // If this happens, you're really doing it on purpose.
     if (bytes.size() > 65535)
     {
-        QMessageBox::critical(this, tr("Error"),
-            tr("The supplied image is too large.\nPlease use another image."));
+        QMessageBox::critical(this,
+                              tr("Error"),
+                              tr("The supplied image is too large.\nPlease use another image."));
         return;
     }
 
@@ -332,7 +328,8 @@ void ProfileForm::onRenameClicked()
 void ProfileForm::onExportClicked()
 {
     QString current = Nexus::getProfile()->getName() + Core::TOX_EXT;
-    QString path = QFileDialog::getSaveFileName(0, tr("Export profile", "save dialog title"),
+    QString path = QFileDialog::getSaveFileName(this,
+                                                tr("Export profile", "save dialog title"),
                     QDir::home().filePath(current),
                     tr("Tox save file (*.tox)", "save dialog filter"));
     if (!path.isEmpty())
@@ -349,8 +346,9 @@ void ProfileForm::onExportClicked()
 
 void ProfileForm::onDeleteClicked()
 {
-    if (GUI::askQuestion(tr("Really delete profile?","deletion confirmation title"),
-                      tr("Are you sure you want to delete this profile?","deletion confirmation text")))
+    if (GUI::askQuestion(
+                tr("Really delete profile?", "deletion confirmation title"),
+                tr("Are you sure you want to delete this profile?", "deletion confirmation text")))
     {
         Nexus& nexus = Nexus::getInstance();
         nexus.getProfile()->remove();
@@ -373,7 +371,8 @@ void ProfileForm::onCopyQrClicked()
 void ProfileForm::onSaveQrClicked()
 {
     QString current = Nexus::getProfile()->getName() + ".png";
-    QString path = QFileDialog::getSaveFileName(0, tr("Save", "save qr image"),
+    QString path = QFileDialog::getSaveFileName(this,
+                                                tr("Save", "save qr image"),
                    QDir::home().filePath(current),
                    tr("Save QrCode (*.png)", "save dialog filter"));
     if (!path.isEmpty())
@@ -418,7 +417,7 @@ void ProfileForm::onChangePassClicked()
 void ProfileForm::retranslateUi()
 {
     bodyUI->retranslateUi(this);
-    nameLabel->setText(QObject::tr("User Profile"));
+    nameLabel->setText(tr("User Profile"));
     // We have to add the toxId tooltip here and not in the .ui or Qt won't know how to translate it dynamically
     toxId->setToolTip(tr("This bunch of characters tells other Tox clients how to contact you.\nShare it with your friends to communicate."));
 }

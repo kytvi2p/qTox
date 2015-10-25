@@ -80,12 +80,6 @@ Core::Core(QThread *CoreThread, Profile& profile) :
         calls[i].sendAudioTimer = new QTimer();
         calls[i].sendAudioTimer->moveToThread(coreThread);
     }
-
-    // OpenAL init
-    QString outDevDescr = Settings::getInstance().getOutDev();
-    Audio::openOutput(outDevDescr);
-    QString inDevDescr = Settings::getInstance().getInDev();
-    Audio::openInput(inDevDescr);
 }
 
 void Core::deadifyTox()
@@ -131,8 +125,9 @@ Core::~Core()
     delete[] videobuf;
     videobuf=nullptr;
 
-    Audio::closeInput();
-    Audio::closeOutput();
+    Audio& audio = Audio::getInstance();
+    audio.closeInput();
+    audio.closeOutput();
 }
 
 Core* Core::getInstance()
@@ -292,7 +287,7 @@ void Core::start()
         emit idSet(id);
 
     // tox core is already decrypted
-    if (Settings::getInstance().getEnableLogging() && Nexus::getProfile()->isEncrypted())
+    if (Nexus::getProfile()->isEncrypted())
         checkEncryptedHistory();
 
     loadFriends();
@@ -329,6 +324,7 @@ void Core::start()
     toxav_register_audio_callback(toxav, playCallAudio, this);
     toxav_register_video_callback(toxav, playCallVideo, this);
 
+    HistoryKeeper::getInstance()->importAvatarToDatabase(getSelfId().toString().left(64));
     QPixmap pic = Settings::getInstance().getSavedAvatar(getSelfId().toString());
     if (!pic.isNull() && !pic.size().isEmpty())
     {

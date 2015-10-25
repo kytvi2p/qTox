@@ -40,7 +40,7 @@ QMutex CameraDevice::openDeviceLock, CameraDevice::iformatLock;
 AVInputFormat* CameraDevice::iformat{nullptr};
 AVInputFormat* CameraDevice::idesktopFormat{nullptr};
 
-CameraDevice::CameraDevice(const QString devName, AVFormatContext *context)
+CameraDevice::CameraDevice(const QString &devName, AVFormatContext *context)
     : devName{devName}, context{context}, refcount{1}
 {
 }
@@ -226,8 +226,11 @@ QVector<QPair<QString, QString>> CameraDevice::getRawDeviceListGeneric()
     {
         av_dict_free(&tmp);
         avformat_free_context(s);
+        return devices;
     }
     avdevice_list_devices(s, &devlist);
+    av_dict_free(&tmp);
+    avformat_free_context(s);
     if (!devlist)
     {
         qWarning() << "avdevice_list_devices failed";
