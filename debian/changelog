@@ -1,3 +1,15 @@
+qtox (0.0.0+git20151102.r3751-1) unstable; urgency=medium
+
+  [ agilob ]
+  * Show compiletime Qt version in aboutsettings
+  * Change logout icon to dialog type icon
+  * Simplify hardcoding qt version in settings
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 03 Nov 2015 02:45:22 +0000
+
 qtox (0.0.0+git20151024.r3747-1) unstable; urgency=medium
 
   [ TheSpiritXIII ]
