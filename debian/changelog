@@ -1,3 +1,131 @@
+qtox (0.0.0+git20151107.r3825-1) unstable; urgency=medium
+
+  [ kehugter ]
+  * Update Debian 8 dependencies, fix 'Debian 10' mentions
+  * Split Debian/Ubuntu14/Ubuntu15 instructions, remove support for Debian <8
+  * Swap filter_audio/toxcore dependencies order, minor formatting changes
+  * Removed last Debian 10 mention
+
+  [ tux3 ]
+  * Strip out old AV code
+  * Implement basic call logic
+  * Better data structure for tox calls
+  * Implement audio calls
+  * Implement video calls
+  * Clean up dead code in CoreAV
+  * Implement group calls
+  * Fix crash due to erase/remove typo
+  * Fix call start/call invite race condition
+  * Cleanup UI/CoreAV interface
+  * Multithread CoreAV
+  * Clean up callback hell between AV UI and CoreAV
+  * Use actual mutexes for CameraSource
+  * Fix bitrate callback to match toxav update
+
+  [ Zetok Zalbavar ]
+  * Login window: do not focus buttons when clicking
+
+  [ tux3 ]
+  * Fix IPC::~IPC use after free of static log file
+  * Apply input volume to all audio channels
+  * Delete CoreAV from the Core thread
+  * Delete CoreAV's timer from the CoreAV thread
+  * Revert "Delete CoreAV from the Core thread"
+  * Fix possible nullptr deref in ~CameraSource
+  * Add 45s call ringing timeout
+  * Add ringing sound for received calls
+  * Refactor uses of playMono16Sound
+  * Re-enable buttons if calling failed
+  * Remove some debug output
+  * Reload audio devices on the fly from settings
+  * VideoSurface: Release null frames
+  * Properly signal when we stop sending video
+  * CoreVideoSource: Replace insane spinlock by QMutex
+  * Faster video device opening
+  * CoreAV: Fix BlockingQueued connections deadlock
+
+  [ TheNain38 ]
+  * Fix #2460 Light Icon setting disabled but should not
+
+  [ tux3 ]
+  * Don't assert if a call dies while we answer it
+  * Re-enable call buttons if video call fails
+  * Fix call race leading to deadlock and memory leak
+
+  [ Alexey ]
+  * Update Russian translate
+
+  [ ovalseven8 ]
+  * domain.com -> example.com
+
+  [ tux3 ]
+  * Properly exit CoreAV thread
+  * Show video button when making outgoing video call
+
+  [ Alexey ]
+  * Update Russian Translate
+
+  [ ovalseven8 ]
+  * Update German translation file
+
+  [ kehugter ]
+  * Remove unneeded packagen in Debian instrucitons
+
+  [ tux3 ]
+  * Fix inconsistent noexcept in toxcall.cpp
+  * Fix crash on audio -> video call promotion
+  * Don't spam log dropped audio frames
+
+  [ agilob ]
+  * Add static icons for tray menu logout and quit
+
+  [ tux3 ]
+  * Automatic AV bitrate management
+
+  [ TheNain38 ]
+  * Update French translation
+
+  [ tux3 ]
+  * Fix #2512
+  * List video devices using v4l2 directly, not ffmpeg
+
+  [ Marcin Łabanowski ]
+  * simple_make: add libsodium to fedora dependencies
+
+  [ Nils Fenner ]
+  * adjust coloring and border of logout icon to better match qTox style
+
+  [ nikolas-n ]
+  * Added Greek translation
+  * Added Greek translation
+
+  [ Nikolas ]
+  * Update el.ts
+
+  [ tux3 ]
+  * Add None audio I/O devices
+  * Improve perf of opening/closing AV tab
+
+  [ Zetok Zalbavar ]
+  * Make list of languages listed vertically in source
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 07 Nov 2015 19:07:03 +0000
+
+qtox (0.0.0+git20151102.r3751-1) unstable; urgency=medium
+
+  [ agilob ]
+  * Show compiletime Qt version in aboutsettings
+  * Change logout icon to dialog type icon
+  * Simplify hardcoding qt version in settings
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 03 Nov 2015 02:45:22 +0000
+
 qtox (0.0.0+git20151024.r3747-1~vivid+1) vivid; urgency=medium
 
   * Building for Vivid
