@@ -133,8 +133,16 @@ void Widget::init()
     statusBusy->setIcon(prepareIcon(getStatusIconPath(Status::Busy), icon_size, icon_size));
     connect(statusBusy, &QAction::triggered, this, &Widget::setStatusBusy);
 
+    actionLogout = new QAction(this);
+    actionLogout->setIcon(prepareIcon(":/img/others/logout-icon.svg", icon_size, icon_size));
+
+    actionQuit = new QAction(this);
+    actionQuit->setMenuRole(QAction::QuitRole);
+    actionQuit->setIcon(prepareIcon(":/ui/rejectCall/rejectCall.svg", icon_size, icon_size));
+    connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit);
+
     layout()->setContentsMargins(0, 0, 0, 0);
-    ui->friendList->setStyleSheet(Style::resolve(Style::getStylesheet(":ui/friendList/friendList.css")));
+    ui->friendList->setStyleSheet(Style::resolve(Style::getStylesheet(":/ui/friendList/friendList.css")));
 
     profilePicture = new MaskablePixmapWidget(this, QSize(40, 40), ":/img/avatar_mask.svg");
     profilePicture->setPixmap(QPixmap(":/img/contact_dark.svg"));
@@ -183,7 +191,6 @@ void Widget::init()
 
 #ifndef Q_OS_MAC
     ui->statusHead->setStyleSheet(Style::getStylesheet(":/ui/window/statusPanel.css"));
-    ui->statusPanel->setStyleSheet(Style::getStylesheet(":/ui/window/statusPanel.css"));
 #endif
 
     contactListWidget = new FriendListWidget(this, Settings::getInstance().getGroupchatPosition());
@@ -218,6 +225,9 @@ void Widget::init()
     addFriendForm = new AddFriendForm;
     profileForm = new ProfileForm();
     settingsWidget = new SettingsWidget();
+
+    //connect logout tray menu action
+    connect(actionLogout, &QAction::triggered, profileForm, &ProfileForm::onLogoutClicked);
 
     Core* core = Nexus::getCore();
     connect(core, &Core::fileDownloadFinished, filesForm, &FilesForm::onFileDownloadComplete);
@@ -404,20 +414,20 @@ void Widget::updateIcons()
     QString status;
     if (eventIcon)
     {
-        status = "event";
+        status = QStringLiteral("event");
     }
     else
     {
         status = ui->statusButton->property("status").toString();
         if (!status.length())
-            status = "offline";
+            status = QStringLiteral("offline");
     }
 
     QIcon ico;
     if (ico.isNull())
     {
         QString color = Settings::getInstance().getLightTrayIcon() ? "light" : "dark";
-        QString path = ":img/taskbar/" + color + "/taskbar_" + status + ".svg";
+        QString path = ":/img/taskbar/" + color + "/taskbar_" + status + ".svg";
         QSvgRenderer renderer(path);
 
         // Prepare a QImage with desired characteritisc
@@ -492,6 +502,11 @@ void Widget::closeEvent(QCloseEvent *event)
     }
     else
     {
+        if (autoAwayActive)
+        {
+            emit statusSet(Status::Online);
+            autoAwayActive = false;
+        }
         saveWindowGeometry();
         saveSplitterGeometry();
         qApp->exit(0);
@@ -879,13 +894,13 @@ void Widget::addFriend(int friendId, const QString &userId)
     if (chatDate > activityDate && chatDate.isValid())
         Settings::getInstance().setFriendActivity(newfriend->getToxId(), chatDate);
 
-    contactListWidget->addFriendWidget(newfriend->getFriendWidget(),Status::Offline,Settings::getInstance().getFriendCircleID(newfriend->getToxId()));
+    contactListWidget->addFriendWidget(newfriend->getFriendWidget(), Status::Offline, Settings::getInstance().getFriendCircleID(newfriend->getToxId()));
 
     Core* core = Nexus::getCore();
     CoreAV* coreav = core->getAv();
     connect(newfriend, &Friend::displayedNameChanged, this, &Widget::onFriendDisplayChanged);
     connect(settingsWidget, &SettingsWidget::compactToggled, newfriend->getFriendWidget(), &GenericChatroomWidget::compactChange);
-    connect(newfriend->getFriendWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*,bool)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*,bool)));
+    connect(newfriend->getFriendWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*, bool)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*, bool)));
     connect(newfriend->getFriendWidget(), SIGNAL(removeFriend(int)), this, SLOT(removeFriend(int)));
     connect(newfriend->getFriendWidget(), SIGNAL(copyFriendIdToClipboard(int)), this, SLOT(copyFriendIdToClipboard(int)));
     connect(newfriend->getFriendWidget(), SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), newfriend->getChatForm(), SLOT(focusInput()));
@@ -1220,9 +1235,6 @@ bool Widget::newMessageAlert(QWidget* currentWindow, bool isActive, bool sound, 
     if (!inactiveWindow && isActive)
         return false;
 
-    if (ui->statusButton->property("status").toString() == "busy")
-        return false;
-
     if (notify)
     {
         QApplication::alert(currentWindow);
@@ -1236,7 +1248,7 @@ bool Widget::newMessageAlert(QWidget* currentWindow, bool isActive, bool sound, 
         }
 
         if (Settings::getInstance().getNotifySound() && sound)
-            Audio::getInstance().playMono16Sound(":audio/notification.pcm");
+            Audio::getInstance().playMono16Sound(":/audio/notification.pcm");
     }
 
     return true;
@@ -1654,17 +1666,6 @@ void Widget::onTryCreateTrayIcon()
             updateIcons();
             trayMenu = new QMenu(this);
 
-            QStyle *style = qApp->style();
-
-            actionLogout = new QAction(tr("&Logout"), this);
-            actionLogout->setIcon(prepareIcon("://img/others/logout-icon.svg", icon_size, icon_size));
-            connect(actionLogout, &QAction::triggered, profileForm, &ProfileForm::onLogoutClicked);
-
-            actionQuit = new QAction(tr("&Exit"), this);
-            actionQuit->setMenuRole(QAction::QuitRole);
-            actionQuit->setIcon(prepareIcon("://ui/rejectCall/rejectCall.svg", icon_size, icon_size));
-            connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit);
-
             trayMenu->addAction(statusOnline);
             trayMenu->addAction(statusAway);
             trayMenu->addAction(statusBusy);
@@ -1848,8 +1849,8 @@ void Widget::reloadTheme()
     ui->tooliconsZone->setStyleSheet(Style::resolve("QPushButton{background-color:@themeDark;border:none;}QPushButton:hover{background-color:@themeMediumDark;border:none;}QPushButton:checked{background-color:@themeMedium;border:none;}QPushButton:pressed{background-color:@themeMediumLight;border:none;}"));
     ui->statusPanel->setStyleSheet(statusPanelStyle);
     ui->statusHead->setStyleSheet(statusPanelStyle);
-    ui->friendList->setStyleSheet(Style::getStylesheet(":ui/friendList/friendList.css"));
-    ui->statusButton->setStyleSheet(Style::getStylesheet(":ui/statusButton/statusButton.css"));
+    ui->friendList->setStyleSheet(Style::getStylesheet(":/ui/friendList/friendList.css"));
+    ui->statusButton->setStyleSheet(Style::getStylesheet(":/ui/statusButton/statusButton.css"));
     contactListWidget->reDraw();
 
     for (Friend* f : FriendList::getAllFriends())
@@ -1874,14 +1875,14 @@ QString Widget::getStatusIconPath(Status status)
     switch (status)
     {
     case Status::Online:
-        return ":img/status/dot_online.svg";
+        return ":/img/status/dot_online.svg";
     case Status::Away:
-        return ":img/status/dot_away.svg";
+        return ":/img/status/dot_away.svg";
     case Status::Busy:
-        return ":img/status/dot_busy.svg";
+        return ":/img/status/dot_busy.svg";
     case Status::Offline:
     default:
-        return ":img/status/dot_offline.svg";
+        return ":/img/status/dot_offline.svg";
     }
 }
 
@@ -1900,7 +1901,14 @@ inline QIcon Widget::prepareIcon(QString path, uint32_t w, uint32_t h)
     {
         if (w > 0 && h > 0)
         {
-            return getStatusIconPixmap(path, w, h);
+            QSvgRenderer renderer(path);
+
+            QPixmap pm(w, h);
+            pm.fill(Qt::transparent);
+            QPainter painter(&pm);
+            renderer.render(&painter, pm.rect());
+
+            return QIcon(pm);
         }
     }
 #endif
@@ -1919,25 +1927,25 @@ QString Widget::getStatusTitle(Status status)
     switch (status)
     {
     case Status::Online:
-        return "online";
+        return QStringLiteral("online");
     case Status::Away:
-        return "away";
+        return QStringLiteral("away");
     case Status::Busy:
-        return "busy";
+        return QStringLiteral("busy");
     case Status::Offline:
     default:
-        return "offline";
+        return QStringLiteral("offline");
     }
 }
 
 Status Widget::getStatusFromString(QString status)
 {
-    if (status == "online")
+    if (status == QStringLiteral("online"))
         return Status::Online;
-    else if (status == "busy")
-        return Status::Busy;
-    else if (status == "away")
+    else if (status == QStringLiteral("away"))
         return Status::Away;
+    else if (status == QStringLiteral("busy"))
+        return Status::Busy;
     else
         return Status::Offline;
 }
@@ -2061,6 +2069,8 @@ void Widget::retranslateUi()
     statusOnline->setText(tr("Online", "Button to set your status to 'Online'"));
     statusAway->setText(tr("Away", "Button to set your status to 'Away'"));
     statusBusy->setText(tr("Busy", "Button to set your status to 'Busy'"));
+    actionLogout->setText(tr("Logout", "Tray action menu to logout user"));
+    actionQuit->setText(tr("Exit", "Tray action menu to exit tox"));
 
     if (!Settings::getInstance().getSeparateWindow())
         setWindowTitle(fromDialogType(SettingDialog));
