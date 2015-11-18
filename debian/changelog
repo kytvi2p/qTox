@@ -1,3 +1,9 @@
+qtox (0.0.0+git20151114.r3871-1~vivid+1) vivid; urgency=medium
+
+  * Building for Vivid
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 18 Nov 2015 11:16:06 +0000
+
 qtox (0.0.0+git20151114.r3871-1) unstable; urgency=medium
 
   [ Ferit Tunçer ]
@@ -75,12 +81,6 @@ qtox (0.0.0+git20151114.r3865-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Nov 2015 14:13:25 +0000
-
-qtox (0.0.0+git20151107.r3825-1~vivid+1) vivid; urgency=medium
-
-  * Building for Vivid
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 08 Nov 2015 00:19:25 +0000
 
 qtox (0.0.0+git20151107.r3825-1) unstable; urgency=medium
 
