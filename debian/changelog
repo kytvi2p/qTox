@@ -1,3 +1,496 @@
+qtox (0.0.0+git20151114.r3871-1) unstable; urgency=medium
+
+  [ Ferit Tunçer ]
+  * Turkish Translation Revised #4
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Zetok Zalbavar ]
+  * Don't show in debug output nicks
+
+  [ tux3 ]
+  * Disable buggy automatic bitrate adjustements
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 16 Nov 2015 15:19:54 +0000
+
+qtox (0.0.0+git20151114.r3865-1) unstable; urgency=medium
+
+  [ TheNain38 ]
+  * Update French translation
+  * Add "None" translation
+
+  [ tux3 ]
+  * Fix spurious audio i/o changed signal
+  * Don't play sound without an output
+  * Fix theoritical A/V deadlock
+  * Fix #2527
+  * Fix #2528
+  * Fix second bug in #2528
+  * Cleanup duplicate slider slots in AVForm
+
+  [ TheNain38 ]
+  * Fix groupwidget not unregistered from Translator
+
+  [ agilob ]
+  * Use SVG renderer to scale down SVG in tray icon menu
+
+  [ TheNain38 ]
+  * Add an event filter so you can't scroll on sliders
+
+  [ Andrius Štikonas ]
+  * Update Lithuanian translation
+
+  [ TheNain38 ]
+  * Allow to scroll on QCheckBox and consistancy
+  * Fix HTML Parsing
+
+  [ agilob ]
+  * Fix resources URI: change double slash to one and add one if missing
+  * Move logout tray menu action after profileForm initialization
+
+  [ kehugter ]
+  * Updated Spanish translation
+
+  [ tux3 ]
+  * Attempt to fix QDataStream operator<< ODR violation
+  * Show notifications even when busy
+  * Revert "Attempt to fix QDataStream operator<< ODR violation"
+
+  [ TheNain38 ]
+  * Fix #2301 and use QStringLiteral for comparison
+  * Change 'minutes' to 'min' and remove translation
+
+  [ Ferit Tunçer ]
+  * Turkish Translation by MarmaraGNU<mgnu.org>
+  * Turkish Translation Revised
+
+  [ TheNain38 ]
+  * Update French translation of "Logout" and "Exit"
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Nov 2015 14:13:25 +0000
+
+qtox (0.0.0+git20151107.r3825-1) unstable; urgency=medium
+
+  [ kehugter ]
+  * Update Debian 8 dependencies, fix 'Debian 10' mentions
+  * Split Debian/Ubuntu14/Ubuntu15 instructions, remove support for Debian <8
+  * Swap filter_audio/toxcore dependencies order, minor formatting changes
+  * Removed last Debian 10 mention
+
+  [ tux3 ]
+  * Strip out old AV code
+  * Implement basic call logic
+  * Better data structure for tox calls
+  * Implement audio calls
+  * Implement video calls
+  * Clean up dead code in CoreAV
+  * Implement group calls
+  * Fix crash due to erase/remove typo
+  * Fix call start/call invite race condition
+  * Cleanup UI/CoreAV interface
+  * Multithread CoreAV
+  * Clean up callback hell between AV UI and CoreAV
+  * Use actual mutexes for CameraSource
+  * Fix bitrate callback to match toxav update
+
+  [ Zetok Zalbavar ]
+  * Login window: do not focus buttons when clicking
+
+  [ tux3 ]
+  * Fix IPC::~IPC use after free of static log file
+  * Apply input volume to all audio channels
+  * Delete CoreAV from the Core thread
+  * Delete CoreAV's timer from the CoreAV thread
+  * Revert "Delete CoreAV from the Core thread"
+  * Fix possible nullptr deref in ~CameraSource
+  * Add 45s call ringing timeout
+  * Add ringing sound for received calls
+  * Refactor uses of playMono16Sound
+  * Re-enable buttons if calling failed
+  * Remove some debug output
+  * Reload audio devices on the fly from settings
+  * VideoSurface: Release null frames
+  * Properly signal when we stop sending video
+  * CoreVideoSource: Replace insane spinlock by QMutex
+  * Faster video device opening
+  * CoreAV: Fix BlockingQueued connections deadlock
+
+  [ TheNain38 ]
+  * Fix #2460 Light Icon setting disabled but should not
+
+  [ tux3 ]
+  * Don't assert if a call dies while we answer it
+  * Re-enable call buttons if video call fails
+  * Fix call race leading to deadlock and memory leak
+
+  [ Alexey ]
+  * Update Russian translate
+
+  [ ovalseven8 ]
+  * domain.com -> example.com
+
+  [ tux3 ]
+  * Properly exit CoreAV thread
+  * Show video button when making outgoing video call
+
+  [ Alexey ]
+  * Update Russian Translate
+
+  [ ovalseven8 ]
+  * Update German translation file
+
+  [ kehugter ]
+  * Remove unneeded packagen in Debian instrucitons
+
+  [ tux3 ]
+  * Fix inconsistent noexcept in toxcall.cpp
+  * Fix crash on audio -> video call promotion
+  * Don't spam log dropped audio frames
+
+  [ agilob ]
+  * Add static icons for tray menu logout and quit
+
+  [ tux3 ]
+  * Automatic AV bitrate management
+
+  [ TheNain38 ]
+  * Update French translation
+
+  [ tux3 ]
+  * Fix #2512
+  * List video devices using v4l2 directly, not ffmpeg
+
+  [ Marcin Łabanowski ]
+  * simple_make: add libsodium to fedora dependencies
+
+  [ Nils Fenner ]
+  * adjust coloring and border of logout icon to better match qTox style
+
+  [ nikolas-n ]
+  * Added Greek translation
+  * Added Greek translation
+
+  [ Nikolas ]
+  * Update el.ts
+
+  [ tux3 ]
+  * Add None audio I/O devices
+  * Improve perf of opening/closing AV tab
+
+  [ Zetok Zalbavar ]
+  * Make list of languages listed vertically in source
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 07 Nov 2015 19:07:03 +0000
+
+qtox (0.0.0+git20151102.r3751-1) unstable; urgency=medium
+
+  [ agilob ]
+  * Show compiletime Qt version in aboutsettings
+  * Change logout icon to dialog type icon
+  * Simplify hardcoding qt version in settings
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Tue, 03 Nov 2015 02:45:22 +0000
+
+qtox (0.0.0+git20151024.r3747-1) unstable; urgency=medium
+
+  [ TheSpiritXIII ]
+  * Video: Embed video into chat
+  * Video: View self video during video call
+  * Video: Add collapse/expand button, expand all the way, better self video
+    output location
+  * Keep aspect ratio of inner video
+  * Video: Show avatar, clean ups
+  * Video: Group audio view avatars
+  * Video: Initial video when call starts
+  * Video: resizable group avatar, synchronize avatar
+  * Video: Cleanup
+
+  [ Dmytro Shynkevych ]
+  * statusnotifier: fixed pointer type
+  * settings: fixed check on an uninitialized value
+  * systemtrayicon: fixed multiple gdk_pixbuf memory leaks
+  * cameradevice: fixed a major leak: avformat_context not always freed
+  * profileform: fixed leaky toxId field
+  * systemtrayicon: fixed multiple small leaks
+  * cameradevice: fixed a regression
+
+  [ PKev ]
+  * fix write to DB fix #2292, please test i don't sure
+
+  [ Dmytro Shynkevych ]
+  * cameradevice: fixed a double free
+
+  [ agilob ]
+  * remove menubar and status bar
+
+  [ bitok ]
+  * #2167 fix: qTox should check if string in "Add friend" input field is 64
+    chars long
+
+  [ agilob ]
+  * fix closing video device after changing tab
+
+  [ bitok ]
+  * Migration to QRegularExpression and text formulation fix
+
+  [ agilob ]
+  * add debugging messages to camerasource, code reformatting to make it more
+    readable and ogranized better
+  * nicely close camera when quitting qtox from opened av tab, fixes #2037
+  * update video mode on manual change , closes #2046
+  * Video: fix sgefault when disconnecting from video call
+
+  [ Nils Fenner ]
+  * remove obsolete QThread::msleep completely
+  * cleanup inheritance QThread --> QObject and includes
+
+  [ agilob ]
+  * reorganize generalsettings:
+  * generalsettings form: removed empty label
+
+  [ Nils Fenner ]
+  * remove dead code
+  * fix #2360
+  * initialize IPC on first call
+  * readd msleep with lowest possible sleep time
+
+  [ bitok ]
+  * Error display more explicit
+  * Fix formulation
+
+  [ agilob ]
+  * generalsetting layout: change indentation method
+
+  [ bitok ]
+  * Fix performance issues detected with static analyze
+
+  [ agilob ]
+  * remove slash
+
+  [ Nils Fenner ]
+  * style login screen completely via css
+
+  [ PKev ]
+  * Save avatar in DB Partially addresses an issue #1656
+
+  [ PKEv ]
+  * add import avatars
+  * update delete avatar action
+
+  [ kehugter ]
+  * Spanish translation update
+
+  [ Zetok Zalbavar ]
+  * Fix indentation for `Focus window` setting
+
+  [ Matthieu Baerts ]
+  * Autorun:xdg: create autostart dir if needed
+
+  [ Dmytro Shynkevych ]
+  * systemtrayicon: optimized QImage <-> GdkPixbuf conversion
+
+  [ Zetok Zalbavar ]
+  * Make text about not long enough password disappear if no password given
+  * Display correct error message when trying to load non-existent profile
+
+  [ agilob ]
+  * remove unused code, removed unused checks
+  * one more line to remove
+  * remove qdebug from audio.cpp:270
+  * qunused on event
+
+  [ PKEv ]
+  * correct import avatar for user without history
+
+  [ Zetok Zalbavar ]
+  * Remove an empty line and unneeded slash
+
+  [ PKEv ]
+  * add multithreaded
+
+  [ Alexey Suvorov ]
+  * Update Russian translation
+
+  [ PKEv ]
+  * make import run once and rename function
+
+  [ Nils Fenner ]
+  * use native dialog buttons in message boxes
+  * fix warnings
+  * Audio: persistent volume sliders, mic feedback and volume
+
+  [ TheSpiritXIII ]
+  * Audio: Open output only when necessary
+  * Audio: Fix crash when no devices available
+  * Audio: Don't need this?
+  * Audio: Only open mic when requested
+  * Audio: Fix unclosed audio when hanging up
+
+  [ Nils Fenner ]
+  * Audio: Fix device open only when needed
+  * remove outcommented code
+  * the big code cleanup
+  * move docs to cpp
+  * fix asserts when (un-)subscribing input
+  * further cleanup
+  * remove dead & unfinished code
+  * change wording in docs
+  * warn when trying to start audio thread twice
+  * Get rid of static methods and bugs
+  * don't open audio in/out twice
+  * cleanup Audio::openInput
+  * cleanup Audio::openOutput
+  * switch colors in mic gain indicator gradient
+
+  [ codedust ]
+  * Add :focus selector for the login button in loginScreen.css
+
+  [ Zetok Zalbavar ]
+  * Unlock mutex before returning history instance
+  * README.md: correct location of the Gentoo overlay
+
+  [ Nils Fenner ]
+  * remove unused include and forward declarations
+
+  [ Dmytro Shynkevych ]
+  * systemtrayicon: switched to manual memory management for pixmap data
+
+  [ Rowen Stipe ]
+  * Compile on Mac
+
+  [ tux3 ]
+  * Fix qTox on OSX, closes #2447
+
+  [ agilob ]
+  * use Qt backend of KDE5
+  * fix icon scaling on gnome3 by scaling icons down
+  * remove dependency injection from systemtrayicon
+  * core review changes - formatting
+  * add quit role to quit action in trayicon
+  * add logout action to tray menu
+  * use plaintext label for username and status in header
+  * remove unused code, better logging for systray, removed KDE5 from enum
+  * change default quit icon in tray menu
+
+  [ Zetok Zalbavar ]
+  * Remove ~duplicated code for tray backed selection
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 25 Oct 2015 17:04:50 +0000
+
+qtox (0.0.0+git20151014.r3626-1) unstable; urgency=medium
+
+  [ Zetok Zalbavar ]
+  * Fix audio not working on 64-bit windows with non-latin audio device names
+
+  [ TheNain38 ]
+  * Better translations with plural and fix something not being translated
+    dynamically
+  * Add dynamic translation to db write type
+
+  [ PKEv ]
+  * Fix dir to user profile fix #2183 (for portable mode)
+
+  [ Nils Fenner ]
+  * fix position of tooltip in screen grabber
+
+  [ TheNain38 ]
+  * Dynamic translation of call, video, mute, unmute
+
+  [ PKEv ]
+  * Program crashes after switching the display view of contacts, from compact
+    to normal view
+
+  [ TheNain38 ]
+  * Fix ACTION messages, status, username HTML parsing
+  * Fix another parsing bug, fix Action message bold
+
+  [ Zetok Zalbavar ]
+  * Make screenshot names use ~ISO 8601 (timestamp) instead of random string
+  * Fix incorrect copyright headers
+  * [windows/bootstrap.sh] remove deprecated opencv part
+
+  [ PKev ]
+  * fix: save position when moving widget fix #2063
+
+  [ tux3 ]
+  * Fix #2228: Friendlist too wide on first start
+
+  [ sternenseemann ]
+  * adds japanese versions of the cat text smiley
+
+  [ Impyy ]
+  * Fixed #2294 - Remember proxy type after retranslation
+
+  [ Zetok Zalbavar ]
+  * TwitterEmojiSVG: make only 😊 (1f60a) to be associated with `^_^`
+
+  [ tux3 ]
+  * Sleep 10ms in IPC wait loop, not 10 SECONDS!
+
+  [ bitok ]
+  * Fixed FriendListLayout constructor delegation fix
+
+  [ Zetok Zalbavar ]
+  * [README.md] inform that osx maintainer is wanted
+
+  [ bitok ]
+  * 2257 Fix and Style comboBox fix
+
+  [ tux3 ]
+  * Small startup speed improvement
+
+  [ TheNain38 ]
+  * Fixdisplaying Pub key when name empty
+
+  [ Impyy ]
+  * Added a context menu to edit/remove the avatar
+
+  [ Nils Fenner ]
+  * cleanup includes
+  * simplify graphics scene initialization
+  * ScreenshotGrabber::showGrabber isn't a slot
+  * add methods to hide & restore currently visible qTox windows
+  * fix hide/restore qTox windows with space key
+  * no need to install an event filter on "this"
+
+  [ Zetok Zalbavar ]
+  * Make `Change password` dialog ~consistent with login page password form
+
+  [ bitok ]
+  * Added clear button for search field #2015
+
+  [ Nils Fenner ]
+  * set login dialog style via css stylesheet
+
+  [ Corey Sheldon ]
+  * ADDDING two deps needed for lrelease
+
+  [ Zetok Zalbavar ]
+  * Fix travis
+  * INSTALL.md: Fix fedora dependencies (fix #2399)
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Wed, 14 Oct 2015 22:03:37 +0000
+
 qtox (0.0.0+git20151002.r3565-1~trusty+1) trusty; urgency=medium
 
   * Backport to Trusty

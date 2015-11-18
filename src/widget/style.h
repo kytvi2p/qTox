@@ -58,17 +58,17 @@ public:
         SmallLight  // [SystemDefault - 2]px, light
     };
 
+    static QStringList getThemeColorNames();
     static QString getStylesheet(const QString& filename);
     static QColor getColor(ColorPalette entry);
     static QFont getFont(Font font);
     static QString resolve(QString qss);
     static void repolish(QWidget* w);
     static void setThemeColor(int color);
-    static void setThemeColor(QColor color); ///< Pass an invalid QColor to reset to defaults
+    static void setThemeColor(const QColor &color); ///< Pass an invalid QColor to reset to defaults
     static void applyTheme(); ///< Reloads some CCS
     static QPixmap scaleSvgImage(const QString& path, uint32_t width, uint32_t height);
 
-    static QStringList themeColorNames;
     static QList<QColor> themeColorColors;
 
 signals:

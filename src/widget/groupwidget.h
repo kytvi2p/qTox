@@ -27,6 +27,7 @@ class GroupWidget final : public GenericChatroomWidget
     Q_OBJECT
 public:
     GroupWidget(int GroupId, QString Name);
+    ~GroupWidget();
     virtual void setAsInactiveChatroom() final override;
     virtual void setAsActiveChatroom() final override;
     virtual void updateStatusLight() final override;
@@ -51,6 +52,9 @@ protected:
     void dragEnterEvent(QDragEnterEvent* ev) override;
     void dragLeaveEvent(QDragLeaveEvent* ev) override;
     void dropEvent(QDropEvent* ev) override;
+
+private:
+    void retranslateUi();
 
 public:
     int groupId;

@@ -4,6 +4,7 @@ TRANSLATIONS = translations/es.ts \
                translations/cs.ts \
                translations/bg.ts \
                translations/de.ts \
+               translations/el.ts \
                translations/fi.ts \
                translations/fr.ts \
                translations/hr.ts \
@@ -16,6 +17,7 @@ TRANSLATIONS = translations/es.ts \
                translations/ru.ts \
                translations/sl.ts \
                translations/sv.ts \
+               translations/tr.ts \
                translations/uk.ts \
                translations/zh.ts \
                translations/pt.ts
