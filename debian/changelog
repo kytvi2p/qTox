@@ -1,3 +1,81 @@
+qtox (0.0.0+git20151114.r3871-1) unstable; urgency=medium
+
+  [ Ferit Tunçer ]
+  * Turkish Translation Revised #4
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ Zetok Zalbavar ]
+  * Don't show in debug output nicks
+
+  [ tux3 ]
+  * Disable buggy automatic bitrate adjustements
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Mon, 16 Nov 2015 15:19:54 +0000
+
+qtox (0.0.0+git20151114.r3865-1) unstable; urgency=medium
+
+  [ TheNain38 ]
+  * Update French translation
+  * Add "None" translation
+
+  [ tux3 ]
+  * Fix spurious audio i/o changed signal
+  * Don't play sound without an output
+  * Fix theoritical A/V deadlock
+  * Fix #2527
+  * Fix #2528
+  * Fix second bug in #2528
+  * Cleanup duplicate slider slots in AVForm
+
+  [ TheNain38 ]
+  * Fix groupwidget not unregistered from Translator
+
+  [ agilob ]
+  * Use SVG renderer to scale down SVG in tray icon menu
+
+  [ TheNain38 ]
+  * Add an event filter so you can't scroll on sliders
+
+  [ Andrius Štikonas ]
+  * Update Lithuanian translation
+
+  [ TheNain38 ]
+  * Allow to scroll on QCheckBox and consistancy
+  * Fix HTML Parsing
+
+  [ agilob ]
+  * Fix resources URI: change double slash to one and add one if missing
+  * Move logout tray menu action after profileForm initialization
+
+  [ kehugter ]
+  * Updated Spanish translation
+
+  [ tux3 ]
+  * Attempt to fix QDataStream operator<< ODR violation
+  * Show notifications even when busy
+  * Revert "Attempt to fix QDataStream operator<< ODR violation"
+
+  [ TheNain38 ]
+  * Fix #2301 and use QStringLiteral for comparison
+  * Change 'minutes' to 'min' and remove translation
+
+  [ Ferit Tunçer ]
+  * Turkish Translation by MarmaraGNU<mgnu.org>
+  * Turkish Translation Revised
+
+  [ TheNain38 ]
+  * Update French translation of "Logout" and "Exit"
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 14 Nov 2015 14:13:25 +0000
+
 qtox (0.0.0+git20151107.r3825-1~deb8u+1) stable; urgency=medium
 
   * Backport to Jessie
