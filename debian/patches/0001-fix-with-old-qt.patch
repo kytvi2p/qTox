@@ -1,0 +1,21 @@
+From: kytv <killyourtv@i2pmail.org>
+Date: Sat, 21 Nov 2015 14:04:19 +0000
+Subject: fix with old qt
+
+---
+ src/widget/tool/screenshotgrabber.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widget/tool/screenshotgrabber.cpp b/src/widget/tool/screenshotgrabber.cpp
+index a9bd013..83120be 100644
+--- a/src/widget/tool/screenshotgrabber.cpp
++++ b/src/widget/tool/screenshotgrabber.cpp
+@@ -110,7 +110,7 @@ bool ScreenshotGrabber::handleKeyPress(QKeyEvent* event)
+             restoreHiddenWindows();
+ 
+         window->hide();
+-        QTimer::singleShot(350, this, &ScreenshotGrabber::reInit);
++        QTimer::singleShot(350, this, SLOT(reInit()));
+     }
+     else
+         return false;
