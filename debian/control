@@ -8,9 +8,9 @@ Build-Depends: debhelper (>= 9)
  ,dh-apparmor
  ,libappindicator-dev
  ,libfilteraudio-dev (>= 0.0.0+git20150516)
- ,libswscale-dev
+ ,libswscale-dev (>= 7:2.8)
  ,libopenal-dev
- ,libavdevice-dev
+ ,libavdevice-dev (>= 7:2.8)
  ,libqrencode-dev
  ,libqt5opengl5-dev
  ,libqt5svg5-dev
