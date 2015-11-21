@@ -9,14 +9,14 @@ Build-Depends: debhelper (>= 9)
  ,libappindicator-dev
  ,libfilteraudio-dev (>= 0.0.0+git20150516)
  ,libopenal-dev
- ,libavdevice-dev
+ ,libavdevice-dev (>= 7:2.8)
  ,libqrencode-dev
  ,libqt5opengl5-dev
  ,libqt5svg5-dev
- ,libtoxav-dev (>= 0.0.0+20141129.r2982)
- ,libtoxcore-dev (>= 0.0.0+20150524)
- ,libtoxdns-dev
- ,libtoxencryptsave-dev
+ ,libtoxav-dev (>= 0.0.0+20151120)
+ ,libtoxcore-dev (>= 0.0.0+20151120)
+ ,libtoxdns-dev (>= 0.0.0+20151120)
+ ,libtoxencryptsave-dev (>= 0.0.0+20151120)
  ,libxss-dev
  ,qt5-qmake
  ,qtbase5-dev
