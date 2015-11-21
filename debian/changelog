@@ -1,14 +1,15 @@
+qtox (0.0.0+git20151114.r3871-2~deb8u+1) stable; urgency=medium
+
+  * Backport to Jessie
+  * Patch source so allow building with QT >= 5.3
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Nov 2015 18:06:08 +0000
+
 qtox (0.0.0+git20151114.r3871-2) unstable; urgency=medium
 
   * Tighten build deps
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Nov 2015 18:01:08 +0000
-
-qtox (0.0.0+git20151114.r3871-1~deb8u+1) stable; urgency=medium
-
-  * Backport to Debian Jessie
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Nov 2015 14:34:03 +0000
 
 qtox (0.0.0+git20151114.r3871-1) unstable; urgency=medium
 
