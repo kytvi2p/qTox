@@ -1,3 +1,9 @@
+qtox (0.0.0+git20151201.r3878-1ubuntu1) wily; urgency=medium
+
+  * Upload to PPA
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 03 Dec 2015 19:59:27 +0000
+
 qtox (0.0.0+git20151201.r3878-1) unstable; urgency=medium
 
   [ Tero Hänninen ]
@@ -13,12 +19,6 @@ qtox (0.0.0+git20151201.r3878-1) unstable; urgency=medium
   * new upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 03 Dec 2015 03:28:43 +0000
-
-qtox (0.0.0+git20151114.r3871-2ubuntu1) wily; urgency=medium
-
-  * Building for Wily
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Sat, 21 Nov 2015 18:32:35 +0000
 
 qtox (0.0.0+git20151114.r3871-2) unstable; urgency=medium
 
