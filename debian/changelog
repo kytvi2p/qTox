@@ -1,3 +1,9 @@
+qtox (1.2.1-2) unstable; urgency=medium
+
+  * Fix icon in .desktop file
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 18 Dec 2015 01:36:57 +0000
+
 qtox (1.2.1-1) unstable; urgency=medium
 
   [ agilob ]
