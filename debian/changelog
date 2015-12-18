@@ -1,3 +1,141 @@
+qtox (1.2.1-1) unstable; urgency=medium
+
+  [ agilob ]
+  * Add status message setter and getter
+  * Add settings for notes per user
+  * Add action for about window in context menu
+  * Add aboutwindow in qtox.pro
+  * Add about window classes
+  * Improve layout in aboutUser window
+  * Improve avatar quality in aboutUser window
+  * Make autoaccept per user work from aboutUser window
+  * Make dir chooser work in aboutUser, code cleanup
+  * Resize avatar in aboutUser to 75x75
+  * Minor UI fix
+  * Scroll public key to left after creation in aboutUser
+  * Fix button status after cancelling dir picker
+  * Fix status message spacing in aboutUser
+
+  [ sudden6 ]
+  * also refresh video devices
+  * update ui
+
+  [ Anatoliy Zinovyev ]
+  * Fix behavior when clicking on the tray icon
+  * Do not do anything when middle clicking on the tray
+  * Fix tray behavior with unity backend
+
+  [ Twyz™ ]
+  * Update it.ts
+
+  [ sudden6 ]
+  * improve formating
+
+  [ tux3 ]
+  * Remove deprecated/unused toxdns1 code
+
+  [ Tero Hänninen ]
+  * More Finnish translation
+
+  [ tux3 ]
+  * Improve video quality
+  * Fix video starting with bad resolution
+  * Fix call duration label after 1 hour
+  * Fix filter audio
+  * Fix attempt for #2438
+  * Revoke updater signing keys
+  * Add Linux install target for qtox and qtox.desktop
+  * Log type of audio send error
+  * Retry sending audio frames on sync/lock error
+
+  [ Twyz™ ]
+  * Update italian translation
+
+  [ agilob ]
+  * Support removing history with user in about window
+  * Hide label and list of aliases in aboutuser
+  * Set widget as parent for AboutUser window to fix style inheriting
+
+  [ ovalseven8 ]
+  * Update for the German translation file
+  * Small fix
+
+  [ tux3 ]
+  * Fix avatars for encrypted profiles
+  * Clean unused getIDString() function
+  * Encrypt avatar for encryped profiles
+
+  [ kehugter ]
+  * Updated Spanish translation
+
+  [ tux3 ]
+  * Create avatars directory on the fly
+  * Update avatar encryption when changing password
+
+  [ Jacob Henner ]
+  * qtox will now attempt to default to the first audio output device
+  * Fixes #2554 : updates README.md and INSTALL.md to include FreeBSD port
+
+  [ minj ]
+  * update Lithuanian translation
+
+  [ tux3 ]
+  * Fix wrong word in copypasted log message
+  * Fix some avatars saved with the wrong name
+  * Always offer avatars to friend who come online
+  * Add update server keygen tool
+  * Update updater version and Windows server
+  * Update update server tools
+  * Fix typo in autoupdate
+  * Update update-server tools
+  * Update windows update-server hostname
+  * Update windows update keys
+  * Update genflist tool
+  * Dust off windows updater code
+
+  [ Nils Fenner ]
+  * minor: removed obsolete virtual in GenericForm destructor
+
+  [ Anton Batenev ]
+  * Add alext.h to audio.h
+
+  [ tux3 ]
+  * New Windows updater code
+  * Improve integrated update code to match the rest
+
+  [ Tero Hänninen ]
+  * More Finnish translation again
+
+  [ tux3 ]
+  * Revert "minor: removed obsolete virtual in GenericForm destructor"
+  * Remove some Windows debug code
+  * Fix tox.im -> tox.chat link
+  * Fix loopback capture audio code
+  * Fix Unity systray compile error
+  * Fetch windows updates over HTTPS
+  * Don't try to update without the updater binary
+  * Update windows download links
+
+  [ Twyz™ ]
+  * Added AboutForm in the italian translation
+  * Update it.ts
+
+  [ tux3 ]
+  * Update windows link libs
+  * Fix crash if autoupdate runs on exit
+
+  [ Twyz™ ]
+  * Added AboutUser in the italian translation
+  * Fixed some errors in the italian translation
+
+  [ tux3 ]
+  * Check updates by default on new profiles
+
+  [ Kill Your TV ]
+  * New upstream git snapshot
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 18 Dec 2015 00:01:03 +0000
+
 qtox (0.0.0+git20151201.r3878-1~deb8u+1) stable; urgency=medium
 
   * Backport to Jessie
