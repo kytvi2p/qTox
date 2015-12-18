@@ -23,6 +23,7 @@
 #include "corestructs.h"
 #include "src/core/cstring.h"
 #include "src/persistence/settings.h"
+#include "src/persistence/profile.h"
 #include <QDebug>
 #include <QFile>
 #include <QThread>
@@ -263,14 +264,13 @@ void CoreFile::onFileReceiveCallback(Tox*, uint32_t friendId, uint32_t fileId, u
 
     if (kind == TOX_FILE_KIND_AVATAR)
     {
-        QString friendAddr = core->getFriendAddress(friendId);
+        QString friendAddr = core->getFriendPublicKey(friendId);
         if (!filesize)
         {
             qDebug() << QString("Received empty avatar request %1:%2").arg(friendId).arg(fileId);
             // Avatars of size 0 means explicitely no avatar
             emit core->friendAvatarRemoved(friendId);
-            QFile::remove(Settings::getInstance().getSettingsDirPath()+"avatars/"+friendAddr.left(64)+".png");
-            QFile::remove(Settings::getInstance().getSettingsDirPath()+"avatars/"+friendAddr.left(64)+".hash");
+            core->profile.removeAvatar(friendAddr);
             return;
         }
         else
@@ -278,7 +278,7 @@ void CoreFile::onFileReceiveCallback(Tox*, uint32_t friendId, uint32_t fileId, u
             static_assert(TOX_HASH_LENGTH <= TOX_FILE_ID_LENGTH, "TOX_HASH_LENGTH > TOX_FILE_ID_LENGTH!");
             uint8_t avatarHash[TOX_FILE_ID_LENGTH];
             tox_file_get_file_id(core->tox, friendId, fileId, avatarHash, nullptr);
-            if (Settings::getInstance().getAvatarHash(friendAddr) == QByteArray((char*)avatarHash, TOX_HASH_LENGTH))
+            if (core->profile.getAvatarHash(friendAddr) == QByteArray((char*)avatarHash, TOX_HASH_LENGTH))
             {
                 // If it's an avatar but we already have it cached, cancel
                 qDebug() << QString("Received avatar request %1:%2, reject, since we have it in cache.").arg(friendId).arg(fileId);
@@ -333,7 +333,10 @@ void CoreFile::onFileControlCallback(Tox*, uint32_t friendId, uint32_t fileId,
     }
     else if (control == TOX_FILE_CONTROL_RESUME)
     {
-        qDebug() << "onFileControlCallback: Received pause for file "<<friendId<<":"<<fileId;
+        if (file->direction == ToxFile::SENDING && file->fileKind == TOX_FILE_KIND_AVATAR)
+            qDebug() << "Avatar transfer"<<fileId<<"to friend"<<friendId<<"accepted";
+        else
+            qDebug() << "onFileControlCallback: Received resume for file "<<friendId<<":"<<fileId;
         file->status = ToxFile::TRANSMITTING;
         emit static_cast<Core*>(core)->fileTransferRemotePausedUnpaused(*file, false);
     }
@@ -402,11 +405,12 @@ void CoreFile::onFileDataCallback(Tox *tox, uint32_t friendId, uint32_t fileId,
 }
 
 void CoreFile::onFileRecvChunkCallback(Tox *tox, uint32_t friendId, uint32_t fileId, uint64_t position,
-                                    const uint8_t *data, size_t length, void *core)
+                                    const uint8_t *data, size_t length, void *_core)
 {
     //qDebug() << QString("Received chunk for %1:%2 pos %3 size %4")
     //                    .arg(friendId).arg(fileId).arg(position).arg(length);
 
+    Core* core = static_cast<Core*>(_core);
     ToxFile* file = findFile(friendId, fileId);
     if (!file)
     {
@@ -420,7 +424,7 @@ void CoreFile::onFileRecvChunkCallback(Tox *tox, uint32_t friendId, uint32_t fil
         /// TODO: Allow ooo receiving for non-stream transfers, with very careful checking
         qWarning("onFileRecvChunkCallback: Received a chunk out-of-order, aborting transfer");
         if (file->fileKind != TOX_FILE_KIND_AVATAR)
-            emit static_cast<Core*>(core)->fileTransferCancelled(*file);
+            emit core->fileTransferCancelled(*file);
         tox_file_control(tox, friendId, fileId, TOX_FILE_CONTROL_CANCEL, nullptr);
         removeFile(friendId, fileId);
         return;
@@ -435,15 +439,14 @@ void CoreFile::onFileRecvChunkCallback(Tox *tox, uint32_t friendId, uint32_t fil
             if (!pic.isNull())
             {
                 qDebug() << "Got"<<file->avatarData.size()<<"bytes of avatar data from" <<friendId;
-                Settings::getInstance().saveAvatar(pic, static_cast<Core*>(core)->getFriendAddress(friendId));
-                Settings::getInstance().saveAvatarHash(file->resumeFileId, static_cast<Core*>(core)->getFriendAddress(friendId));
-                emit static_cast<Core*>(core)->friendAvatarChanged(friendId, pic);
+                core->profile.saveAvatar(file->avatarData, core->getFriendPublicKey(friendId));
+                emit core->friendAvatarChanged(friendId, pic);
             }
         }
         else
         {
-            emit static_cast<Core*>(core)->fileTransferFinished(*file);
-            emit static_cast<Core*>(core)->fileDownloadFinished(file->filePath);
+            emit core->fileTransferFinished(*file);
+            emit core->fileDownloadFinished(file->filePath);
         }
         removeFile(friendId, fileId);
         return;
