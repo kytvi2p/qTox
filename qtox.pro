@@ -35,7 +35,8 @@ FORMS    += \
     src/widget/form/settings/avsettings.ui \
     src/widget/form/settings/generalsettings.ui \
     src/widget/form/settings/privacysettings.ui \
-    src/widget/form/removefrienddialog.ui
+    src/widget/form/removefrienddialog.ui \
+    src/widget/about/aboutuser.ui
 
 CONFIG   += c++11
 
@@ -46,8 +47,14 @@ include(translations/i18n.pri)
 # Build all the qm files now, to make RCC happy
 system($$fromfile(translations/i18n.pri, updateallqm))
 
-GIT_VERSION = $$system(git rev-parse HEAD 2> /dev/null || echo "built without git")
+isEmpty(GIT_VERSION) {
+    GIT_VERSION = $$system(git rev-parse HEAD 2> /dev/null || echo "built without git")
+}
 DEFINES += GIT_VERSION=\"\\\"$$quote($$GIT_VERSION)\\\"\"
+isEmpty(GIT_DESCRIBE) {
+    GIT_DESCRIBE = $$system(git describe --tags 2> /dev/null || echo "Nightly")
+}
+DEFINES += GIT_DESCRIBE=\"\\\"$$quote($$GIT_DESCRIBE)\\\"\"
 # date works on linux/mac, but it would hangs qmake on windows
 # This hack returns 0 on batch (windows), but executes "date +%s" or return 0 if it fails on bash (linux/mac)
 TIMESTAMP = $$system($1 2>null||echo 0||a;rm null;date +%s||echo 0) # I'm so sorry
@@ -135,8 +142,8 @@ contains(DEFINES, QTOX_PLATFORM_EXT) {
 win32 {
     RC_FILE = windows/qtox.rc
     LIBS += -L$$PWD/libs/lib -ltoxav -ltoxcore -ltoxencryptsave -ltoxdns -lsodium -lvpx -lpthread
-    LIBS += -L$$PWD/libs/lib -lavformat -lavdevice -lavcodec -lavutil -lswscale -lOpenAL32 -lopus
-    LIBS += -lopengl32 -lole32 -loleaut32 -lvfw32 -lws2_32 -liphlpapi -lz -luuid
+    LIBS += -L$$PWD/libs/lib -lavdevice -lavformat -lavcodec -lavutil -lswscale -lOpenAL32 -lopus
+    LIBS += -lopengl32 -lole32 -loleaut32 -lvfw32 -lws2_32 -liphlpapi -lgdi32 -lshlwapi -luuid
     LIBS += -lqrencode
     LIBS += -lstrmiids # For DirectShow
     contains(DEFINES, QTOX_FILTER_AUDIO) {
@@ -162,6 +169,11 @@ win32 {
             LIBS += -llibjpeg -llibwebp -llibpng -llibtiff -llibjasper -lIlmImf
             LIBS += -lopus -lvpx -lsodium -lopenal
         } else {
+            target.path = /usr/bin
+            desktop.path = /usr/share/applications
+            desktop.files += qTox.desktop
+            INSTALLS += target desktop
+
             # If we're building a package, static link libtox[core,av] and libsodium, since they are not provided by any package
             contains(STATICPKG, YES) {
                 target.path = /usr/bin
@@ -502,7 +514,8 @@ SOURCES += \
     src/widget/tool/micfeedbackwidget.cpp \
     src/widget/tool/removefrienddialog.cpp \
     src/video/groupnetcamview.cpp \
-    src/core/toxcall.cpp
+    src/core/toxcall.cpp \
+    src/widget/about/aboutuser.cpp
 
 HEADERS += \
     src/audio/audio.h \
@@ -555,4 +568,5 @@ HEADERS += \
     src/video/genericnetcamview.h \
     src/video/groupnetcamview.h \
     src/core/indexedlist.h \
-    src/core/toxcall.h
+    src/core/toxcall.h \
+    src/widget/about/aboutuser.h
