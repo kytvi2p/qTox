@@ -1,3 +1,9 @@
+qtox (1.2.1-2~trusty+1) trusty; urgency=medium
+
+  * Upload to PPA
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 18 Dec 2015 10:46:27 +0000
+
 qtox (1.2.1-2) unstable; urgency=medium
 
   * Fix icon in .desktop file
@@ -141,12 +147,6 @@ qtox (1.2.1-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 18 Dec 2015 00:01:03 +0000
-
-qtox (0.0.0+git20151201.r3878-1~trusty+1) trusty; urgency=medium
-
-  * Backport to Trusty
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 03 Dec 2015 20:01:18 +0000
 
 qtox (0.0.0+git20151201.r3878-1) unstable; urgency=medium
 
