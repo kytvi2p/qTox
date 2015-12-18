@@ -1,3 +1,9 @@
+qtox (1.2.1-1~deb8u+1) stable; urgency=medium
+
+  * Backport to Jessie
+
+ -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 18 Dec 2015 01:00:36 +0000
+
 qtox (1.2.1-1) unstable; urgency=medium
 
   [ agilob ]
@@ -135,12 +141,6 @@ qtox (1.2.1-1) unstable; urgency=medium
   * New upstream git snapshot
 
  -- Kill Your TV <killyourtv@i2pmail.org>  Fri, 18 Dec 2015 00:01:03 +0000
-
-qtox (0.0.0+git20151201.r3878-1~deb8u+1) stable; urgency=medium
-
-  * Backport to Jessie
-
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 03 Dec 2015 18:36:48 +0000
 
 qtox (0.0.0+git20151201.r3878-1) unstable; urgency=medium
 
