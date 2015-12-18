@@ -298,8 +298,7 @@ void Core::start()
     tox_callback_file_recv_chunk(tox, CoreFile::onFileRecvChunkCallback, this);
     tox_callback_file_recv_control(tox, CoreFile::onFileControlCallback, this);
 
-    HistoryKeeper::getInstance()->importAvatarToDatabase(getSelfId().toString().left(64));
-    QPixmap pic = Settings::getInstance().getSavedAvatar(getSelfId().toString());
+    QPixmap pic = profile.loadAvatar();
     if (!pic.isNull() && !pic.size().isEmpty())
     {
         QByteArray data;
@@ -767,7 +766,7 @@ void Core::setAvatar(const QByteArray& data)
     {
         QPixmap pic;
         pic.loadFromData(data);
-        Settings::getInstance().saveAvatar(pic, getSelfId().toString());
+        profile.saveAvatar(data, getSelfId().publicKey);
         emit selfAvatarChanged(pic);
     }
     else
@@ -784,13 +783,6 @@ ToxId Core::getSelfId() const
     uint8_t friendAddress[TOX_ADDRESS_SIZE] = {0};
     tox_self_get_address(tox, friendAddress);
     return ToxId(CFriendAddress::toString(friendAddress));
-}
-
-QString Core::getIDString() const
-{
-    return getSelfId().toString().left(12);
-    // 12 is the smallest multiple of four such that
-    // 16^n > 10^10 (which is roughly the planet's population)
 }
 
 QPair<QByteArray, QByteArray> Core::getKeypair() const
@@ -1102,19 +1094,24 @@ bool Core::hasFriendWithPublicKey(const QString &pubkey) const
 
 QString Core::getFriendAddress(uint32_t friendNumber) const
 {
-    // If we don't know the full address of the client, return just the id, otherwise get the full address
-    uint8_t rawid[TOX_PUBLIC_KEY_SIZE];
-    if (!tox_friend_get_public_key(tox, friendNumber, rawid, nullptr))
-    {
-        qWarning() << "getFriendAddress: Getting public key failed";
-        return QString();
-    }
-    QByteArray data((char*)rawid,TOX_PUBLIC_KEY_SIZE);
-    QString id = data.toHex().toUpper();
-
+    QString id = getFriendPublicKey(friendNumber);
     QString addr = Settings::getInstance().getFriendAdress(id);
     if (addr.size() > id.size())
         return addr;
+
+    return id;
+}
+
+QString Core::getFriendPublicKey(uint32_t friendNumber) const
+{
+    uint8_t rawid[TOX_PUBLIC_KEY_SIZE];
+    if (!tox_friend_get_public_key(tox, friendNumber, rawid, nullptr))
+    {
+        qWarning() << "getFriendPublicKey: Getting public key failed";
+        return QString();
+    }
+    QByteArray data((char*)rawid, TOX_PUBLIC_KEY_SIZE);
+    QString id = data.toHex().toUpper();
 
     return id;
 }

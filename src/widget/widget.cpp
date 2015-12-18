@@ -43,6 +43,7 @@
 #include "src/platform/timer.h"
 #include "systemtrayicon.h"
 #include "src/nexus.h"
+#include "src/persistence/profile.h"
 #include "src/widget/gui.h"
 #include "src/persistence/offlinemsgengine.h"
 #include "src/widget/translator.h"
@@ -483,6 +484,12 @@ Widget* Widget::getInstance()
     return instance;
 }
 
+void Widget::showUpdateDownloadProgress()
+{
+    settingsWidget->showAbout();
+    onSettingsClicked();
+}
+
 void Widget::moveEvent(QMoveEvent *event)
 {
     if (event->type() == QEvent::Move)
@@ -734,52 +741,31 @@ void Widget::confirmExecutableOpen(const QFileInfo &file)
 
 void Widget::onIconClick(QSystemTrayIcon::ActivationReason reason)
 {
-    switch (reason)
+    if (reason == QSystemTrayIcon::Trigger)
     {
-        case QSystemTrayIcon::Trigger:
+        if (isHidden() || isMinimized())
         {
-            if (isHidden())
-            {
-                show();
-                activateWindow();
-                if (wasMaximized)
-                    showMaximized();
-                else
-                    showNormal();
-            }
-            else if (isMinimized())
-            {
-                forceShow();
-                activateWindow();
-                if (wasMaximized)
-                    showMaximized();
-                else
-                    showNormal();
-            }
+            if (wasMaximized)
+                showMaximized();
             else
-            {
-                wasMaximized = isMaximized();
-                if (Settings::getInstance().getMinimizeToTray())
-                    hide();
-                else
-                    showMinimized();
-            }
+                showNormal();
 
-            break;
+            activateWindow();
         }
-        case QSystemTrayIcon::MiddleClick:
+        else if (!isActiveWindow())
+        {
+            activateWindow();
+        }
+        else
+        {
             wasMaximized = isMaximized();
-            if (Settings::getInstance().getMinimizeToTray())
-                hide();
-            else
-                showMinimized();
-            break;
-        case QSystemTrayIcon::Unknown:
-            if (isHidden())
-                forceShow();
-            break;
-        default:
-            break;
+            hide();
+        }
+    }
+    else if (reason == QSystemTrayIcon::Unknown)
+    {
+        if (isHidden()) 
+            forceShow();
     }
 }
 
@@ -918,7 +904,7 @@ void Widget::addFriend(int friendId, const QString &userId)
     connect(core, &Core::friendAvatarRemoved, newfriend->getFriendWidget(), &FriendWidget::onAvatarRemoved);
 
     // Try to get the avatar from the cache
-    QPixmap avatar = Settings::getInstance().getSavedAvatar(userId);
+    QPixmap avatar = Nexus::getProfile()->loadAvatar(userId);
     if (!avatar.isNull())
     {
         newfriend->getChatForm()->onAvatarChange(friendId, avatar);
@@ -1118,7 +1104,7 @@ void Widget::addFriendDialog(Friend *frnd, ContentDialog *dialog)
     connect(Core::getInstance(), &Core::friendAvatarChanged, friendWidget, &FriendWidget::onAvatarChange);
     connect(Core::getInstance(), &Core::friendAvatarRemoved, friendWidget, &FriendWidget::onAvatarRemoved);
 
-    QPixmap avatar = Settings::getInstance().getSavedAvatar(frnd->getToxId().toString());
+    QPixmap avatar = Nexus::getProfile()->loadAvatar(frnd->getToxId().toString());
     if (!avatar.isNull())
         friendWidget->onAvatarChange(frnd->getFriendID(), avatar);
 }
